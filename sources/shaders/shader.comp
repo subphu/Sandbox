@@ -1,0 +1,19 @@
+#version 450
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(std430, set=0, binding=0) buffer iptBuffer { float ipt[]; };
+layout(std430, set=0, binding=1) buffer optBuffer { float opt[]; };
+
+layout(push_constant) uniform pushConstants {
+    uint size;
+};
+
+void main(){
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+
+    if(x >= size || y >= size) return;
+
+    opt[x + y*size] = opt[x + y*size] + ipt[x] * ipt[y];
+}

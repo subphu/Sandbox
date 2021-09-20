@@ -29,6 +29,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2613475126F869F200B3E6A7 /* compile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = compile.sh; sourceTree = "<group>"; };
+		2613475226F869F200B3E6A7 /* compile.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = compile.bat; sourceTree = "<group>"; };
+		2613475726F86E7E00B3E6A7 /* shader.comp */ = {isa = PBXFileReference; lastKnownFileType = text; path = shader.comp; sourceTree = "<group>"; };
+		2613475826F86E7E00B3E6A7 /* shader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
+		2613475926F86E7E00B3E6A7 /* shader.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
 		2613475A26F870FF00B3E6A7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		26B6BF8E26A873CE00223ED8 /* Sandbox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sandbox; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6BF9126A873CE00223ED8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -49,6 +54,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2613475026F869F200B3E6A7 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				2613475726F86E7E00B3E6A7 /* shader.comp */,
+				2613475826F86E7E00B3E6A7 /* shader.frag */,
+				2613475926F86E7E00B3E6A7 /* shader.vert */,
+				2613475126F869F200B3E6A7 /* compile.sh */,
+				2613475226F869F200B3E6A7 /* compile.bat */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
 		26B6BF8526A873CE00223ED8 = {
 			isa = PBXGroup;
 			children = (
@@ -65,6 +82,15 @@
 				26B6BF8E26A873CE00223ED8 /* Sandbox */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		26B6BF9026A873CE00223ED8 /* sources */ = {
+			isa = PBXGroup;
+			children = (
+				2613475026F869F200B3E6A7 /* shaders */,
+				26B6BF9126A873CE00223ED8 /* main.cpp */,
+			);
+			path = sources;
 			sourceTree = "<group>";
 		};
 		26B6BF9926A8753500223ED8 /* Frameworks */ = {
@@ -128,6 +154,25 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		2613475626F86CF600B3E6A7 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n$SRCROOT/sources/shaders/compile.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		26B6BF8A26A873CE00223ED8 /* Sources */ = {
