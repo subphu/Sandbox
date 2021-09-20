@@ -37,6 +37,7 @@
 		2613475A26F870FF00B3E6A7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		26B6BF8E26A873CE00223ED8 /* Sandbox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sandbox; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6BF9126A873CE00223ED8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		26B6BF9826A873F600223ED8 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.dylib; path = "libraries/vulkansdk-mac/lib/libvulkan.1.dylib"; sourceTree = "<group>"; };
 		26B8767226A8803E00BFDA27 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "libraries/glfw-mac/lib-x86_64/libglfw.3.dylib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -70,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				26B6BF9026A873CE00223ED8 /* sources */,
+				26B6BF9826A873F600223ED8 /* readme.md */,
 				2613475A26F870FF00B3E6A7 /* .gitignore */,
 				26B6BF8F26A873CE00223ED8 /* Products */,
 				26B6BF9926A8753500223ED8 /* Frameworks */,
