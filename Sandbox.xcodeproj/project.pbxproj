@@ -39,6 +39,7 @@
 		2613475B26F88D3900B3E6A7 /* app.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = app.cpp; sourceTree = "<group>"; };
 		2613475C26F88D3900B3E6A7 /* app.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = app.hpp; sourceTree = "<group>"; };
 		2615790026F88EED0093D4AF /* include.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = include.h; sourceTree = "<group>"; };
+		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
 		26B6BF8E26A873CE00223ED8 /* Sandbox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sandbox; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6BF9126A873CE00223ED8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		26B6BF9826A873F600223ED8 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
@@ -74,6 +75,7 @@
 		26B6BF8526A873CE00223ED8 = {
 			isa = PBXGroup;
 			children = (
+				26AB6DF3270B386E00BB873A /* Sandbox.entitlements */,
 				26B6BF9026A873CE00223ED8 /* sources */,
 				26B6BF9826A873F600223ED8 /* readme.md */,
 				2613475A26F870FF00B3E6A7 /* .gitignore */,
@@ -310,6 +312,8 @@
 		26B6BF9626A873CE00223ED8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = Sandbox.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 78ZW2C9N3C;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -329,6 +333,8 @@
 		26B6BF9726A873CE00223ED8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = Sandbox.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 78ZW2C9N3C;
 				ENABLE_HARDENED_RUNTIME = YES;
