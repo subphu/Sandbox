@@ -45,6 +45,30 @@
 		26B6BF9826A873F600223ED8 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.dylib; path = "libraries/vulkansdk-mac/lib/libvulkan.1.dylib"; sourceTree = "<group>"; };
 		26B8767226A8803E00BFDA27 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "libraries/glfw-mac/lib-x86_64/libglfw.3.dylib"; sourceTree = "<group>"; };
+		26E34FF9271C37DE00D3A61C /* ext_stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ext_stb_image.h; sourceTree = "<group>"; };
+		26E34FFC271C38C000D3A61C /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		26E34FFD271C38C000D3A61C /* stb_image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stb_image.cpp; sourceTree = "<group>"; };
+		26E34FFF271C391D00D3A61C /* tiny_obj_loader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_obj_loader.cpp; sourceTree = "<group>"; };
+		26E35000271C391D00D3A61C /* tiny_obj_loader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
+		26E35002271C391D00D3A61C /* imgui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
+		26E35003271C391D00D3A61C /* imstb_textedit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
+		26E35004271C391D00D3A61C /* imconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
+		26E35005271C391D00D3A61C /* imgui_widgets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_widgets.cpp; sourceTree = "<group>"; };
+		26E35006271C391D00D3A61C /* imstb_truetype.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_truetype.h; sourceTree = "<group>"; };
+		26E35009271C391D00D3A61C /* glsl_shader.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = glsl_shader.vert; sourceTree = "<group>"; };
+		26E3500A271C391D00D3A61C /* generate_spv.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = generate_spv.sh; sourceTree = "<group>"; };
+		26E3500B271C391D00D3A61C /* glsl_shader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = glsl_shader.frag; sourceTree = "<group>"; };
+		26E3500C271C391D00D3A61C /* imgui_impl_glfw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_glfw.h; sourceTree = "<group>"; };
+		26E3500D271C391D00D3A61C /* imgui_impl_vulkan.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_vulkan.cpp; sourceTree = "<group>"; };
+		26E3500E271C391D00D3A61C /* imgui_impl_vulkan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_vulkan.h; sourceTree = "<group>"; };
+		26E3500F271C391D00D3A61C /* imgui_impl_glfw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_glfw.cpp; sourceTree = "<group>"; };
+		26E35010271C391D00D3A61C /* imgui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
+		26E35011271C391D00D3A61C /* imgui_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
+		26E35012271C391D00D3A61C /* imstb_rectpack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
+		26E35013271C391D00D3A61C /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		26E35014271C391D00D3A61C /* imgui_tables.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_tables.cpp; sourceTree = "<group>"; };
+		26E35015271C391D00D3A61C /* imgui_demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
+		26E35016271C391D00D3A61C /* imgui_draw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +119,7 @@
 		26B6BF9026A873CE00223ED8 /* sources */ = {
 			isa = PBXGroup;
 			children = (
+				26E34FFA271C389B00D3A61C /* libraries */,
 				2613475026F869F200B3E6A7 /* shaders */,
 				2613475B26F88D3900B3E6A7 /* app.cpp */,
 				2613475C26F88D3900B3E6A7 /* app.hpp */,
@@ -112,6 +137,77 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		26E34FFA271C389B00D3A61C /* libraries */ = {
+			isa = PBXGroup;
+			children = (
+				26E35001271C391D00D3A61C /* imgui */,
+				26E34FFE271C391D00D3A61C /* tiny_obj_loader */,
+				26E34FFB271C38C000D3A61C /* stb_image */,
+			);
+			path = libraries;
+			sourceTree = "<group>";
+		};
+		26E34FFB271C38C000D3A61C /* stb_image */ = {
+			isa = PBXGroup;
+			children = (
+				26E34FFC271C38C000D3A61C /* stb_image.h */,
+				26E34FFD271C38C000D3A61C /* stb_image.cpp */,
+			);
+			path = stb_image;
+			sourceTree = "<group>";
+		};
+		26E34FFE271C391D00D3A61C /* tiny_obj_loader */ = {
+			isa = PBXGroup;
+			children = (
+				26E34FFF271C391D00D3A61C /* tiny_obj_loader.cpp */,
+				26E35000271C391D00D3A61C /* tiny_obj_loader.h */,
+			);
+			path = tiny_obj_loader;
+			sourceTree = "<group>";
+		};
+		26E35001271C391D00D3A61C /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				26E35002271C391D00D3A61C /* imgui.h */,
+				26E35003271C391D00D3A61C /* imstb_textedit.h */,
+				26E35004271C391D00D3A61C /* imconfig.h */,
+				26E35005271C391D00D3A61C /* imgui_widgets.cpp */,
+				26E35006271C391D00D3A61C /* imstb_truetype.h */,
+				26E35007271C391D00D3A61C /* backends */,
+				26E35010271C391D00D3A61C /* imgui.cpp */,
+				26E35011271C391D00D3A61C /* imgui_internal.h */,
+				26E35012271C391D00D3A61C /* imstb_rectpack.h */,
+				26E35013271C391D00D3A61C /* LICENSE.txt */,
+				26E35014271C391D00D3A61C /* imgui_tables.cpp */,
+				26E35015271C391D00D3A61C /* imgui_demo.cpp */,
+				26E35016271C391D00D3A61C /* imgui_draw.cpp */,
+			);
+			path = imgui;
+			sourceTree = "<group>";
+		};
+		26E35007271C391D00D3A61C /* backends */ = {
+			isa = PBXGroup;
+			children = (
+				26E35008271C391D00D3A61C /* vulkan */,
+				26E3500C271C391D00D3A61C /* imgui_impl_glfw.h */,
+				26E3500D271C391D00D3A61C /* imgui_impl_vulkan.cpp */,
+				26E3500E271C391D00D3A61C /* imgui_impl_vulkan.h */,
+				26E3500F271C391D00D3A61C /* imgui_impl_glfw.cpp */,
+			);
+			path = backends;
+			sourceTree = "<group>";
+		};
+		26E35008271C391D00D3A61C /* vulkan */ = {
+			isa = PBXGroup;
+			children = (
+				26E35009271C391D00D3A61C /* glsl_shader.vert */,
+				26E3500A271C391D00D3A61C /* generate_spv.sh */,
+				26E3500B271C391D00D3A61C /* glsl_shader.frag */,
+			);
+			path = vulkan;
+			sourceTree = "<group>";
+		};
 		};
 /* End PBXGroup section */
 
