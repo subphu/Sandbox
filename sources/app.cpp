@@ -3,25 +3,36 @@
 
 #include "app.hpp"
 #include "include.h"
+#include "system.hpp"
 
 void App::run() {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
-
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    std::cout << extensionCount << " extensions supported\n";
-
-    while(!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-    }
-
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
+    initWindow();
+    initDevice();
+    initCommander();
     
-    
+}
+
+void App::initWindow() {
+    m_pWindow = new Window();
+    m_pWindow->create({600, 600}, "Vulkan");
+    m_pWindow->setWindowPosition(0, 0);
+    m_pWindow->enableInput();
+}
+
+void App::initDevice() {
+    m_pDevice = new Device();
+    m_pDevice->setup();
+    m_pDevice->createInstance();
+    m_pDevice->createDebugMessenger();
+    m_pDevice->createSurface(m_pWindow->getGLFWwindow());
+    m_pDevice->selectPhysicalDevice();
+    m_pDevice->createLogicalDevice();
+    System::Instance().setDevice(m_pDevice);
+}
+
+void App::initCommander() {
+    m_pCommander = new Commander();
+    m_pCommander->setupPool();
+    m_pCommander->createPool();
+    System::Instance().setCommander(m_pCommander);
 }
