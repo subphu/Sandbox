@@ -10,6 +10,7 @@
 		2613475D26F88D3900B3E6A7 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2613475B26F88D3900B3E6A7 /* app.cpp */; };
 		2615790526F8C6BF0093D4AF /* device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790326F8C6BF0093D4AF /* device.cpp */; };
 		2615790F26FB8E7D0093D4AF /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790D26FB8E7D0093D4AF /* window.cpp */; };
+		26B313C52715C60F00DD0339 /* commander.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C32715C60F00DD0339 /* commander.cpp */; };
 		26B6BF9226A873CE00223ED8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B6BF9126A873CE00223ED8 /* main.cpp */; };
 		26B8767126A8802F00BFDA27 /* libvulkan.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */; };
 		26B8767326A8803E00BFDA27 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; };
@@ -46,6 +47,8 @@
 		2615790D26FB8E7D0093D4AF /* window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = window.cpp; sourceTree = "<group>"; };
 		2615790E26FB8E7D0093D4AF /* window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = window.hpp; sourceTree = "<group>"; };
 		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
+		26B313C32715C60F00DD0339 /* commander.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commander.cpp; sourceTree = "<group>"; };
+		26B313C42715C60F00DD0339 /* commander.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = commander.hpp; sourceTree = "<group>"; };
 		26B6BF8E26A873CE00223ED8 /* Sandbox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sandbox; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6BF9126A873CE00223ED8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		26B6BF9826A873F600223ED8 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
@@ -107,6 +110,8 @@
 			children = (
 				2615790326F8C6BF0093D4AF /* device.cpp */,
 				2615790426F8C6BF0093D4AF /* device.hpp */,
+				26B313C32715C60F00DD0339 /* commander.cpp */,
+				26B313C42715C60F00DD0339 /* commander.hpp */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -311,6 +316,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26B313C52715C60F00DD0339 /* commander.cpp in Sources */,
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
 				2613475D26F88D3900B3E6A7 /* app.cpp in Sources */,
