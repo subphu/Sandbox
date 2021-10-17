@@ -22,6 +22,7 @@
 #include <array>
 #include <stack>
 #include <map>
+#include <set>
 #include <unordered_map>
 
 #pragma clang diagnostic pop
@@ -41,6 +42,11 @@
 #define CHECK_NULLPTR( v, m) if(v==nullptr)        RUNTIME_ERROR(m)
 #define CHECK_VKRESULT(r, m) if(r!=VK_SUCCESS)     RUNTIME_ERROR(m)
 
+#define USE_VAR(v) {}
+#define INP_VAR(v) {}
+#define OUT_VAR(v) {}
+#define MOD_VAR(v) {}
+#define USE_FUNC(f) {}
 
 #define LOG(v) std::cout << "LOG::" << v << std::endl
 #define ERR(v) std::cout << "ERR::" << v << std::endl
@@ -56,3 +62,22 @@
 #define PRINTLN4(v1, v2, v3, v4) PRINT4(v1, v2, v3, v4) << std::endl
 
 #define UINT32(v) static_cast<uint32_t>(v)
+#define VECTOR std::vector
+
+template<typename T> struct Size { T width, height; };
+
+struct Cleaner {
+    std::stack<std::function<void()>> stack;
+
+    void push(std::function<void()>&& function) {
+        stack.push(function);
+    }
+
+    void flush() {
+        while (!stack.empty()) {
+            std::function<void()> cleaning = stack.top();
+            cleaning();
+            stack.pop();
+        }
+    }
+};
