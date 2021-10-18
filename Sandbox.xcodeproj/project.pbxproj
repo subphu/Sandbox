@@ -17,6 +17,7 @@
 		26B8767326A8803E00BFDA27 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; };
 		26B8767426A8804500BFDA27 /* libglfw.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26B8767526A8804500BFDA27 /* libvulkan.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732B2719686C00DFEC48 /* buffer.cpp */; };
 		26F973302719687800DFEC48 /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732E2719687800DFEC48 /* shader.cpp */; };
 /* End PBXBuildFile section */
 
@@ -82,6 +83,8 @@
 		26E35014271C391D00D3A61C /* imgui_tables.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_tables.cpp; sourceTree = "<group>"; };
 		26E35015271C391D00D3A61C /* imgui_demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
 		26E35016271C391D00D3A61C /* imgui_draw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
+		26F9732B2719686C00DFEC48 /* buffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = buffer.cpp; sourceTree = "<group>"; };
+		26F9732C2719686C00DFEC48 /* buffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = buffer.hpp; sourceTree = "<group>"; };
 		26F9732E2719687800DFEC48 /* shader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shader.cpp; sourceTree = "<group>"; };
 		26F9732F2719687800DFEC48 /* shader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = shader.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -268,6 +271,8 @@
 		26F973272719684300DFEC48 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				26F9732B2719686C00DFEC48 /* buffer.cpp */,
+				26F9732C2719686C00DFEC48 /* buffer.hpp */,
 				26F9732E2719687800DFEC48 /* shader.cpp */,
 				26F9732F2719687800DFEC48 /* shader.hpp */,
 			);
@@ -352,6 +357,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26F973302719687800DFEC48 /* shader.cpp in Sources */,
+				26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */,
 				26B313C52715C60F00DD0339 /* commander.cpp in Sources */,
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
