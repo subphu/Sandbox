@@ -152,6 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				26E34FFA271C389B00D3A61C /* libraries */,
+				26E34FF8271C377800D3A61C /* extensions */,
 				2613475026F869F200B3E6A7 /* shaders */,
 				2615790C26FB8E610093D4AF /* window */,
 				26B313C62715DA8C00DD0339 /* system.cpp */,
@@ -171,6 +172,14 @@
 				26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		26E34FF8271C377800D3A61C /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				26E34FF9271C37DE00D3A61C /* ext_stb_image.h */,
+			);
+			path = extensions;
 			sourceTree = "<group>";
 		};
 		26E34FFA271C389B00D3A61C /* libraries */ = {
