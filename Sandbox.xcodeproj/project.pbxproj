@@ -21,6 +21,7 @@
 		26F9732A2719686000DFEC48 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973282719686000DFEC48 /* image.cpp */; };
 		26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732B2719686C00DFEC48 /* buffer.cpp */; };
 		26F973302719687800DFEC48 /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732E2719687800DFEC48 /* shader.cpp */; };
+		26F973332719688000DFEC48 /* frame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973312719688000DFEC48 /* frame.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -94,6 +95,8 @@
 		26F9732C2719686C00DFEC48 /* buffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = buffer.hpp; sourceTree = "<group>"; };
 		26F9732E2719687800DFEC48 /* shader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shader.cpp; sourceTree = "<group>"; };
 		26F9732F2719687800DFEC48 /* shader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = shader.hpp; sourceTree = "<group>"; };
+		26F973312719688000DFEC48 /* frame.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = frame.cpp; sourceTree = "<group>"; };
+		26F973322719688000DFEC48 /* frame.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = frame.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,6 +290,8 @@
 				26F9732C2719686C00DFEC48 /* buffer.hpp */,
 				26F9732E2719687800DFEC48 /* shader.cpp */,
 				26F9732F2719687800DFEC48 /* shader.hpp */,
+				26F973312719688000DFEC48 /* frame.cpp */,
+				26F973322719688000DFEC48 /* frame.hpp */,
 			);
 			path = resources;
 			sourceTree = "<group>";
@@ -371,6 +376,7 @@
 				26F973302719687800DFEC48 /* shader.cpp in Sources */,
 				26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */,
 				26B313C52715C60F00DD0339 /* commander.cpp in Sources */,
+				26F973332719688000DFEC48 /* frame.cpp in Sources */,
 				26C502D327329BF80010F43F /* renderpass.cpp in Sources */,
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
