@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		260AC0722725609500983661 /* swapchain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260AC0702725609500983661 /* swapchain.cpp */; };
 		2613475D26F88D3900B3E6A7 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2613475B26F88D3900B3E6A7 /* app.cpp */; };
 		2615790526F8C6BF0093D4AF /* device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790326F8C6BF0093D4AF /* device.cpp */; };
 		2615790F26FB8E7D0093D4AF /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790D26FB8E7D0093D4AF /* window.cpp */; };
@@ -41,6 +42,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		260AC0702725609500983661 /* swapchain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = swapchain.cpp; sourceTree = "<group>"; };
+		260AC0712725609500983661 /* swapchain.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = swapchain.hpp; sourceTree = "<group>"; };
 		260AC076272900C100983661 /* swapchain.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = swapchain.frag; sourceTree = "<group>"; };
 		260AC077272900C100983661 /* swapchain.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = swapchain.vert; sourceTree = "<group>"; };
 		2613475126F869F200B3E6A7 /* compile.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = compile.sh; sourceTree = "<group>"; };
@@ -124,6 +127,8 @@
 				2613475926F86E7E00B3E6A7 /* shader.vert */,
 				2613475126F869F200B3E6A7 /* compile.sh */,
 				2613475226F869F200B3E6A7 /* compile.bat */,
+				260AC076272900C100983661 /* swapchain.frag */,
+				260AC077272900C100983661 /* swapchain.vert */,
 			);
 			path = shaders;
 			sourceTree = "<group>";
@@ -135,6 +140,8 @@
 				2615790426F8C6BF0093D4AF /* device.hpp */,
 				26B313C32715C60F00DD0339 /* commander.cpp */,
 				26B313C42715C60F00DD0339 /* commander.hpp */,
+				260AC0702725609500983661 /* swapchain.cpp */,
+				260AC0712725609500983661 /* swapchain.hpp */,
 				26C502D127329BF80010F43F /* renderpass.cpp */,
 				26C502D227329BF80010F43F /* renderpass.hpp */,
 			);
@@ -381,6 +388,7 @@
 				26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */,
 				26B313C52715C60F00DD0339 /* commander.cpp in Sources */,
 				26F973332719688000DFEC48 /* frame.cpp in Sources */,
+				260AC0722725609500983661 /* swapchain.cpp in Sources */,
 				26C502D327329BF80010F43F /* renderpass.cpp in Sources */,
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
