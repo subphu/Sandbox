@@ -41,6 +41,7 @@
 #define CHECK_HANDLE(  v, m) if(v==VK_NULL_HANDLE) RUNTIME_ERROR(m)
 #define CHECK_NULLPTR( v, m) if(v==nullptr)        RUNTIME_ERROR(m)
 #define CHECK_VKRESULT(r, m) if(r!=VK_SUCCESS)     RUNTIME_ERROR(m)
+#define CHECK_MAXINT32(r, m) if(r==UINT32_MAX)     RUNTIME_ERROR(m)
 
 #define USE_VAR(v) {}
 #define INP_VAR(v) {}
@@ -64,7 +65,14 @@
 #define UINT32(v) static_cast<uint32_t>(v)
 #define VECTOR std::vector
 
-template<typename T> struct Size { T width, height; };
+#define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
+
+template<typename T> struct Size { T width, height, depth; };
+
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::duration<float, std::chrono::seconds::period> TimeDif;
+typedef VkExtent2D UInt2D;
+
 
 struct Cleaner {
     std::stack<std::function<void()>> stack;
