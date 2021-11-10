@@ -186,12 +186,23 @@ uint32_t Device::findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags 
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
+VkSurfaceCapabilitiesKHR Device::getSurfaceCapabilities() {
+    VkSurfaceCapabilitiesKHR capabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice, m_surface, &capabilities);
+    CHECK_MAXINT32(capabilities.currentExtent.width, "Need validation");
+    return capabilities;
+}
+
+void Device::waitIdle() { vkDeviceWaitIdle(m_device); }
+void Device::waitAllQueueIdle() { vkQueueWaitIdle(m_presentQueue); }
+
 VkInstance         Device::getInstance()       { return m_instance; }
 VkSurfaceKHR       Device::getSurface()        { return m_surface; }
 VkPhysicalDevice   Device::getPhysicalDevice() { return m_physicalDevice; }
 VkDevice           Device::getDevice()         { return m_device; }
 
 VkQueue            Device::getGraphicQueue()   { return m_graphicQueue; }
+VkQueue            Device::getPresentQueue()   { return m_presentQueue; }
 VkSurfaceFormatKHR Device::getSurfaceFormat()  { return m_surfaceFormat; }
 VkPresentModeKHR   Device::getPresentMode()    { return m_presentMode;}
 

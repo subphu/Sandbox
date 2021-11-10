@@ -19,6 +19,8 @@ public:
     void createDebugMessenger();
     void selectPhysicalDevice();
     void createLogicalDevice();
+    void waitIdle();
+    void waitAllQueueIdle();
     
     VkInstance         getInstance();
     VkSurfaceKHR       getSurface();
@@ -26,12 +28,15 @@ public:
     VkDevice           getDevice();
     
     VkQueue            getGraphicQueue();
+    VkQueue            getPresentQueue();
     VkSurfaceFormatKHR getSurfaceFormat();
     VkPresentModeKHR   getPresentMode();
     
     uint32_t getGraphicQueueIndex();
     uint32_t getPresentQueueIndex();
     uint32_t findMemoryTypeIndex(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    
+    VkSurfaceCapabilitiesKHR getSurfaceCapabilities();
     
     VkApplicationInfo m_appInfo{};
     VkDebugUtilsMessengerCreateInfoEXT m_debugInfo{};
