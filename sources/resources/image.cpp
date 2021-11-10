@@ -9,137 +9,107 @@
 #include "../extensions/ext_stb_image.h"
 
 Image::~Image() {}
-Image::Image() : m_pDevice(System::Device()) {}
+Image::Image() : m_pDevice(System::Device()),
+                 m_imageInfo(GetDefaultImageCreateInfo()),
+                 m_imageViewInfo(GetDefaultImageViewCreateInfo()) {}
 
 void Image::cleanup() {
     LOG("Image::cleanup");
     m_cleaner.flush();
 }
 
-void Image::setupForDepth(Size<uint32_t> size, uint32_t mipLevels) {
-    VkImageCreateInfo     imageInfo     = GetDefaultImageCreateInfo();
-    VkImageViewCreateInfo imageViewInfo = GetDefaultImageViewCreateInfo();
+void Image::setupForDepth(UInt2D size) {
+    LOG("Image::setupForColor");
+    m_imageInfo.extent = {size.width, size.height, 1};
+    m_imageInfo.format = VK_FORMAT_D24_UNORM_S8_UINT;
+    m_imageInfo.usage  = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+                         VK_IMAGE_USAGE_SAMPLED_BIT;
     
-    imageInfo.extent.width  = size.width;
-    imageInfo.extent.height = size.height;
-    imageInfo.mipLevels     = mipLevels;
-    imageInfo.format        = VK_FORMAT_D32_SFLOAT;
-    imageInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    
-    imageViewInfo.format    = imageInfo.format;
-    imageViewInfo.subresourceRange.levelCount = 1;
-    imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-
-    m_imageInfo     = imageInfo;
-    m_imageViewInfo = imageViewInfo;
+    m_imageViewInfo.format = m_imageInfo.format;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 }
 
-void Image::setupForTexture(const std::string filepath) {
-    LOG("Image::setupForTexture");
-    int width, height, channels;
-    unsigned char*  data      = STBI::LoadImage(filepath, &width, &height, &channels);
-    uint32_t        mipLevels = MaxMipLevel(width, height);
+void Image::setupForColor(UInt2D size) {
+    LOG("Image::setupForColor");
+    m_imageInfo.extent = {size.width, size.height, 1};
+    m_imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    m_imageInfo.usage  = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                         VK_IMAGE_USAGE_SAMPLED_BIT;
     
-    VkImageCreateInfo     imageInfo     = GetDefaultImageCreateInfo();
-    VkImageViewCreateInfo imageViewInfo = GetDefaultImageViewCreateInfo();
-    
-    imageInfo.extent.width  = width;
-    imageInfo.extent.height = height;
-    imageInfo.mipLevels     = mipLevels;
-    imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
-    imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                              VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                              VK_IMAGE_USAGE_SAMPLED_BIT;
-    
-    imageViewInfo.format    = VK_FORMAT_R8G8B8A8_SRGB;
-    imageViewInfo.subresourceRange.levelCount = mipLevels;
-    imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    
-    m_rawData       = data;
-    m_imageInfo     = imageInfo;
-    m_imageViewInfo = imageViewInfo;
-}
-
-void Image::setupForHDRTexture(const std::string filepath) {
-    LOG("Image::setupForHDRTexture");
-    int width = 0, height = 0, channels = 0;
-    float*   data      = STBI::LoadHDR(filepath, &width, &height, &channels);
-    uint32_t mipLevels = MaxMipLevel(width, height);
-    
-    VkImageCreateInfo     imageInfo     = GetDefaultImageCreateInfo();
-    VkImageViewCreateInfo imageViewInfo = GetDefaultImageViewCreateInfo();
-    
-    imageInfo.extent.width  = width;
-    imageInfo.extent.height = height;
-    imageInfo.mipLevels     = mipLevels;
-    imageInfo.format        = VK_FORMAT_R32G32B32_SFLOAT;
-    imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                              VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                              VK_IMAGE_USAGE_SAMPLED_BIT;
-    
-    imageViewInfo.format    = VK_FORMAT_R32G32B32_SFLOAT;
-    imageViewInfo.subresourceRange.levelCount = mipLevels;
-    imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    m_rawHDR        = data;
-    m_imageInfo     = imageInfo;
-    m_imageViewInfo = imageViewInfo;
-}
-
-void Image::setupForCubemap(const std::string *filepaths) {
-    LOG("Image::setupForCubemap");
-    int width = 0, height = 0, channels = 0;
-    VECTOR<unsigned char*> data;
-    
-    for (int i = 0; i < 6; ++i) {
-        data.push_back(STBI::LoadImage(filepaths[i], &width, &height, &channels));
-    }
-    setupForCubemap({ (uint)width, (uint)height });
-    
-    m_rawCubemap = data;
-}
-
-void Image::setupForCubemap(Size<uint> size) {
-    uint32_t mipLevels = MaxMipLevel(size.width, size.height);
-    
-    VkImageCreateInfo     imageInfo     = GetDefaultImageCreateInfo();
-    VkImageViewCreateInfo imageViewInfo = GetDefaultImageViewCreateInfo();
-    
-    imageInfo.arrayLayers   = 6;
-    imageInfo.extent.width  = size.width;
-    imageInfo.extent.height = size.height;
-    imageInfo.mipLevels     = mipLevels;
-    imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
-    imageInfo.flags         = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-    imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                              VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                              VK_IMAGE_USAGE_SAMPLED_BIT;
-    
-    imageViewInfo.viewType  = VK_IMAGE_VIEW_TYPE_CUBE;
-    imageViewInfo.format    = VK_FORMAT_R8G8B8A8_SRGB;
-    imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    imageViewInfo.subresourceRange.levelCount = mipLevels;
-    imageViewInfo.subresourceRange.layerCount = 6;
-    
-    m_imageInfo     = imageInfo;
-    m_imageViewInfo = imageViewInfo;
+    m_imageViewInfo.format = m_imageInfo.format;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 }
 
 void Image::setupForSwapchain(VkImage image, VkFormat imageFormat) {
     LOG("Image::setupForSwapchain");
     m_image = image;
+    m_imageInfo.format     = imageFormat;
+    m_imageViewInfo.format = imageFormat;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+}
+
+void Image::setupForTexture(const std::string filepath) {
+    LOG("Image::setupForTexture");
+    int width, height, channels;
+    m_rawData = STBI::LoadImage(filepath, &width, &height, &channels);
     
-    VkImageCreateInfo     imageInfo     = GetDefaultImageCreateInfo();
-    VkImageViewCreateInfo imageViewInfo = GetDefaultImageViewCreateInfo();
+    m_imageInfo.extent.width  = width;
+    m_imageInfo.extent.height = height;
+    m_imageInfo.mipLevels     = MaxMipLevel(width, height);
+    m_imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
+    m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                VK_IMAGE_USAGE_SAMPLED_BIT;
     
-    imageInfo    .format = imageFormat;
-    imageViewInfo.format = imageFormat;
-    imageViewInfo.image  = image;
-    imageViewInfo.subresourceRange.levelCount = 1;
-    imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    m_imageViewInfo.format    = m_imageInfo.format;
+    m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     
-    m_imageInfo     = imageInfo;
-    m_imageViewInfo = imageViewInfo;
+}
+
+void Image::setupForHDRTexture(const std::string filepath) {
+    LOG("Image::setupForHDRTexture");
+    int width, height, channels;
+    m_rawHDR = STBI::LoadHDR(filepath, &width, &height, &channels);
+    
+    m_imageInfo.extent.width  = width;
+    m_imageInfo.extent.height = height;
+    m_imageInfo.mipLevels     = MaxMipLevel(width, height);
+    m_imageInfo.format        = VK_FORMAT_R32G32B32_SFLOAT;
+    m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                VK_IMAGE_USAGE_SAMPLED_BIT;
+        
+    m_imageViewInfo.format    = m_imageInfo.format;
+    m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+}
+
+void Image::setupForCubemap(const std::string *filepaths) {
+    LOG("Image::setupForCubemap");
+    int width = 0, height = 0, channels = 0;
+    for (int i = 0; i < 6; ++i) {
+        m_rawCubemap.push_back(STBI::LoadImage(filepaths[i], &width, &height, &channels));
+    }
+    setupForCubemap({ (uint)width, (uint)height });
+}
+
+void Image::setupForCubemap(UInt2D size) {
+    m_imageInfo.arrayLayers   = 6;
+    m_imageInfo.extent.width  = size.width;
+    m_imageInfo.extent.height = size.height;
+    m_imageInfo.mipLevels     = MaxMipLevel(size.width, size.height);
+    m_imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
+    m_imageInfo.flags         = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                VK_IMAGE_USAGE_SAMPLED_BIT;
+      
+    m_imageViewInfo.viewType  = VK_IMAGE_VIEW_TYPE_CUBE;
+    m_imageViewInfo.format    = m_imageInfo.format;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
+    m_imageViewInfo.subresourceRange.layerCount = 6;
 }
 
 void Image::create() {
@@ -242,7 +212,7 @@ void Image::createSampler() {
 
 void Image::copyCubemapToImage() {
     LOG("Image::copyCubemapToImage");
-    std::vector<unsigned char*> rawData = m_rawCubemap;
+    VECTOR<unsigned char*> rawData = m_rawCubemap;
     
     VkDeviceSize imageSize = getImageSize();
     uint32_t     layerSize = imageSize / 6.0;
@@ -303,10 +273,10 @@ void Image::cmdTransitionToTransferDest() {
     VkImageCreateInfo     imageInfo     = m_imageInfo;
     VkImageViewCreateInfo imageViewInfo = m_imageViewInfo;
     
-    Commander* commander = System::Commander();
+    Commander* pCommander = System::Commander();
     
-    VkCommandBuffer commandBuffer = commander->createCommandBuffer();
-    commander->beginSingleTimeCommands(commandBuffer);
+    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(commandBuffer);
     
     VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
     barrier.image         = image;
@@ -324,7 +294,7 @@ void Image::cmdTransitionToTransferDest() {
                          0, nullptr,
                          1, &barrier);
     
-    commander->endSingleTimeCommands(commandBuffer);
+    pCommander->endSingleTimeCommands(commandBuffer);
 }
 
 void Image::cmdCopyBufferToImage(VkBuffer buffer) {
@@ -333,10 +303,10 @@ void Image::cmdCopyBufferToImage(VkBuffer buffer) {
     VkImageCreateInfo     imageInfo     = m_imageInfo;
     VkImageViewCreateInfo imageViewInfo = m_imageViewInfo;
     
-    Commander* commander = System::Commander();
+    Commander* pCommander = System::Commander();
     
-    VkCommandBuffer commandBuffer = commander->createCommandBuffer();
-    commander->beginSingleTimeCommands(commandBuffer);
+    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(commandBuffer);
     
     VkBufferImageCopy region{};
     region.bufferOffset      = 0;
@@ -357,7 +327,7 @@ void Image::cmdCopyBufferToImage(VkBuffer buffer) {
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1, &region);
     
-    commander->endSingleTimeCommands(commandBuffer);
+    pCommander->endSingleTimeCommands(commandBuffer);
 }
 
 void Image::cmdGenerateMipmaps() {
@@ -367,7 +337,7 @@ void Image::cmdGenerateMipmaps() {
     VkImageCreateInfo     imageInfo      = m_imageInfo;
     VkImageViewCreateInfo imageViewInfo  = m_imageViewInfo;
     
-    Commander* commander = System::Commander();
+    Commander* pCommander = System::Commander();
     
     uint32_t layerCount = imageViewInfo.subresourceRange.layerCount;
     
@@ -379,8 +349,8 @@ void Image::cmdGenerateMipmaps() {
         throw std::runtime_error("texture image format does not support linear blitting!");
     }
     
-    VkCommandBuffer commandBuffer = commander->createCommandBuffer();
-    commander->beginSingleTimeCommands(commandBuffer);
+    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(commandBuffer);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -459,7 +429,7 @@ void Image::cmdGenerateMipmaps() {
                          0, nullptr,
                          1, &barrier);
     
-    commander->endSingleTimeCommands(commandBuffer);
+    pCommander->endSingleTimeCommands(commandBuffer);
 
 }
 
@@ -497,6 +467,7 @@ VkImageCreateInfo Image::GetDefaultImageCreateInfo() {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType     = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.mipLevels     = 1;
     imageInfo.arrayLayers   = 1;
     imageInfo.extent.depth  = 1;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -514,6 +485,7 @@ VkImageViewCreateInfo Image::GetDefaultImageViewCreateInfo() {
     imageViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
     imageViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
     imageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewInfo.subresourceRange.levelCount     = 1;
     imageViewInfo.subresourceRange.layerCount     = 1;
     imageViewInfo.subresourceRange.baseMipLevel   = 0;
     imageViewInfo.subresourceRange.baseArrayLayer = 0;

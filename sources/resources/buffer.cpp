@@ -65,13 +65,13 @@ void Buffer::allocateBufferMemory() {
 void Buffer::cmdCopyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size) {
     LOG("Buffer::cmdCopyFromBuffer");
     VkBuffer   buffer    = m_buffer;
-    Commander* commander = System::Commander();
+    Commander* pCommander = System::Commander();
     
-    VkCommandBuffer commandBuffer = commander->createCommandBuffer();
-    commander->beginSingleTimeCommands(commandBuffer);
+    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(commandBuffer);
     VkBufferCopy    copyRegion = { 0, 0, size };
     vkCmdCopyBuffer(commandBuffer, sourceBuffer, buffer, 1, &copyRegion);
-    commander->endSingleTimeCommands(commandBuffer);
+    pCommander->endSingleTimeCommands(commandBuffer);
 }
 
 void* Buffer::fillBuffer(const void* address, VkDeviceSize size, uint32_t shift) {

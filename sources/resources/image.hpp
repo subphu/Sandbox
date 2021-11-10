@@ -14,12 +14,13 @@ public:
 
     void cleanup();
     
-    void setupForDepth     (Size<uint32_t> size, uint32_t mipLevels);
-    void setupForSwapchain (VkImage image, VkFormat imageFormat);
-    void setupForTexture   (const std::string filepath);
-    void setupForHDRTexture(const std::string filepath);
-    void setupForCubemap   (const std::string *filepaths);
-    void setupForCubemap   (Size<uint> size);
+    void setupForDepth      (UInt2D size);
+    void setupForColor      (UInt2D size);
+    void setupForSwapchain  (VkImage image, VkFormat imageFormat);
+    void setupForTexture    (const std::string filepath);
+    void setupForHDRTexture (const std::string filepath);
+    void setupForCubemap    (const std::string *filepaths);
+    void setupForCubemap    (UInt2D size);
     
     void create             ();
     void createForTexture   ();

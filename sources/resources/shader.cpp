@@ -10,7 +10,7 @@
 Shader::~Shader() {}
 Shader::Shader() : m_pDevice(System::Device()) {}
 
-Shader::Shader(const std::string filepath, VkShaderStageFlagBits stage, const char* entryPoint) {
+Shader::Shader(const std::string filepath, VkShaderStageFlagBits stage, const char* entryPoint) : m_pDevice(System::Device())  {
     createModule(filepath);
     createStageInfo(stage, entryPoint);
 }

@@ -40,7 +40,7 @@ void Device::setup() {
     VECTOR<const char*> instanceExtensions = GetGLFWInstanceExtensions();
     instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-    VECTOR<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    VECTOR<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME };
     VECTOR<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
     bool result = CheckLayerSupport(validationLayers);
     CHECK_BOOL(result, "validation layers requested, but not available!");
@@ -72,9 +72,9 @@ void Device::createInstance() {
     VkInstance instance;
     VkResult   result = vkCreateInstance(&instanceInfo, nullptr, &instance);
     CHECK_VKRESULT(result, "failed to create vulkan instance!");
+    m_cleaner.push([=](){ vkDestroyInstance(m_instance, nullptr); });
     
     m_instance = instance;
-    m_cleaner.push([=](){ vkDestroyInstance(m_instance, nullptr); });
 }
 
 void Device::createDebugMessenger() {
@@ -88,6 +88,7 @@ void Device::createSurface(GLFWwindow* window) {
     LOG("Device::createSurface");
     VkResult result = glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface);
     CHECK_VKRESULT(result, "failed to create window surface!");
+    m_cleaner.push([=](){ vkDestroySurfaceKHR(m_instance, m_surface, nullptr); });
 }
 
 void Device::selectPhysicalDevice() {
@@ -97,8 +98,8 @@ void Device::selectPhysicalDevice() {
     VkPhysicalDeviceFeatures deviceFeatures   = m_deviceFeatures;
     VECTOR<const char*>      deviceExtensions = m_vDeviceExtensions;
     
-    uint32_t graphicQueueIndex = 0;
-    uint32_t presentQueueIndex = 0;
+    int graphicQueueIndex = 0;
+    int presentQueueIndex = 0;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     
     VECTOR<VkSurfaceFormatKHR> formats;
@@ -138,12 +139,11 @@ void Device::createLogicalDevice() {
     VkPhysicalDeviceFeatures deviceFeatures = m_deviceFeatures;
     VECTOR<const char*> deviceExtensions  = m_vDeviceExtensions;
     VECTOR<const char*> validationLayers  = m_vValidationLayers;
-    uint32_t graphicQueueIndex = m_graphicQueueIndex;
-    uint32_t presentQueueIndex = m_presentQueueIndex;
+    std::set<uint32_t> queueFamilyIndices = {m_graphicQueueIndex, m_presentQueueIndex};
     
     float queuePriority = 1.f;
     VECTOR<VkDeviceQueueCreateInfo> queueInfos;
-    for (uint32_t familyIndex : {graphicQueueIndex, presentQueueIndex}) {
+    for (uint32_t familyIndex : queueFamilyIndices) {
         VkDeviceQueueCreateInfo queueInfo{};
         queueInfo.sType             = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueInfo.queueFamilyIndex  = familyIndex;
@@ -167,8 +167,8 @@ void Device::createLogicalDevice() {
     CHECK_VKRESULT(result, "failed to create logical device");
     
     m_device = device;
-    vkGetDeviceQueue(device, graphicQueueIndex, 0, &m_graphicQueue);
-    vkGetDeviceQueue(device, presentQueueIndex, 0, &m_presentQueue);
+    vkGetDeviceQueue(device, m_graphicQueueIndex, 0, &m_graphicQueue);
+    vkGetDeviceQueue(device, m_presentQueueIndex, 0, &m_presentQueue);
     m_cleaner.push([=](){ vkDestroyDevice(m_device, nullptr); });
 }
 
