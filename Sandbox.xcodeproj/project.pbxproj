@@ -19,6 +19,7 @@
 		26B8767426A8804500BFDA27 /* libglfw.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26B8767526A8804500BFDA27 /* libvulkan.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26C502D327329BF80010F43F /* renderpass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26C502D127329BF80010F43F /* renderpass.cpp */; };
+		26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */; };
 		26EA7F0E273831D500B860CC /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26EA7F0D273831D500B860CC /* resources */; };
 		26F973262719672400DFEC48 /* frame_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* frame_pipeline.cpp */; };
 		26F9732A2719686000DFEC48 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973282719686000DFEC48 /* image.cpp */; };
@@ -72,6 +73,8 @@
 		26B8767226A8803E00BFDA27 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "libraries/glfw-mac/lib-x86_64/libglfw.3.dylib"; sourceTree = "<group>"; };
 		26C502D127329BF80010F43F /* renderpass.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = renderpass.cpp; sourceTree = "<group>"; };
 		26C502D227329BF80010F43F /* renderpass.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = renderpass.hpp; sourceTree = "<group>"; };
+		26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = descriptor.cpp; sourceTree = "<group>"; };
+		26CA4E1B273C1FF400AC3D64 /* descriptor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = descriptor.hpp; sourceTree = "<group>"; };
 		26E34FF9271C37DE00D3A61C /* ext_stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ext_stb_image.h; sourceTree = "<group>"; };
 		26E34FFC271C38C000D3A61C /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		26E34FFD271C38C000D3A61C /* stb_image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stb_image.cpp; sourceTree = "<group>"; };
@@ -147,6 +150,8 @@
 				260AC0712725609500983661 /* swapchain.hpp */,
 				26C502D127329BF80010F43F /* renderpass.cpp */,
 				26C502D227329BF80010F43F /* renderpass.hpp */,
+				26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */,
+				26CA4E1B273C1FF400AC3D64 /* descriptor.hpp */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -401,6 +406,7 @@
 				26F973262719672400DFEC48 /* frame_pipeline.cpp in Sources */,
 				26F9732A2719686000DFEC48 /* image.cpp in Sources */,
 				26B313C82715DA8C00DD0339 /* system.cpp in Sources */,
+				26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */,
 				2615790F26FB8E7D0093D4AF /* window.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
