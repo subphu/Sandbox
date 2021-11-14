@@ -43,6 +43,17 @@ void App::initCommander() {
     m_cleaner.push([=](){ m_pCommander->cleanup(); });
 }
 
+void App::createInterferencePipeline() {
+    m_pInterferencePipeline = new InterferencePipeline();
+    m_pInterferencePipeline->setupShader();
+    m_pInterferencePipeline->setupInput();
+    m_pInterferencePipeline->setupOutput();
+    m_pInterferencePipeline->createDescriptor();
+    m_pInterferencePipeline->createPipelineLayout();
+    m_pInterferencePipeline->createPipeline();
+    m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
+}
+
 void App::createFramePipeline() {
     m_pFramePipeline = new FramePipeline();
     m_pFramePipeline->setupShader();
@@ -60,12 +71,22 @@ void App::createSwapchain() {
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
 }
 
+void App::preRender() {
+    Commander* pCommander = m_pCommander;
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    m_pCommander->beginSingleTimeCommands(cmdBuffer);
+    m_pInterferencePipeline->dispatch(cmdBuffer);
+    m_pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
 void App::setup() {
     initWindow();
     initDevice();
     initCommander();
+    createInterferencePipeline();
     createFramePipeline();
     createSwapchain();
+    preRender();
 }
 
 void App::loop() {

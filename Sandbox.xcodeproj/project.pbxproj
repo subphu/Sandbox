@@ -19,6 +19,7 @@
 		26B8767426A8804500BFDA27 /* libglfw.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26B8767526A8804500BFDA27 /* libvulkan.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26C502D327329BF80010F43F /* renderpass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26C502D127329BF80010F43F /* renderpass.cpp */; };
+		26CA4E19273C1F5C00AC3D64 /* interference_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */; };
 		26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */; };
 		26EA7F0E273831D500B860CC /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26EA7F0D273831D500B860CC /* resources */; };
 		26F973262719672400DFEC48 /* frame_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* frame_pipeline.cpp */; };
@@ -87,6 +88,8 @@
 		26C9250B274015E8009EC2B3 /* manual.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = manual.vert; sourceTree = "<group>"; };
 		26C9250C274015E8009EC2B3 /* main1d.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main1d.vert; sourceTree = "<group>"; };
 		26C9250D274015E8009EC2B3 /* main2d.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main2d.vert; sourceTree = "<group>"; };
+		26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = interference_pipeline.cpp; sourceTree = "<group>"; };
+		26CA4E18273C1F5C00AC3D64 /* interference_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = interference_pipeline.hpp; sourceTree = "<group>"; };
 		26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = descriptor.cpp; sourceTree = "<group>"; };
 		26CA4E1B273C1FF400AC3D64 /* descriptor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = descriptor.hpp; sourceTree = "<group>"; };
 		26E34FF9271C37DE00D3A61C /* ext_stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ext_stb_image.h; sourceTree = "<group>"; };
@@ -350,6 +353,8 @@
 			children = (
 				26F973242719672400DFEC48 /* frame_pipeline.cpp */,
 				26F973252719672400DFEC48 /* frame_pipeline.hpp */,
+				26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */,
+				26CA4E18273C1F5C00AC3D64 /* interference_pipeline.hpp */,
 			);
 			path = pipelines;
 			sourceTree = "<group>";
@@ -446,6 +451,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26CA4E19273C1F5C00AC3D64 /* interference_pipeline.cpp in Sources */,
 				26F973302719687800DFEC48 /* shader.cpp in Sources */,
 				26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */,
 				26B313C52715C60F00DD0339 /* commander.cpp in Sources */,

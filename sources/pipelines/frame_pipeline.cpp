@@ -6,6 +6,7 @@
 #include "../system.hpp"
 #include "../resources/shader.hpp"
 
+
 FramePipeline::~FramePipeline() {}
 FramePipeline::FramePipeline() : m_pDevice(System::Device()) {}
 
@@ -144,11 +145,9 @@ void FramePipeline::render(VkCommandBuffer cmdBuffer) {
     vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-
     vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
     
     vkCmdEndRenderPass(cmdBuffer);
-    
 }
 
 void FramePipeline::setFrame(Frame *frame) { m_pFrame = frame; }

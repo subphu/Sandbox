@@ -8,6 +8,7 @@
 #include "renderer/commander.hpp"
 #include "renderer/swapchain.hpp"
 #include "pipelines/frame_pipeline.hpp"
+#include "pipelines/interference_pipeline.hpp"
 
 class App {
 public:
@@ -22,6 +23,7 @@ private:
     
     Swapchain* m_pSwapchain;
     FramePipeline* m_pFramePipeline;
+    InterferencePipeline* m_pInterferencePipeline;
     
     
     void cleanup();
@@ -30,12 +32,15 @@ private:
     void update(long iteration);
     void draw(long iteration);
     
+    void preRender();
+    
     void initWindow();
     void initDevice();
     void initCommander();
     
     void createSwapchain();
     void createFramePipeline();
+    void createInterferencePipeline();
     
     void checkResized();
     
