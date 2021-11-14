@@ -1,0 +1,35 @@
+#version 460
+#extension GL_ARB_separate_shader_objects : enable
+
+#include "../functions/constants.glsl"
+#include "../functions/interference.glsl"
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+layout(set=0, binding=0) buffer outputBuffer { vec4 imageData[]; };
+
+layout(push_constant) uniform pushConstants {
+    uint length;
+    float n;
+};
+
+vec3 measure(float opd) {
+    return fullInterferences(opd);
+    return vec3(
+        interferences(650e-9, 60e-9, opd),
+        interferences(532e-9, 40e-9, opd),
+        interferences(441e-9, 30e-9, opd)
+    );
+}
+
+void main() {
+    if(gl_GlobalInvocationID.x >= length) return;
+
+    uint  idx = gl_GlobalInvocationID.x;
+    float scale = float(idx) / float(length);
+    float opd = maxOpd * scale;
+
+    vec3 col = measure(opd);
+
+    imageData[idx] = vec4(col, 1.0);
+}

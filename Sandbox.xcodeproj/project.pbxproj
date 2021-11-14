@@ -73,6 +73,20 @@
 		26B8767226A8803E00BFDA27 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "libraries/glfw-mac/lib-x86_64/libglfw.3.dylib"; sourceTree = "<group>"; };
 		26C502D127329BF80010F43F /* renderpass.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = renderpass.cpp; sourceTree = "<group>"; };
 		26C502D227329BF80010F43F /* renderpass.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = renderpass.hpp; sourceTree = "<group>"; };
+		26C924FE273FD536009EC2B3 /* interference1d.comp */ = {isa = PBXFileReference; lastKnownFileType = text; path = interference1d.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		26C924FF273FD536009EC2B3 /* interference2d.comp */ = {isa = PBXFileReference; lastKnownFileType = text; path = interference2d.comp; sourceTree = "<group>"; };
+		26C92501274015E8009EC2B3 /* constants.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = constants.glsl; sourceTree = "<group>"; };
+		26C92502274015E8009EC2B3 /* includes.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = includes.glsl; sourceTree = "<group>"; };
+		26C92503274015E8009EC2B3 /* spectrum.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = spectrum.glsl; sourceTree = "<group>"; };
+		26C92504274015E8009EC2B3 /* pbr.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = pbr.glsl; sourceTree = "<group>"; };
+		26C92505274015E8009EC2B3 /* render_function.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = render_function.glsl; sourceTree = "<group>"; };
+		26C92506274015E8009EC2B3 /* interference.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = interference.glsl; sourceTree = "<group>"; };
+		26C92508274015E8009EC2B3 /* manual.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = manual.frag; sourceTree = "<group>"; };
+		26C92509274015E8009EC2B3 /* main1d.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main1d.frag; sourceTree = "<group>"; };
+		26C9250A274015E8009EC2B3 /* main2d.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main2d.frag; sourceTree = "<group>"; };
+		26C9250B274015E8009EC2B3 /* manual.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = manual.vert; sourceTree = "<group>"; };
+		26C9250C274015E8009EC2B3 /* main1d.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main1d.vert; sourceTree = "<group>"; };
+		26C9250D274015E8009EC2B3 /* main2d.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main2d.vert; sourceTree = "<group>"; };
 		26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = descriptor.cpp; sourceTree = "<group>"; };
 		26CA4E1B273C1FF400AC3D64 /* descriptor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = descriptor.hpp; sourceTree = "<group>"; };
 		26E34FF9271C37DE00D3A61C /* ext_stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ext_stb_image.h; sourceTree = "<group>"; };
@@ -128,6 +142,9 @@
 		2613475026F869F200B3E6A7 /* shaders */ = {
 			isa = PBXGroup;
 			children = (
+				26C92500274015E8009EC2B3 /* functions */,
+				26C92507274015E8009EC2B3 /* PBR */,
+				26C924FD273FD536009EC2B3 /* compute */,
 				2613475726F86E7E00B3E6A7 /* shader.comp */,
 				2613475826F86E7E00B3E6A7 /* shader.frag */,
 				2613475926F86E7E00B3E6A7 /* shader.vert */,
@@ -213,6 +230,41 @@
 				26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		26C924FD273FD536009EC2B3 /* compute */ = {
+			isa = PBXGroup;
+			children = (
+				26C924FE273FD536009EC2B3 /* interference1d.comp */,
+				26C924FF273FD536009EC2B3 /* interference2d.comp */,
+			);
+			path = compute;
+			sourceTree = "<group>";
+		};
+		26C92500274015E8009EC2B3 /* functions */ = {
+			isa = PBXGroup;
+			children = (
+				26C92501274015E8009EC2B3 /* constants.glsl */,
+				26C92502274015E8009EC2B3 /* includes.glsl */,
+				26C92503274015E8009EC2B3 /* spectrum.glsl */,
+				26C92504274015E8009EC2B3 /* pbr.glsl */,
+				26C92505274015E8009EC2B3 /* render_function.glsl */,
+				26C92506274015E8009EC2B3 /* interference.glsl */,
+			);
+			path = functions;
+			sourceTree = "<group>";
+		};
+		26C92507274015E8009EC2B3 /* PBR */ = {
+			isa = PBXGroup;
+			children = (
+				26C92508274015E8009EC2B3 /* manual.frag */,
+				26C92509274015E8009EC2B3 /* main1d.frag */,
+				26C9250A274015E8009EC2B3 /* main2d.frag */,
+				26C9250B274015E8009EC2B3 /* manual.vert */,
+				26C9250C274015E8009EC2B3 /* main1d.vert */,
+				26C9250D274015E8009EC2B3 /* main2d.vert */,
+			);
+			path = PBR;
 			sourceTree = "<group>";
 		};
 		26E34FF8271C377800D3A61C /* extensions */ = {
@@ -324,10 +376,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 26B6BF9526A873CE00223ED8 /* Build configuration list for PBXNativeTarget "Sandbox" */;
 			buildPhases = (
+				2613475626F86CF600B3E6A7 /* ShellScript */,
 				26B6BF8A26A873CE00223ED8 /* Sources */,
 				26B6BF8B26A873CE00223ED8 /* Frameworks */,
 				26B6BF8C26A873CE00223ED8 /* CopyFiles */,
-				2613475626F86CF600B3E6A7 /* ShellScript */,
 			);
 			buildRules = (
 			);

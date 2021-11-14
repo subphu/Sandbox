@@ -1,0 +1,44 @@
+#version 460
+#extension GL_ARB_separate_shader_objects : enable
+
+#include "../functions/constants.glsl"
+#include "../functions/interference.glsl"
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(set=0, binding=0) buffer outputBuffer { vec4 imageData[]; };
+
+layout(push_constant) uniform pushConstants {
+    uint width, height;
+    float n;
+};
+
+vec3 measure(float d, float theta1) {
+    float theta2 = refractionAngle(n1, theta1, n2);
+    float opd    = getOPD(d, theta2, n2);
+    return fullInterferences(opd);
+    return vec3(
+        interferences(650e-9, 60e-9, opd),
+        interferences(532e-9, 40e-9, opd),
+        interferences(441e-9, 30e-9, opd)
+    );
+}
+
+void main() {
+    uint xi = gl_GlobalInvocationID.x;
+    uint yi = gl_GlobalInvocationID.y;
+
+    if(xi >= width || yi >= height) return;
+    
+    float xf = float(xi) / float(width);
+    float yf = float(yi) / float(height);
+    vec2  uv = vec2(xf, yf);
+
+    float thickness  = maxD * uv.y;
+    float angle      = PI/2 * uv.x;
+
+    vec3 col = measure(thickness, angle);
+
+    uint idx = yi * width + xi;
+    imageData[idx] = vec4(col, 1.0);
+}
