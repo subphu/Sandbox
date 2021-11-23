@@ -67,6 +67,8 @@
 
 #define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
 
+#define PI 3.14159265358979323846
+
 template<typename T> struct Size { T width, height, depth; };
 
 typedef VkExtent2D UInt2D;

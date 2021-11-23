@@ -30,6 +30,8 @@
 		26E70214274BA6850097A974 /* imgui_impl_vulkan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70211274BA6850097A974 /* imgui_impl_vulkan.cpp */; };
 		26E70215274BA6850097A974 /* imgui_impl_glfw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70213274BA6850097A974 /* imgui_impl_glfw.cpp */; };
 		26E70218274CA1BA0097A974 /* main_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70216274CA1BA0097A974 /* main_pipeline.cpp */; };
+		26E7021B274CC9D40097A974 /* mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70219274CC9D40097A974 /* mesh.cpp */; };
+		26E7021C274CD3B00097A974 /* tiny_obj_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E34FFF271C391D00D3A61C /* tiny_obj_loader.cpp */; };
 		26EA7F0E273831D500B860CC /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26EA7F0D273831D500B860CC /* resources */; };
 		26F973262719672400DFEC48 /* screenspace_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* screenspace_pipeline.cpp */; };
 		26F9732A2719686000DFEC48 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973282719686000DFEC48 /* image.cpp */; };
@@ -130,6 +132,8 @@
 		26E70213274BA6850097A974 /* imgui_impl_glfw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_glfw.cpp; sourceTree = "<group>"; };
 		26E70216274CA1BA0097A974 /* main_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main_pipeline.cpp; sourceTree = "<group>"; };
 		26E70217274CA1BA0097A974 /* main_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = main_pipeline.hpp; sourceTree = "<group>"; };
+		26E70219274CC9D40097A974 /* mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mesh.cpp; sourceTree = "<group>"; };
+		26E7021A274CC9D40097A974 /* mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mesh.hpp; sourceTree = "<group>"; };
 		26EA7F0D273831D500B860CC /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
 		26F973242719672400DFEC48 /* screenspace_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = screenspace_pipeline.cpp; sourceTree = "<group>"; };
 		26F973252719672400DFEC48 /* screenspace_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = screenspace_pipeline.hpp; sourceTree = "<group>"; };
@@ -389,6 +393,8 @@
 				26F9732F2719687800DFEC48 /* shader.hpp */,
 				26F973312719688000DFEC48 /* frame.cpp */,
 				26F973322719688000DFEC48 /* frame.hpp */,
+				26E70219274CC9D40097A974 /* mesh.cpp */,
+				26E7021A274CC9D40097A974 /* mesh.hpp */,
 			);
 			path = resources;
 			sourceTree = "<group>";
@@ -486,8 +492,10 @@
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
 				2613475D26F88D3900B3E6A7 /* app.cpp in Sources */,
 				26F973262719672400DFEC48 /* screenspace_pipeline.cpp in Sources */,
+				26E7021C274CD3B00097A974 /* tiny_obj_loader.cpp in Sources */,
 				26E70208274BA6670097A974 /* imgui.cpp in Sources */,
 				26E7020A274BA6670097A974 /* imgui_draw.cpp in Sources */,
+				26E7021B274CC9D40097A974 /* mesh.cpp in Sources */,
 				26F9732A2719686000DFEC48 /* image.cpp in Sources */,
 				26B313C82715DA8C00DD0339 /* system.cpp in Sources */,
 				26E70218274CA1BA0097A974 /* main_pipeline.cpp in Sources */,
