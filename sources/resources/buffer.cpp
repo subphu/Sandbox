@@ -59,8 +59,8 @@ void Buffer::allocateBufferMemory() {
     m_cleaner.push([=](){ vkFreeMemory(device, m_bufferMemory, nullptr); });
 }
 
-void Buffer::cmdCopyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size) {
-    LOG("Buffer::cmdCopyFromBuffer");
+void Buffer::copyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size) {
+    LOG("Buffer::copyFromBuffer");
     VkBuffer   buffer    = m_buffer;
     Commander* pCommander = System::Commander();
     

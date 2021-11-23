@@ -32,6 +32,8 @@ public:
     void createPipelineLayout();
     void createPipeline();
     
+    Buffer* getOutputBuffer();
+    
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;

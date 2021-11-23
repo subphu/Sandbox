@@ -20,7 +20,7 @@ public:
     void createBuffer();
     void allocateBufferMemory();
     
-    void cmdCopyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size);
+    void copyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size);
     
     void* fillBuffer    (const void* address, VkDeviceSize size, uint32_t shift = 0);
     void* fillBufferFull(const void* address);

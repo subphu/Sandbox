@@ -69,6 +69,10 @@
 
 #define PI 3.14159265358979323846
 
+const std::string SPIRV_PATH   = "resources/spirv/";
+const std::string MODEL_PATH   = "resources/models/";
+const std::string TEXTURE_PATH = "resources/textures/";
+
 template<typename T> struct Size { T width, height, depth; };
 
 typedef VkExtent2D UInt2D;

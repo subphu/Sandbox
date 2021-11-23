@@ -13,7 +13,7 @@ void InterferencePipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); 
 
 void InterferencePipeline::setupShader() {
     LOG("InterferencePipeline::setupShader");
-    Shader* compShader = new Shader("resources/spirv/interference1d.spv", VK_SHADER_STAGE_COMPUTE_BIT);
+    Shader* compShader = new Shader(SPIRV_PATH + "interference1d.spv", VK_SHADER_STAGE_COMPUTE_BIT);
     m_shaderStage = compShader->getShaderStageInfo();
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
@@ -42,22 +42,22 @@ void InterferencePipeline::createDescriptor() {
     m_pDescriptor = new Descriptor();
     VkDescriptorBufferInfo descInfo = m_pOutputBuffer->getDescriptorInfo();
     
-    m_pDescriptor->setupLayout(L0);
-    m_pDescriptor->addLayoutBindings(L0, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+    m_pDescriptor->setupLayout(S0);
+    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                      VK_SHADER_STAGE_COMPUTE_BIT);
-    m_pDescriptor->createLayout(L0);
+    m_pDescriptor->createLayout(S0);
     m_pDescriptor->createPool();
 
-    m_pDescriptor->allocate(L0);
-    m_pDescriptor->setupPointerBuffer(L0, S0, B0, &descInfo);
-    m_pDescriptor->update(L0);
+    m_pDescriptor->allocate(S0);
+    m_pDescriptor->setupPointerBuffer(S0, B0, &descInfo);
+    m_pDescriptor->update(S0);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
 void InterferencePipeline::createPipelineLayout() {
     LOG("InterferencePipeline::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
-    VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(L0);
+    VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
     
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.size = sizeof(InterferenceDetails);
@@ -96,7 +96,7 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     LOG("InterferencePipeline::dispatch");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline          pipeline = m_pipeline;
-    VkDescriptorSet     descSet  = m_pDescriptor->getDescriptorSet(L0);
+    VkDescriptorSet     descSet  = m_pDescriptor->getDescriptorSet(S0);
     InterferenceDetails details  = m_details;
     
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT,
@@ -107,3 +107,5 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     
     vkCmdDispatch(cmdBuffer, details.length / 256, 1, 1);
 }
+
+Buffer* InterferencePipeline::getOutputBuffer() { return m_pOutputBuffer; }

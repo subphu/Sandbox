@@ -14,10 +14,19 @@ void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
 void ScreenSpacePipeline::setupShader() {
     LOG("ScreenSpacePipeline::setupShader");
-    Shader* vertShader = new Shader("resources/spirv/swapchain.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
-    Shader* fragShader = new Shader("resources/spirv/swapchain.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
+    Shader* vertShader = new Shader(SPIRV_PATH + "swapchain.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
+    Shader* fragShader = new Shader(SPIRV_PATH + "swapchain.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
     m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
+}
+
+void ScreenSpacePipeline::createRenderpass() {
+    VkSurfaceFormatKHR surfaceFormat = m_pDevice->getSurfaceFormat();
+    m_pRenderpass = new Renderpass();
+    m_pRenderpass->setupColorAttachment(surfaceFormat.format);
+    m_pRenderpass->setup();
+    m_pRenderpass->create();
+    m_cleaner.push([=](){ m_pRenderpass->cleanup(); });
 }
 
 void ScreenSpacePipeline::createPipelineLayout() {
@@ -41,9 +50,7 @@ void ScreenSpacePipeline::createPipeline() {
     viewportInfo.viewportCount = 1;
     viewportInfo.scissorCount  = 1;
 
-    VECTOR<VkDynamicState> dynamicStates;
-    dynamicStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
-    dynamicStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+    VECTOR<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 
     VkPipelineDynamicStateCreateInfo dynamicInfo{};
     dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -80,7 +87,7 @@ void ScreenSpacePipeline::createPipeline() {
     pipelineInfo.layout     = pipelineLayout;
     pipelineInfo.renderPass = pRenderpass->get();
     pipelineInfo.subpass    = 0;
-    pipelineInfo.stageCount = 2;
+    pipelineInfo.stageCount = UINT32(shaderStages.size());
     pipelineInfo.pStages             = shaderStages.data();
     pipelineInfo.pVertexInputState   = &vertexInputInfo;
     pipelineInfo.pViewportState      = &viewportInfo;
@@ -96,15 +103,6 @@ void ScreenSpacePipeline::createPipeline() {
     m_cleaner.push([=](){ vkDestroyPipeline(device, pipeline, nullptr); });
     
     m_pipeline = pipeline;
-}
-
-void ScreenSpacePipeline::createRenderpass() {
-    VkSurfaceFormatKHR surfaceFormat = m_pDevice->getSurfaceFormat();
-    m_pRenderpass = new Renderpass();
-    m_pRenderpass->setupColorAttachment(surfaceFormat.format);
-    m_pRenderpass->setup();
-    m_pRenderpass->create();
-    m_cleaner.push([=](){ m_pRenderpass->cleanup(); });
 }
 
 void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
