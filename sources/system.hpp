@@ -6,16 +6,28 @@
 #include "device.hpp"
 #include "commander.hpp"
 
+struct Settings {
+    bool ShowDemo  = false;
+    bool LockFPS   = false;
+    bool LockFocus = false;
+    
+    float ClearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+    float ClearDepth    = 1.0f;
+    uint  ClearStencil  = 0;
+};
+
 class System {
     
 public:
     Device*    m_pDevice    = nullptr;
     Commander* m_pCommander = nullptr;
+    Settings*  m_pSettings  = new struct Settings();
     
     static Device*    Device   () { return Instance().m_pDevice;    }
     static Commander* Commander() { return Instance().m_pCommander; }
+    static Settings*  Settings () { return Instance().m_pSettings;  }
     
-    static void setDevice   (class Device*    device   ) { Instance().m_pDevice = device; }
+    static void setDevice   (class Device*    device   ) { Instance().m_pDevice    = device; }
     static void setCommander(class Commander* commander) { Instance().m_pCommander = commander; }
     
     static System& Instance() {
