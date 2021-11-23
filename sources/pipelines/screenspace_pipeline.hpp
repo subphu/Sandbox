@@ -8,11 +8,11 @@
 #include "../renderer/renderpass.hpp"
 #include "../resources/frame.hpp"
 
-class FramePipeline {
+class ScreenSpacePipeline {
     
 public:
-    ~FramePipeline();
-    FramePipeline();
+    ~ScreenSpacePipeline();
+    ScreenSpacePipeline();
     
     void cleanup();
     void render(VkCommandBuffer cmdBuffer);

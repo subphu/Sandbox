@@ -52,20 +52,20 @@ void App::createInterferencePipeline() {
     m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
 }
 
-void App::createFramePipeline() {
-    m_pFramePipeline = new FramePipeline();
-    m_pFramePipeline->setupShader();
-    m_pFramePipeline->createRenderpass();
-    m_pFramePipeline->createPipelineLayout();
-    m_pFramePipeline->createPipeline();
-    m_cleaner.push([=](){ m_pFramePipeline->cleanup(); });
+void App::createScreenSpacePipeline() {
+    m_pScreenSpacePipeline = new ScreenSpacePipeline();
+    m_pScreenSpacePipeline->setupShader();
+    m_pScreenSpacePipeline->createRenderpass();
+    m_pScreenSpacePipeline->createPipelineLayout();
+    m_pScreenSpacePipeline->createPipeline();
+    m_cleaner.push([=](){ m_pScreenSpacePipeline->cleanup(); });
 }
 
 void App::createSwapchain() {
     m_pSwapchain = new Swapchain();
     m_pSwapchain->setup();
     m_pSwapchain->create();
-    m_pSwapchain->createFrames(m_pFramePipeline->getRenderpass());
+    m_pSwapchain->createFrames(m_pScreenSpacePipeline->getRenderpass());
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
 }
 
@@ -81,9 +81,10 @@ void App::setup() {
     initWindow();
     initDevice();
     initCommander();
-    createInterferencePipeline();
-    createFramePipeline();
+    createScreenSpacePipeline();
     createSwapchain();
+    
+    createInterferencePipeline();
     preRender();
 }
 
@@ -107,7 +108,7 @@ void App::update(long iteration) {
 
 void App::draw(long iteration) {
     Swapchain* pSwapchain = m_pSwapchain;
-    FramePipeline* pFramePipeline = m_pFramePipeline;
+    ScreenSpacePipeline* pScreenSpacePipeline = m_pScreenSpacePipeline;
     
     pSwapchain->prepareFrame();
     Frame*      pCurrentFrame = pSwapchain->getCurrentFrame();
@@ -117,8 +118,8 @@ void App::draw(long iteration) {
     VkResult result = vkBeginCommandBuffer(cmdBuffer, &commandBeginInfo);
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
     
-    pFramePipeline->setFrame(pCurrentFrame);
-    pFramePipeline->render(cmdBuffer);
+    pScreenSpacePipeline->setFrame(pCurrentFrame);
+    pScreenSpacePipeline->render(cmdBuffer);
     
     vkEndCommandBuffer(cmdBuffer);
     

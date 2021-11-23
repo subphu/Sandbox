@@ -22,7 +22,7 @@
 		26CA4E19273C1F5C00AC3D64 /* interference_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */; };
 		26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */; };
 		26EA7F0E273831D500B860CC /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26EA7F0D273831D500B860CC /* resources */; };
-		26F973262719672400DFEC48 /* frame_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* frame_pipeline.cpp */; };
+		26F973262719672400DFEC48 /* screenspace_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* screenspace_pipeline.cpp */; };
 		26F9732A2719686000DFEC48 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973282719686000DFEC48 /* image.cpp */; };
 		26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732B2719686C00DFEC48 /* buffer.cpp */; };
 		26F973302719687800DFEC48 /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732E2719687800DFEC48 /* shader.cpp */; };
@@ -117,8 +117,8 @@
 		26E35015271C391D00D3A61C /* imgui_demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
 		26E35016271C391D00D3A61C /* imgui_draw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 		26EA7F0D273831D500B860CC /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
-		26F973242719672400DFEC48 /* frame_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = frame_pipeline.cpp; sourceTree = "<group>"; };
-		26F973252719672400DFEC48 /* frame_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = frame_pipeline.hpp; sourceTree = "<group>"; };
+		26F973242719672400DFEC48 /* screenspace_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = screenspace_pipeline.cpp; sourceTree = "<group>"; };
+		26F973252719672400DFEC48 /* screenspace_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = screenspace_pipeline.hpp; sourceTree = "<group>"; };
 		26F973282719686000DFEC48 /* image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
 		26F973292719686000DFEC48 /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		26F9732B2719686C00DFEC48 /* buffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = buffer.cpp; sourceTree = "<group>"; };
@@ -351,8 +351,8 @@
 		26F97323271966D000DFEC48 /* pipelines */ = {
 			isa = PBXGroup;
 			children = (
-				26F973242719672400DFEC48 /* frame_pipeline.cpp */,
-				26F973252719672400DFEC48 /* frame_pipeline.hpp */,
+				26F973242719672400DFEC48 /* screenspace_pipeline.cpp */,
+				26F973252719672400DFEC48 /* screenspace_pipeline.hpp */,
 				26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */,
 				26CA4E18273C1F5C00AC3D64 /* interference_pipeline.hpp */,
 			);
@@ -461,7 +461,7 @@
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
 				2613475D26F88D3900B3E6A7 /* app.cpp in Sources */,
-				26F973262719672400DFEC48 /* frame_pipeline.cpp in Sources */,
+				26F973262719672400DFEC48 /* screenspace_pipeline.cpp in Sources */,
 				26F9732A2719686000DFEC48 /* image.cpp in Sources */,
 				26B313C82715DA8C00DD0339 /* system.cpp in Sources */,
 				26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */,

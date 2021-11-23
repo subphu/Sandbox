@@ -1,30 +1,27 @@
 //  Copyright © 2021 Subph. All rights reserved.
 //
 
-#include "frame_pipeline.hpp"
+#include "screenspace_pipeline.hpp"
 
 #include "../system.hpp"
 #include "../resources/shader.hpp"
 
 
-FramePipeline::~FramePipeline() {}
-FramePipeline::FramePipeline() : m_pDevice(System::Device()) {}
+ScreenSpacePipeline::~ScreenSpacePipeline() {}
+ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
 
-void FramePipeline::cleanup() {
-    LOG("FramePipeline::cleanup");
-    m_cleaner.flush();
-}
+void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
-void FramePipeline::setupShader() {
-    LOG("FramePipeline::setupShader");
+void ScreenSpacePipeline::setupShader() {
+    LOG("ScreenSpacePipeline::setupShader");
     Shader* vertShader = new Shader("resources/spirv/swapchain.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
     Shader* fragShader = new Shader("resources/spirv/swapchain.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
     m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void FramePipeline::createPipelineLayout() {
-    LOG("FramePipeline::createPipelineLayout");
+void ScreenSpacePipeline::createPipelineLayout() {
+    LOG("ScreenSpacePipeline::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{ VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
     VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout);
@@ -32,8 +29,8 @@ void FramePipeline::createPipelineLayout() {
     m_cleaner.push([=](){ vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr); });
 }
 
-void FramePipeline::createPipeline() {
-    LOG("FramePipeline::createPipeline");
+void ScreenSpacePipeline::createPipeline() {
+    LOG("ScreenSpacePipeline::createPipeline");
     VkDevice device = m_pDevice->getDevice();
     Renderpass* pRenderpass = m_pRenderpass;
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
@@ -101,7 +98,7 @@ void FramePipeline::createPipeline() {
     m_pipeline = pipeline;
 }
 
-void FramePipeline::createRenderpass() {
+void ScreenSpacePipeline::createRenderpass() {
     VkSurfaceFormatKHR surfaceFormat = m_pDevice->getSurfaceFormat();
     m_pRenderpass = new Renderpass();
     m_pRenderpass->setupColorAttachment(surfaceFormat.format);
@@ -110,7 +107,7 @@ void FramePipeline::createRenderpass() {
     m_cleaner.push([=](){ m_pRenderpass->cleanup(); });
 }
 
-void FramePipeline::render(VkCommandBuffer cmdBuffer) {
+void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     VkRenderPass renderpass = m_pRenderpass->get();
     VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
     UInt2D extent = m_pFrame->getExtent2D();
@@ -147,11 +144,13 @@ void FramePipeline::render(VkCommandBuffer cmdBuffer) {
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
     vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
     
+    System::GUI()->renderGUI(cmdBuffer);
+    
     vkCmdEndRenderPass(cmdBuffer);
 }
 
-void FramePipeline::setFrame(Frame *frame) { m_pFrame = frame; }
+void ScreenSpacePipeline::setFrame(Frame *frame) { m_pFrame = frame; }
 
-Renderpass* FramePipeline::getRenderpass() { return m_pRenderpass; }
+Renderpass* ScreenSpacePipeline::getRenderpass() { return m_pRenderpass; }
 
 

@@ -7,7 +7,7 @@
 #include "renderer/device.hpp"
 #include "renderer/commander.hpp"
 #include "renderer/swapchain.hpp"
-#include "pipelines/frame_pipeline.hpp"
+#include "pipelines/screenspace_pipeline.hpp"
 #include "pipelines/interference_pipeline.hpp"
 
 class App {
@@ -22,7 +22,7 @@ private:
     Commander* m_pCommander;
     
     Swapchain* m_pSwapchain;
-    FramePipeline* m_pFramePipeline;
+    ScreenSpacePipeline* m_pScreenSpacePipeline;
     InterferencePipeline* m_pInterferencePipeline;
     
     
@@ -39,7 +39,7 @@ private:
     void initCommander();
     
     void createSwapchain();
-    void createFramePipeline();
+    void createScreenSpacePipeline();
     void createInterferencePipeline();
     
     void checkResized();
