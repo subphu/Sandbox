@@ -5,6 +5,7 @@
 
 #include "device.hpp"
 #include "commander.hpp"
+#include "gui.hpp"
 
 struct Settings {
     bool ShowDemo  = false;
@@ -21,14 +22,19 @@ class System {
 public:
     Device*    m_pDevice    = nullptr;
     Commander* m_pCommander = nullptr;
+    GUI*       m_pGUI       = nullptr;
+    
     Settings*  m_pSettings  = new struct Settings();
     
     static Device*    Device   () { return Instance().m_pDevice;    }
     static Commander* Commander() { return Instance().m_pCommander; }
+    static GUI*       GUI      () { return Instance().m_pGUI;       }
+    
     static Settings*  Settings () { return Instance().m_pSettings;  }
     
     static void setDevice   (class Device*    device   ) { Instance().m_pDevice    = device; }
     static void setCommander(class Commander* commander) { Instance().m_pCommander = commander; }
+    static void setGUI      (class GUI*       gui      ) { Instance().m_pGUI       = gui; }
     
     static System& Instance() {
         static System instance; // Guaranteed to be destroyed. Instantiated on first use.

@@ -77,6 +77,15 @@ void App::preRender() {
     m_pCommander->endSingleTimeCommands(cmdBuffer);
 }
 
+void App::initGUI() {
+    Renderpass* pRenderpass = m_pScreenSpacePipeline->getRenderpass();
+    m_pGUI = new GUI();
+    m_pGUI->setWindow(m_pWindow);
+    m_pGUI->initGUI(pRenderpass->get());
+    System::Instance().setGUI(m_pGUI);
+    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
+}
+
 void App::setup() {
     initWindow();
     initDevice();
@@ -86,6 +95,7 @@ void App::setup() {
     
     createInterferencePipeline();
     preRender();
+    initGUI();
 }
 
 void App::loop() {

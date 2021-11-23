@@ -4,6 +4,7 @@
 #pragma once
 
 #include "window/window.hpp"
+#include "window/gui.hpp"
 #include "renderer/device.hpp"
 #include "renderer/commander.hpp"
 #include "renderer/swapchain.hpp"
@@ -21,6 +22,8 @@ private:
     Device* m_pDevice;
     Commander* m_pCommander;
     
+    GUI* m_pGUI;
+    
     Swapchain* m_pSwapchain;
     ScreenSpacePipeline* m_pScreenSpacePipeline;
     InterferencePipeline* m_pInterferencePipeline;
@@ -37,6 +40,7 @@ private:
     void initWindow();
     void initDevice();
     void initCommander();
+    void initGUI();
     
     void createSwapchain();
     void createScreenSpacePipeline();
