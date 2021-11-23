@@ -8,10 +8,7 @@
 Buffer::~Buffer() {}
 Buffer::Buffer() : m_pDevice(System::Device()) {}
 
-void Buffer::cleanup() {
-    LOG("Buffer::cleanup");
-    m_cleaner.flush();
-}
+void Buffer::cleanup() { m_cleaner.flush("Buffer"); }
 
 void Buffer::setup(VkDeviceSize size, VkBufferUsageFlags usage) {
     VkBufferCreateInfo bufferInfo = GetDefaultBufferCreateInfo();

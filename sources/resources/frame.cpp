@@ -8,10 +8,7 @@
 Frame::~Frame() {}
 Frame::Frame(UInt2D size) : m_pDevice(System::Device()), m_size(size) {}
 
-void Frame::cleanup() {
-    LOG("Frame::cleanup");
-    m_cleaner.flush();
-}
+void Frame::cleanup() { m_cleaner.flush("Frame"); }
 
 void Frame::createDepthResource() {
     m_pDepthImage = new Image();

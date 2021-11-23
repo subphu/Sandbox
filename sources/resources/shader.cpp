@@ -15,10 +15,7 @@ Shader::Shader(const std::string filepath, VkShaderStageFlagBits stage, const ch
     createStageInfo(stage, entryPoint);
 }
 
-void Shader::cleanup() {
-    LOG("Shader::cleanup");
-    m_cleaner.flush();
-}
+void Shader::cleanup() { m_cleaner.flush("Shader"); }
 
 void Shader::createModule(const std::string filepath) {
     LOG("Shader::createModule");

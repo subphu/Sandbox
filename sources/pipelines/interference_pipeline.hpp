@@ -31,12 +31,13 @@ public:
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
-    Buffer* m_pOutputBuffer;
     
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
     Descriptor* m_pDescriptor;
+    
+    Buffer* m_pOutputBuffer;
     
     InterferenceDetails m_details;
     

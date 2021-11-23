@@ -11,9 +11,7 @@ void App::run() {
     cleanup();
 }
 
-void App::cleanup() {
-    m_cleaner.flush();
-}
+void App::cleanup() { m_cleaner.flush("App"); }
 
 void App::initWindow() {
     m_pWindow = new Window();

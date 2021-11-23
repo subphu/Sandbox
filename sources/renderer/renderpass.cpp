@@ -8,10 +8,7 @@
 Renderpass::~Renderpass() {}
 Renderpass::Renderpass() : m_pDevice(System::Device()) {}
 
-void Renderpass::cleanup() {
-    LOG("Renderpass::cleanup");
-    m_cleaner.flush();
-}
+void Renderpass::cleanup() { m_cleaner.flush("Renderpass"); }
 
 void Renderpass::setupColorAttachment(VkFormat format) {
     VkAttachmentDescription colorAttachment{};

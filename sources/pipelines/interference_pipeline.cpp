@@ -9,10 +9,7 @@
 InterferencePipeline::~InterferencePipeline() {}
 InterferencePipeline::InterferencePipeline() : m_pDevice(System::Device()) {}
 
-void InterferencePipeline::cleanup() {
-    LOG("InterferencePipeline::cleanup");
-    m_cleaner.flush();
-}
+void InterferencePipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
 
 void InterferencePipeline::setupShader() {
     LOG("InterferencePipeline::setupShader");

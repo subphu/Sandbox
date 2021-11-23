@@ -81,7 +81,8 @@ struct Cleaner {
         stack.push(function);
     }
 
-    void flush() {
+    void flush(std::string name = "") {
+        printf ("Clean::%s::%lu process \n", name.c_str(), stack.size());
         while (!stack.empty()) {
             std::function<void()> cleaning = stack.top();
             cleaning();

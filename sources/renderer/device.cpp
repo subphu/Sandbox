@@ -6,10 +6,7 @@
 Device::Device() { }
 Device::~Device() { }
 
-void Device::cleanup() {
-    LOG("Device::cleanup");
-    m_cleaner.flush();
-}
+void Device::cleanup() { m_cleaner.flush("Device"); }
 
 void Device::setup() {
     LOG("Device::setup");

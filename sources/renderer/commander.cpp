@@ -8,10 +8,7 @@
 Commander::~Commander() {}
 Commander::Commander() : m_pDevice(System::Device()) {}
 
-void Commander::cleanup() {
-    LOG("Commander::cleanup");
-    m_cleaner.flush();
-}
+void Commander::cleanup() { m_cleaner.flush("Commander"); }
 
 void Commander::setupPool() {
     m_poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

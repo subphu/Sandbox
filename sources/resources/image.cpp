@@ -13,10 +13,7 @@ Image::Image() : m_pDevice(System::Device()),
                  m_imageInfo(GetDefaultImageCreateInfo()),
                  m_imageViewInfo(GetDefaultImageViewCreateInfo()) {}
 
-void Image::cleanup() {
-    LOG("Image::cleanup");
-    m_cleaner.flush();
-}
+void Image::cleanup() { m_cleaner.flush("Image"); }
 
 void Image::setupForDepth(UInt2D size) {
     LOG("Image::setupForColor");

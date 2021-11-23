@@ -8,10 +8,7 @@
 Swapchain::~Swapchain() {}
 Swapchain::Swapchain() : m_pDevice(System::Device()) {}
 
-void Swapchain::cleanup() {
-    LOG("Swapchain::cleanup");
-    m_cleaner.flush();
-}
+void Swapchain::cleanup() { m_cleaner.flush("Swapchain"); }
 
 void Swapchain::recreate() {
     LOG("Swapchain::recreate");

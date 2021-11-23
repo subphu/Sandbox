@@ -9,10 +9,7 @@
 Descriptor::~Descriptor() {}
 Descriptor::Descriptor() : m_pDevice(System::Device()) {}
 
-void Descriptor::cleanup() {
-    LOG("Descriptor::cleanup");
-    m_cleaner.flush();
-}
+void Descriptor::cleanup() { m_cleaner.flush("Descriptor"); }
 
 void Descriptor::setupLayout(uint id, uint count) {
     m_dataMap[id] = DescriptorSetData{ .id = id, .count = count };
