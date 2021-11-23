@@ -86,6 +86,20 @@ void App::initGUI() {
     m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
 }
 
+void App::createMainPipeline() {
+    Buffer* pCameraBuffer = nullptr;
+    Buffer* pInterferenceBuffer = m_pInterferencePipeline->getOutputBuffer();
+    UInt2D  size = m_pSwapchain->getCurrentFrame()->getExtent2D();
+    
+    m_pMainPipeline = new MainPipeline();
+    m_pMainPipeline->setupShader();
+    m_pMainPipeline->setupInput(pCameraBuffer, pInterferenceBuffer);
+    m_pMainPipeline->createRenderpass();
+    m_pMainPipeline->createPipelineLayout();
+    m_pMainPipeline->createPipeline();
+    m_pMainPipeline->createFrame(size);
+}
+
 void App::setup() {
     initWindow();
     initDevice();
@@ -94,6 +108,7 @@ void App::setup() {
     createSwapchain();
     
     createInterferencePipeline();
+    createMainPipeline();
     preRender();
     initGUI();
 }

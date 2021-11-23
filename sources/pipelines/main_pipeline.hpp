@@ -7,9 +7,23 @@
 #include "../renderer/device.hpp"
 #include "../renderer/renderpass.hpp"
 #include "../renderer/descriptor.hpp"
+#include "../resources/buffer.hpp"
 #include "../resources/frame.hpp"
+#include "../resources/mesh.hpp"
+
+struct CameraMatrix {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
+struct Misc {
+    glm::vec3 viewPosition;
+    uint bufferSize;
+};
 
 class MainPipeline {
+    
     
 public:
     ~MainPipeline();
@@ -19,14 +33,13 @@ public:
     void render(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput();
+    void setupInput(Buffer* pCameraBuffer, Buffer* pInterferenceBuffer);
     
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     void createRenderpass();
-    void createFrame();
-    
+    void createFrame(UInt2D size);
     
 private:
     Cleaner m_cleaner;
@@ -34,11 +47,39 @@ private:
     Renderpass* m_pRenderpass;
     Descriptor* m_pDescriptor;
     
-    Frame* m_pFrame;
+    Buffer* m_pMiscBuffer;
+    Buffer* m_pCameraBuffer;
+    Buffer* m_pInterferenceBuffer;
+    Frame*  m_pFrame;
+    Mesh*   m_pSphere;
+    VECTOR<Image*> m_pTextures;
+    
+    Misc         m_misc{};
+    CameraMatrix m_cameraMatrix{};
+    
+    uint textureIdx = 6; // 3,4,
     
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_pipeline;
     
     VkPushConstantRange m_pushConstantRange;
     VECTOR<VkPipelineShaderStageCreateInfo> m_shaderStages;
+    
+private:
+    
+    const std::vector<std::string> TEXTURE_NAMES = {"cliffrockface", "cobblestylized", "greasypan", "layered-rock1", "limestone6",  "roughrockface", "rustediron", "slimy-slippery-rock1", "slipperystonework", "worn-wet-old-cobblestone"};
+    const std::string TEXTURE_ALBEDO_PATH    = "_albedo.png";
+    const std::string TEXTURE_AO_PATH        = "_ao.png";
+    const std::string TEXTURE_METALLIC_PATH  = "_metallic.png";
+    const std::string TEXTURE_NORMAL_PATH    = "_normal.png";
+    const std::string TEXTURE_ROUGHNESS_PATH = "_roughness.png";
+    
+    std::string getTextureName();
+    std::string getAlbedoTexturePath();
+    std::string getAOTexturePath();
+    std::string getMetallicTexturePath();
+    std::string getNormalTexturePath();
+    std::string getRoughnessTexturePath();
+    VECTOR<std::string> getPBRTexturePaths();
+    
 };

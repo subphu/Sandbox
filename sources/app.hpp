@@ -10,6 +10,7 @@
 #include "renderer/swapchain.hpp"
 #include "pipelines/screenspace_pipeline.hpp"
 #include "pipelines/interference_pipeline.hpp"
+#include "pipelines/main_pipeline.hpp"
 
 class App {
 public:
@@ -27,6 +28,7 @@ private:
     Swapchain* m_pSwapchain;
     ScreenSpacePipeline* m_pScreenSpacePipeline;
     InterferencePipeline* m_pInterferencePipeline;
+    MainPipeline* m_pMainPipeline;
     
     
     void cleanup();
@@ -45,6 +47,7 @@ private:
     void createSwapchain();
     void createScreenSpacePipeline();
     void createInterferencePipeline();
+    void createMainPipeline();
     
     void checkResized();
     
