@@ -44,7 +44,6 @@ private:
     void initWindow();
     void initDevice();
     void initCommander();
-    void initGUI();
     
     void createSwapchain();
     void createScreenSpacePipeline();
