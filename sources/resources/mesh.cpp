@@ -165,7 +165,7 @@ void Mesh::loadModel(const char* filename) {
 
 void Mesh::createVertexBuffer() {
     LOG("Mesh::createVertexBuffer");
-    VkDeviceSize bufferSize = m_sizeofPosition + m_sizeofNormal + m_sizeofTexCoord;
+    VkDeviceSize bufferSize = sizeofPositions() + sizeofNormals() + sizeofTexCoords();
     
     Buffer* tempBuffer = new Buffer();
     tempBuffer->setup(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -184,7 +184,7 @@ void Mesh::createVertexBuffer() {
     Buffer* vertexBuffer = new Buffer();
     vertexBuffer->setup(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     vertexBuffer->create();
-    vertexBuffer->copyFromBuffer(tempBuffer->getBuffer(), bufferSize);
+    vertexBuffer->cmdCopyFromBuffer(tempBuffer->getBuffer(), bufferSize);
     
     tempBuffer->cleanup();
     
@@ -203,7 +203,7 @@ void Mesh::createIndexBuffer() {
     Buffer* indexBuffer = new Buffer();
     indexBuffer->setup(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     indexBuffer->create();
-    indexBuffer->copyFromBuffer(tempBuffer->getBuffer(), bufferSize);
+    indexBuffer->cmdCopyFromBuffer(tempBuffer->getBuffer(), bufferSize);
     
     tempBuffer->cleanup();
     

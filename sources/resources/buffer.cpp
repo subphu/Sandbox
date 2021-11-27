@@ -22,6 +22,7 @@ void Buffer::setup(VkDeviceSize size, VkBufferUsageFlags usage) {
 void Buffer::create() {
     createBuffer();
     allocateBufferMemory();
+    createDescriptorInfo();
 }
 
 void Buffer::createBuffer() {
@@ -59,8 +60,14 @@ void Buffer::allocateBufferMemory() {
     m_cleaner.push([=](){ vkFreeMemory(device, m_bufferMemory, nullptr); });
 }
 
-void Buffer::copyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size) {
-    LOG("Buffer::copyFromBuffer");
+void Buffer::createDescriptorInfo() {
+    m_descriptorInfo.buffer = m_buffer;
+    m_descriptorInfo.range  = m_bufferInfo.size;
+    m_descriptorInfo.offset = 0;
+}
+
+void Buffer::cmdCopyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size) {
+    LOG("Buffer::cmdCopyFromBuffer");
     VkBuffer   buffer    = m_buffer;
     Commander* pCommander = System::Commander();
     
@@ -98,13 +105,7 @@ void Buffer::unmapMemory() {
 VkBuffer       Buffer::getBuffer      () { return m_buffer;       }
 VkDeviceMemory Buffer::getBufferMemory() { return m_bufferMemory; }
 VkDeviceSize   Buffer::getBufferSize  () { return m_bufferInfo.size; }
-VkDescriptorBufferInfo Buffer::getDescriptorInfo() {
-    VkDescriptorBufferInfo descriptorInfo{};
-    descriptorInfo.buffer = m_buffer;
-    descriptorInfo.range  = m_bufferInfo.size;
-    descriptorInfo.offset = 0;
-    return descriptorInfo;
-}
+VkDescriptorBufferInfo* Buffer::getDescriptorInfo() { return &m_descriptorInfo; }
 
 
 // Private ==================================================

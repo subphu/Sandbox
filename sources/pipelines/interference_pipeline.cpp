@@ -40,7 +40,6 @@ void InterferencePipeline::setupOutput() {
 void InterferencePipeline::createDescriptor() {
     LOG("InterferencePipeline::createDescriptor");
     m_pDescriptor = new Descriptor();
-    VkDescriptorBufferInfo descInfo = m_pOutputBuffer->getDescriptorInfo();
     
     m_pDescriptor->setupLayout(S0);
     m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -49,7 +48,7 @@ void InterferencePipeline::createDescriptor() {
     m_pDescriptor->createPool();
 
     m_pDescriptor->allocate(S0);
-    m_pDescriptor->setupPointerBuffer(S0, B0, &descInfo);
+    m_pDescriptor->setupPointerBuffer(S0, B0, m_pOutputBuffer->getDescriptorInfo());
     m_pDescriptor->update(S0);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }

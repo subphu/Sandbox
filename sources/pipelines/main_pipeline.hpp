@@ -33,7 +33,8 @@ public:
     void render(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput(Buffer* pCameraBuffer, Buffer* pInterferenceBuffer);
+    void setupInput(Buffer* pInterferenceBuffer);
+    void updateInput();
     
     void createDescriptor();
     void createPipelineLayout();
@@ -66,7 +67,7 @@ private:
     VECTOR<VkPipelineShaderStageCreateInfo> m_shaderStages;
     
 private:
-    
+    const uint USED_TEXTURE = 5;
     const std::vector<std::string> TEXTURE_NAMES = {"cliffrockface", "cobblestylized", "greasypan", "layered-rock1", "limestone6",  "roughrockface", "rustediron", "slimy-slippery-rock1", "slipperystonework", "worn-wet-old-cobblestone"};
     const std::string TEXTURE_ALBEDO_PATH    = "_albedo.png";
     const std::string TEXTURE_AO_PATH        = "_ao.png";

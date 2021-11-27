@@ -176,6 +176,12 @@ void Image::allocateImageMemory() {
     m_imageMemory = imageMemory;
 }
 
+void Image::createDescriptorInfo() {
+    m_descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    m_descriptorInfo.imageView   = m_imageView;
+    m_descriptorInfo.sampler     = m_sampler;
+}
+
 void Image::createSampler() {
     LOG("Image::createSampler");
     VkDevice device    = m_pDevice->getDevice();
@@ -207,7 +213,7 @@ void Image::createSampler() {
     m_sampler = sampler;
 }
 
-void Image::copyCubemapToImage() {
+void Image::cmdCopyCubemapToImage() {
     LOG("Image::copyCubemapToImage");
     VECTOR<unsigned char*> rawData = m_rawCubemap;
     
@@ -228,7 +234,7 @@ void Image::copyCubemapToImage() {
     tempBuffer->cleanup();
 }
 
-void Image::copyRawDataToImage() {
+void Image::cmdCopyRawDataToImage() {
     LOG("Image::copyRawDataToImage");
     unsigned char* rawData = m_rawData;
     
@@ -246,7 +252,7 @@ void Image::copyRawDataToImage() {
     tempBuffer->cleanup();
 }
 
-void Image::copyRawHDRToImage() {
+void Image::cmdCopyRawHDRToImage() {
     LOG("Image::copyRawHDRToImage");
     float* rawData = m_rawHDR;
     
@@ -436,13 +442,7 @@ VkDeviceMemory  Image::getImageMemory() { return m_imageMemory; }
 VkSampler       Image::getSampler    () { return m_sampler;     }
 unsigned int    Image::getChannelSize() { return GetChannelSize(m_imageInfo.format); }
 VkDeviceSize    Image::getImageSize  () { return m_imageInfo.extent.width * m_imageInfo.extent.height * getChannelSize() * m_imageInfo.arrayLayers; }
-VkDescriptorImageInfo Image::getDescriptorInfo() {
-    VkDescriptorImageInfo descriptorInfo{};
-    descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    descriptorInfo.imageView   = m_imageView;
-    descriptorInfo.sampler     = m_sampler;
-    return descriptorInfo;
-}
+VkDescriptorImageInfo* Image::getDescriptorInfo() { return &m_descriptorInfo; }
 
 
 

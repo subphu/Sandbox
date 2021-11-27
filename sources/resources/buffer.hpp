@@ -19,8 +19,9 @@ public:
     
     void createBuffer();
     void allocateBufferMemory();
+    void createDescriptorInfo();
     
-    void copyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size);
+    void cmdCopyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size);
     
     void* fillBuffer    (const void* address, VkDeviceSize size, uint32_t shift = 0);
     void* fillBufferFull(const void* address);
@@ -31,7 +32,7 @@ public:
     VkBuffer       getBuffer      ();
     VkDeviceSize   getBufferSize  ();
     VkDeviceMemory getBufferMemory();
-    VkDescriptorBufferInfo getDescriptorInfo();
+    VkDescriptorBufferInfo* getDescriptorInfo();
     
     
     VkBufferCreateInfo m_bufferInfo{};
@@ -44,6 +45,7 @@ private:
     
     VkBuffer         m_buffer         = VK_NULL_HANDLE;
     VkDeviceMemory   m_bufferMemory   = VK_NULL_HANDLE;
+    VkDescriptorBufferInfo m_descriptorInfo{};
     
     static VkBufferCreateInfo GetDefaultBufferCreateInfo();
 };

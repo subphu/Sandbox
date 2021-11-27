@@ -88,13 +88,13 @@ void App::initGUI() {
 }
 
 void App::createMainPipeline() {
-    Buffer* pCameraBuffer = nullptr;
-    Buffer* pInterferenceBuffer = m_pInterferencePipeline->getOutputBuffer();
-    UInt2D  size = m_pSwapchain->getCurrentFrame()->getExtent2D();
+    LOG("App::createMainPipeline");
+    UInt2D size = m_pWindow->getFrameSize();
     
     m_pMainPipeline = new MainPipeline();
     m_pMainPipeline->setupShader();
-    m_pMainPipeline->setupInput(pCameraBuffer, pInterferenceBuffer);
+    m_pMainPipeline->setupInput(m_pInterferencePipeline->getOutputBuffer());
+    m_pMainPipeline->createDescriptor();
     m_pMainPipeline->createRenderpass();
     m_pMainPipeline->createPipelineLayout();
     m_pMainPipeline->createPipeline();
@@ -125,6 +125,7 @@ void App::loop() {
         checkResized();
         update(iteration);
         draw(iteration);
+        m_pWindow->resetInput();
     }
     m_pDevice->waitIdle();
 }

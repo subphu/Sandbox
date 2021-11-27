@@ -11,6 +11,32 @@ MainPipeline::MainPipeline() : m_pDevice(System::Device()) {}
 
 void MainPipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
 
+void MainPipeline::render(VkCommandBuffer cmdBuffer) {
+    VkRenderPass renderpass = m_pRenderpass->get();
+    VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
+    UInt2D extent = m_pFrame->getExtent2D();
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+    clearValues[1].depthStencil = {1.0f, 0};
+    
+    VkRenderPassBeginInfo renderBeginInfo{};
+    renderBeginInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderBeginInfo.clearValueCount = UINT32(clearValues.size());
+    renderBeginInfo.pClearValues    = clearValues.data();
+    renderBeginInfo.renderPass      = renderpass;
+    renderBeginInfo.framebuffer     = framebuffer;
+    renderBeginInfo.renderArea.extent = extent;
+    renderBeginInfo.renderArea.offset = {0,0};
+    
+    vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+    
+    
+    vkCmdEndRenderPass(cmdBuffer);
+    
+}
+
 void MainPipeline::setupShader() {
     LOG("MainPipeline::setupShader");
     Shader* vertShader = new Shader(SPIRV_PATH + "main1d.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
@@ -19,14 +45,38 @@ void MainPipeline::setupShader() {
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void MainPipeline::setupInput(Buffer* pCameraBuffer, Buffer* pInterferenceBuffer) {
-    m_pCameraBuffer       = pCameraBuffer;
+void MainPipeline::setupInput(Buffer* pInterferenceBuffer) {
+    LOG("MainPipeline::setupInput");
+    m_pCameraBuffer = new Buffer();
+    m_pCameraBuffer->setup(sizeof(Misc), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    m_pCameraBuffer->create();
+    m_cleaner.push([=](){ m_pCameraBuffer->cleanup(); });
+    
     m_pInterferenceBuffer = pInterferenceBuffer;
+    
     m_pMiscBuffer = new Buffer();
     m_pMiscBuffer->setup(sizeof(Misc), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     m_pMiscBuffer->create();
-    m_pMiscBuffer->fillBuffer(&m_misc, sizeof(Misc));
     m_cleaner.push([=](){ m_pMiscBuffer->cleanup(); });
+    
+    for (std::string path : getPBRTexturePaths()) {
+        Image* pTexture = new Image();
+        pTexture->setupForTexture(path);
+        pTexture->createForTexture();
+        pTexture->cmdCopyRawDataToImage();
+        m_pTextures.push_back(pTexture);
+        m_cleaner.push([=](){ pTexture->cleanup(); });
+    }
+    
+    m_pDescriptor->setupPointerBuffer(S0, B0, m_pCameraBuffer->getDescriptorInfo());
+    m_pDescriptor->setupPointerBuffer(S1, B0, m_pInterferenceBuffer->getDescriptorInfo());
+    m_pDescriptor->setupPointerBuffer(S1, B1, m_pMiscBuffer->getDescriptorInfo());
+    for (uint i = 0; i < m_pTextures.size(); i++)
+        m_pDescriptor->setupPointerImage(S2, i, m_pTextures[i]->getDescriptorInfo());
+    
+    m_pDescriptor->update(S0);
+    m_pDescriptor->update(S1);
+    m_pDescriptor->update(S2);
     
     m_pSphere = new Mesh();
     m_pSphere->createSphere();
@@ -34,65 +84,39 @@ void MainPipeline::setupInput(Buffer* pCameraBuffer, Buffer* pInterferenceBuffer
     m_pSphere->createIndexBuffer();
     m_pSphere->createVertexStateInfo();
     m_cleaner.push([=](){ m_pSphere->cleanup(); });
+}
+
+void MainPipeline::updateInput() {
+    m_pMiscBuffer->fillBuffer(&m_misc, sizeof(Misc));
     
-    for (std::string path : getPBRTexturePaths()) {
-        Image* pTexture = new Image();
-        pTexture->setupForTexture(path);
-        pTexture->createForTexture();
-        pTexture->copyRawDataToImage();
-        m_pTextures.push_back(pTexture);
-        m_cleaner.push([=](){ pTexture->cleanup(); });
-    }
 }
 
 void MainPipeline::createDescriptor() {
     LOG("MainPipeline::createDescriptor");
-    Buffer* pMiscBuffer         = m_pMiscBuffer;
-    Buffer* pCameraBuffer       = m_pCameraBuffer;
-    Buffer* pInterferenceBuffer = m_pInterferenceBuffer;
-    VECTOR<Image*> pTextures    = m_pTextures;
+    m_pDescriptor = new Descriptor();
+    m_pDescriptor->setupLayout(S0);
+    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                     VK_SHADER_STAGE_VERTEX_BIT);
+    m_pDescriptor->createLayout(S0);
     
-    Descriptor* pDescriptor = new Descriptor();
-    pDescriptor->setupLayout(S0);
-    pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                   VK_SHADER_STAGE_VERTEX_BIT);
-    pDescriptor->createLayout(S0);
+    m_pDescriptor->setupLayout(S1);
+    m_pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                     VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S1, B1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                     VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->createLayout(S1);
     
-    pDescriptor->setupLayout(S1);
-    pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                   VK_SHADER_STAGE_FRAGMENT_BIT);
-    pDescriptor->addLayoutBindings(S1, B1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                   VK_SHADER_STAGE_FRAGMENT_BIT);
-    pDescriptor->createLayout(S1);
-    
-    pDescriptor->setupLayout(S2);
-    for (uint i = 0; i < pTextures.size(); i++) {
-        pDescriptor->addLayoutBindings(S2, i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+    m_pDescriptor->setupLayout(S2);
+    for (uint i = 0; i < USED_TEXTURE; i++) {
+        m_pDescriptor->addLayoutBindings(S2, i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                        VK_SHADER_STAGE_FRAGMENT_BIT);
     }
-    pDescriptor->createLayout(S2);
+    m_pDescriptor->createLayout(S2);
     
-    pDescriptor->createPool();
-    pDescriptor->allocate(S0);
-    pDescriptor->allocate(S1);
-    pDescriptor->allocate(S2);
-    
-    VkDescriptorBufferInfo bufferInfo  = pCameraBuffer->getDescriptorInfo();
-    VkDescriptorBufferInfo outputBInfo = pInterferenceBuffer->getDescriptorInfo();
-    VkDescriptorBufferInfo miscBInfo   = pMiscBuffer->getDescriptorInfo();
-    pDescriptor->setupPointerBuffer(S0, B0, &bufferInfo);
-    pDescriptor->setupPointerBuffer(S1, B0, &outputBInfo);
-    pDescriptor->setupPointerBuffer(S1, B1, &miscBInfo);
-    pDescriptor->update(S0);
-    pDescriptor->update(S1);
-    
-    VkDescriptorImageInfo imageInfos[pTextures.size()];
-    for (uint i = 0; i < pTextures.size(); i++) {
-        imageInfos[i] = pTextures[i]->getDescriptorInfo();
-        pDescriptor->setupPointerImage(S2, i, &imageInfos[i]);
-    }
-    pDescriptor->update(S2);
-    
+    m_pDescriptor->createPool();
+    m_pDescriptor->allocate(S0);
+    m_pDescriptor->allocate(S1);
+    m_pDescriptor->allocate(S2);
 }
 
 void MainPipeline::createRenderpass() {
@@ -181,7 +205,7 @@ void MainPipeline::createPipeline() {
     depthStencilInfo.stencilTestEnable      = VK_TRUE;
     depthStencilInfo.depthCompareOp         = VK_COMPARE_OP_LESS;
 
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo{ VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo = m_pSphere->getVertexStateInfo();
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType      = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -214,14 +238,10 @@ void MainPipeline::createFrame(UInt2D size) {
     m_pFrame->createFramebuffer(m_pRenderpass);
 }
 
-void MainPipeline::render(VkCommandBuffer cmdBuffer) {
-    
-}
-
 std::string MainPipeline::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }
-std::string MainPipeline::getAlbedoTexturePath()    { return TEXTURE_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
-std::string MainPipeline::getAOTexturePath()        { return TEXTURE_PATH + getTextureName() + TEXTURE_AO_PATH; }
-std::string MainPipeline::getMetallicTexturePath()  { return TEXTURE_PATH + getTextureName() + TEXTURE_METALLIC_PATH; }
-std::string MainPipeline::getNormalTexturePath()    { return TEXTURE_PATH + getTextureName() + TEXTURE_NORMAL_PATH; }
-std::string MainPipeline::getRoughnessTexturePath() { return TEXTURE_PATH + getTextureName() + TEXTURE_ROUGHNESS_PATH; }
+std::string MainPipeline::getAlbedoTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
+std::string MainPipeline::getAOTexturePath()        { return PBR_PATH + getTextureName() + TEXTURE_AO_PATH; }
+std::string MainPipeline::getMetallicTexturePath()  { return PBR_PATH + getTextureName() + TEXTURE_METALLIC_PATH; }
+std::string MainPipeline::getNormalTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_NORMAL_PATH; }
+std::string MainPipeline::getRoughnessTexturePath() { return PBR_PATH + getTextureName() + TEXTURE_ROUGHNESS_PATH; }
 VECTOR<std::string> MainPipeline::getPBRTexturePaths(){ return { getAlbedoTexturePath(), getAOTexturePath(), getMetallicTexturePath(), getNormalTexturePath(), getRoughnessTexturePath() }; }

@@ -22,19 +22,20 @@ public:
     void setupForCubemap    (const std::string *filepaths);
     void setupForCubemap    (UInt2D size);
     
-    void create             ();
-    void createForTexture   ();
-    void createForCubemap   ();
-    void createForSwapchain ();
+    void create              ();
+    void createForTexture    ();
+    void createForCubemap    ();
+    void createForSwapchain  ();
+     
+    void createImage         ();
+    void createImageView     ();
+    void allocateImageMemory ();
+    void createDescriptorInfo();
+    void createSampler       ();
     
-    void createImage        ();
-    void createImageView    ();
-    void allocateImageMemory();
-    void createSampler      ();
-    
-    void copyRawHDRToImage  ();
-    void copyRawDataToImage ();
-    void copyCubemapToImage ();
+    void cmdCopyRawHDRToImage ();
+    void cmdCopyRawDataToImage();
+    void cmdCopyCubemapToImage();
     
     void cmdTransitionToTransferDest();
     void cmdCopyBufferToImage      (VkBuffer buffer);
@@ -46,8 +47,7 @@ public:
     VkDeviceSize     getImageSize  ();
     VkSampler        getSampler    ();
     unsigned int     getChannelSize();
-    VkDescriptorImageInfo getDescriptorInfo();
-    
+    VkDescriptorImageInfo* getDescriptorInfo();
     
     VkImageCreateInfo     m_imageInfo{};
     VkImageViewCreateInfo m_imageViewInfo{};
@@ -60,10 +60,11 @@ private:
     unsigned char* m_rawData;
     float        * m_rawHDR;
     VECTOR<unsigned char*> m_rawCubemap;
-    
+
     VkImage          m_image          = VK_NULL_HANDLE;
     VkImageView      m_imageView      = VK_NULL_HANDLE;
     VkDeviceMemory   m_imageMemory    = VK_NULL_HANDLE;
+    VkDescriptorImageInfo m_descriptorInfo{};
     
     // For Texture
     VkSampler m_sampler = VK_NULL_HANDLE;
