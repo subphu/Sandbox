@@ -41,18 +41,8 @@ void App::initCommander() {
     m_cleaner.push([=](){ m_pCommander->cleanup(); });
 }
 
-void App::createInterferencePipeline() {
-    m_pInterferencePipeline = new InterferencePipeline();
-    m_pInterferencePipeline->setupShader();
-    m_pInterferencePipeline->setupInput();
-    m_pInterferencePipeline->setupOutput();
-    m_pInterferencePipeline->createDescriptor();
-    m_pInterferencePipeline->createPipelineLayout();
-    m_pInterferencePipeline->createPipeline();
-    m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
-}
-
 void App::createScreenSpacePipeline() {
+    LOG("App::createScreenSpacePipeline");
     m_pScreenSpacePipeline = new ScreenSpacePipeline();
     m_pScreenSpacePipeline->setupShader();
     m_pScreenSpacePipeline->createRenderpass();
@@ -69,9 +59,20 @@ void App::createSwapchain() {
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
 }
 
-void App::preRender() {
-    Commander* pCommander = m_pCommander;
-    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+void App::createInterferencePipeline() {
+    LOG("App::renderInterference");
+    m_pInterferencePipeline = new InterferencePipeline();
+    m_pInterferencePipeline->setupShader();
+    m_pInterferencePipeline->setupInput(m_opdSample, m_refractiveIndex);
+    m_pInterferencePipeline->setupOutput();
+    m_pInterferencePipeline->createDescriptor();
+    m_pInterferencePipeline->createPipelineLayout();
+    m_pInterferencePipeline->createPipeline();
+    m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
+}
+
+void App::dispatchInterference() {
+    VkCommandBuffer cmdBuffer = m_pCommander->createCommandBuffer();
     m_pCommander->beginSingleTimeCommands(cmdBuffer);
     m_pInterferencePipeline->dispatch(cmdBuffer);
     m_pCommander->endSingleTimeCommands(cmdBuffer);
@@ -108,8 +109,9 @@ void App::setup() {
     createSwapchain();
     
     createInterferencePipeline();
+    dispatchInterference();
+    
     createMainPipeline();
-    preRender();
     initGUI();
 }
 

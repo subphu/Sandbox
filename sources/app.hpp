@@ -30,14 +30,16 @@ private:
     InterferencePipeline* m_pInterferencePipeline;
     MainPipeline* m_pMainPipeline;
     
+    uint  m_opdSample       = 65536;
+    float m_refractiveIndex = 1.5f;
+    
+    
     
     void cleanup();
     void setup();
     void loop();
     void update(long iteration);
     void draw(long iteration);
-    
-    void preRender();
     
     void initWindow();
     void initDevice();
@@ -47,6 +49,7 @@ private:
     void createSwapchain();
     void createScreenSpacePipeline();
     void createInterferencePipeline();
+    void dispatchInterference();
     void createMainPipeline();
     
     void checkResized();

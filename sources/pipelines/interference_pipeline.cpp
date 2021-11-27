@@ -18,9 +18,9 @@ void InterferencePipeline::setupShader() {
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
 
-void InterferencePipeline::setupInput() {
-    m_details.n      = 1.5f;
-    m_details.length = 256*256;
+void InterferencePipeline::setupInput(uint length, float n) {
+    m_details.n      = n;
+    m_details.length = length;
 }
 
 void InterferencePipeline::setupOutput() {

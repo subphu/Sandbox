@@ -25,7 +25,7 @@ public:
     void dispatch(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput();
+    void setupInput(uint length, float n);
     void setupOutput();
     
     void createDescriptor();
