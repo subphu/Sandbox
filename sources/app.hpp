@@ -23,7 +23,7 @@ private:
     Device* m_pDevice;
     Commander* m_pCommander;
     
-    GUI* m_pGUI;
+    Camera* m_pCamera;
     
     Swapchain* m_pSwapchain;
     ScreenSpacePipeline* m_pScreenSpacePipeline;

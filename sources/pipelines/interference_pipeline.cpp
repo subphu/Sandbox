@@ -34,7 +34,6 @@ void InterferencePipeline::setupOutput() {
                                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     m_pOutputBuffer->create();
     m_pOutputBuffer->fillBufferFull(outputData.data());
-    m_cleaner.push([=](){ m_pOutputBuffer->cleanup(); });
 }
 
 void InterferencePipeline::createDescriptor() {

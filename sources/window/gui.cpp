@@ -8,36 +8,33 @@
 GUI::~GUI() { }
 GUI::GUI() { }
 
-void GUI::setWindow(Window* window) { m_pWindow = window; }
-
-
 void GUI::cleanupGUI() { m_cleaner.flush("Settings"); }
 
-void GUI::initGUI(VkRenderPass renderPass) {
+void GUI::initGUI(Window* pWindow, Renderpass* pRenderpass) {
     LOG("Settings::initGUI");
-    GLFWwindow* pWindow = m_pWindow->getGLFWwindow();
-    Device*     pDevice = System::Device();
-    VkDevice    device  = pDevice->getDevice();
+    Device*      pDevice     = System::Device();
+    VkDevice     device      = pDevice->getDevice();
+    VkRenderPass renderpass  = pRenderpass->get();
+    GLFWwindow*  pGlfwWindow = pWindow->getGLFWwindow();
     
-    ImGui_ImplVulkan_InitInfo initInfo = {};
-    initInfo.Instance       = pDevice->getInstance();
-    initInfo.PhysicalDevice = pDevice->getPhysicalDevice();
-    initInfo.Device         = pDevice->getDevice();
-    initInfo.Queue          = pDevice->getGraphicQueue();
-    initInfo.DescriptorPool = IMGUI::CreateDescPool(device);
-    initInfo.MinImageCount  = 3;
-    initInfo.ImageCount     = 3;
-    initInfo.MSAASamples    = VK_SAMPLE_COUNT_1_BIT;
+    m_initInfo.Instance       = pDevice->getInstance();
+    m_initInfo.PhysicalDevice = pDevice->getPhysicalDevice();
+    m_initInfo.Device         = pDevice->getDevice();
+    m_initInfo.Queue          = pDevice->getGraphicQueue();
+    m_initInfo.DescriptorPool = IMGUI::CreateDescPool(device);
+    m_initInfo.MinImageCount  = 3;
+    m_initInfo.ImageCount     = 3;
+    m_initInfo.MSAASamples    = VK_SAMPLE_COUNT_1_BIT;
     
     ImGui::CreateContext();
     
-    ImGui_ImplGlfw_InitForVulkan(pWindow, nullptr);
-    ImGui_ImplVulkan_Init(&initInfo, renderPass);
+    ImGui_ImplGlfw_InitForVulkan(pGlfwWindow, nullptr);
+    ImGui_ImplVulkan_Init(&m_initInfo, renderpass);
     
     IMGUI::CreateFontsTexture(System::Commander());
     
     m_cleaner.push([=]() {
-        vkDestroyDescriptorPool(device, initInfo.DescriptorPool, nullptr);
+        vkDestroyDescriptorPool(device, m_initInfo.DescriptorPool, nullptr);
         ImGui_ImplVulkan_Shutdown();
     });
 }

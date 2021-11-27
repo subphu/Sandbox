@@ -12,6 +12,49 @@ ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
 
 void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
+void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
+    VkRenderPass renderpass = m_pRenderpass->get();
+    VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
+    UInt2D extent = m_pFrame->getExtent2D();
+    
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
+    clearValues[1].depthStencil = {1.0f, 0};
+    
+    VkViewport viewport{};
+    viewport.x = 0.f;
+    viewport.y = 0.f;
+    viewport.width  = extent.width;
+    viewport.height = extent.height;
+    viewport.minDepth = 0.f;
+    viewport.maxDepth = 1.f;
+    
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = extent;
+    
+    vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+    vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
+    
+    VkRenderPassBeginInfo renderBeginInfo{};
+    renderBeginInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderBeginInfo.clearValueCount = UINT32(clearValues.size());
+    renderBeginInfo.pClearValues    = clearValues.data();
+    renderBeginInfo.renderPass      = renderpass;
+    renderBeginInfo.framebuffer     = framebuffer;
+    renderBeginInfo.renderArea.extent = extent;
+    renderBeginInfo.renderArea.offset = {0,0};
+    
+    vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+    vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
+    
+    m_pGUI->renderGUI(cmdBuffer);
+    
+    vkCmdEndRenderPass(cmdBuffer);
+}
+
 void ScreenSpacePipeline::setupShader() {
     LOG("ScreenSpacePipeline::setupShader");
     Shader* vertShader = new Shader(SPIRV_PATH + "swapchain.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
@@ -103,51 +146,17 @@ void ScreenSpacePipeline::createPipeline() {
     m_cleaner.push([=](){ vkDestroyPipeline(device, pipeline, nullptr); });
     
     m_pipeline = pipeline;
+    m_pipelineInfo = pipelineInfo;
 }
 
-void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
-    VkRenderPass renderpass = m_pRenderpass->get();
-    VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
-    UInt2D extent = m_pFrame->getExtent2D();
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
-    clearValues[1].depthStencil = {1.0f, 0};
-    
-    VkViewport viewport{};
-    viewport.x = 0.f;
-    viewport.y = 0.f;
-    viewport.width  = extent.width;
-    viewport.height = extent.height;
-    viewport.minDepth = 0.f;
-    viewport.maxDepth = 1.f;
-    
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = extent;
-    
-    vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-    vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
-    
-    VkRenderPassBeginInfo renderBeginInfo{};
-    renderBeginInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderBeginInfo.clearValueCount = UINT32(clearValues.size());
-    renderBeginInfo.pClearValues    = clearValues.data();
-    renderBeginInfo.renderPass      = renderpass;
-    renderBeginInfo.framebuffer     = framebuffer;
-    renderBeginInfo.renderArea.extent = extent;
-    renderBeginInfo.renderArea.offset = {0,0};
-    
-    vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-    vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
-    
-    System::GUI()->renderGUI(cmdBuffer);
-    
-    vkCmdEndRenderPass(cmdBuffer);
+void ScreenSpacePipeline::createGUI(Window* pWindow) {
+    Renderpass* pRenderpass = m_pRenderpass;
+    m_pGUI = new GUI();
+    m_pGUI->initGUI(pWindow, pRenderpass);
+    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
 }
 
-void ScreenSpacePipeline::setFrame(Frame *frame) { m_pFrame = frame; }
+void ScreenSpacePipeline::setFrame(Frame *pFrame) { m_pFrame = pFrame; }
 
 Renderpass* ScreenSpacePipeline::getRenderpass() { return m_pRenderpass; }
 

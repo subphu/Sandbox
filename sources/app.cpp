@@ -48,6 +48,7 @@ void App::createScreenSpacePipeline() {
     m_pScreenSpacePipeline->createRenderpass();
     m_pScreenSpacePipeline->createPipelineLayout();
     m_pScreenSpacePipeline->createPipeline();
+    m_pScreenSpacePipeline->createGUI(m_pWindow);
     m_cleaner.push([=](){ m_pScreenSpacePipeline->cleanup(); });
 }
 
@@ -78,15 +79,6 @@ void App::dispatchInterference() {
     m_pCommander->endSingleTimeCommands(cmdBuffer);
 }
 
-void App::initGUI() {
-    Renderpass* pRenderpass = m_pScreenSpacePipeline->getRenderpass();
-    m_pGUI = new GUI();
-    m_pGUI->setWindow(m_pWindow);
-    m_pGUI->initGUI(pRenderpass->get());
-    System::Instance().setGUI(m_pGUI);
-    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
-}
-
 void App::createMainPipeline() {
     LOG("App::createMainPipeline");
     UInt2D size = m_pWindow->getFrameSize();
@@ -111,8 +103,7 @@ void App::setup() {
     createInterferencePipeline();
     dispatchInterference();
     
-    createMainPipeline();
-    initGUI();
+//    createMainPipeline();
 }
 
 void App::loop() {

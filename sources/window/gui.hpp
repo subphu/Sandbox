@@ -5,6 +5,7 @@
 
 #include "../include.h"
 #include "window.hpp"
+#include "../renderer/renderpass.hpp"
 
 #include "../extensions/ext_imgui.h"
 
@@ -15,16 +16,15 @@ public:
     ~GUI();
     
     void cleanupGUI();
-    
-    void setWindow(Window* window);
 
-    void initGUI(VkRenderPass renderPass);
+    void initGUI(Window* pWindow, Renderpass* pRenderpass);
     void renderGUI(VkCommandBuffer commandBuffer);
     
 private:
-    
     Cleaner m_cleaner;
     Window* m_pWindow;
+    
+    ImGui_ImplVulkan_InitInfo m_initInfo{};
     
     void drawStatusWindow();
 };
