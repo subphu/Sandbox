@@ -30,15 +30,15 @@ public:
     VkSurfaceKHR createSurface(VkInstance instance);
     VkSurfaceKHR getSurface();
     
-    void create(Size<int> size, const char* name);
+    void create(UInt2D size, const char* name);
     void close();
     
     bool isOpen();
     float getRatio();
-    Size<int> getSize();
-    Size<int> getFrameSize();
+    UInt2D getSize();
+    UInt2D getFrameSize();
     
-    void setSize(Size<int> size);
+    void setSize(UInt2D size);
     void notifyResize();
     bool checkResized();
     
@@ -61,7 +61,7 @@ public:
 private:
     GLFWwindow* m_pWindow;
     const char* m_name    = "Vulkan";
-    Size<int>   m_size    = { 900, 900 };
+    UInt2D      m_size    = { 900, 900 };
     bool        m_resized = false;
     
     glm::vec2 m_cursorPos;

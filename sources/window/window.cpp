@@ -6,7 +6,7 @@
 Window::Window() { }
 Window::~Window() { }
 
-void Window::create(Size<int> size, const char* name) {
+void Window::create(UInt2D size, const char* name) {
     LOG("Window::create");
     m_name = name;
     setSize(size);
@@ -51,23 +51,23 @@ void Window::pollEvents() {
 }
 
 float Window::getRatio() {
-    Size<int> size = getSize();
+    UInt2D size = getFrameSize();
     return (float)size.width / (float)size.height;
 }
 
-Size<int> Window::getFrameSize () {
+UInt2D Window::getFrameSize () {
     int width, height;
     glfwGetFramebufferSize(m_pWindow, &width, &height);
-    return { width, height };
+    return { UINT32(width), UINT32(height) };
 }
 
-Size<int> Window::getSize () {
+UInt2D Window::getSize () {
     int width, height;
     glfwGetWindowSize(m_pWindow, &width, &height);
-    return { width, height };
+    return { UINT32(width), UINT32(height) };
 }
 
-void Window::setSize(Size<int> size) {
+void Window::setSize(UInt2D size) {
     glfwSetWindowSize(m_pWindow, size.width, size.height);
 }
 
