@@ -244,6 +244,7 @@ void Mesh::rotate(float angle, glm::vec3 axis) { m_model = glm::rotate(m_model, 
 void Mesh::translate(glm::vec3 translation)    { m_model = glm::translate(m_model, translation); }
 
 glm::mat4 Mesh::getMatrix() { return m_model; }
+VkPipelineVertexInputStateCreateInfo Mesh::getVertexStateInfo() { return m_vertexStateInfo; }
 
 uint32_t Mesh::sizeofPositions() { return m_sizeofPosition * (uint32_t) m_positions.size(); }
 uint32_t Mesh::sizeofNormals  () { return m_sizeofNormal   * (uint32_t) m_normals.size(); }
