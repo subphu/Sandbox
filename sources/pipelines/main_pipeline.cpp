@@ -12,13 +12,27 @@ MainPipeline::MainPipeline() : m_pDevice(System::Device()) {}
 void MainPipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
 
 void MainPipeline::render(VkCommandBuffer cmdBuffer) {
-    VkPipeline pipeline = m_pPipeline->get();
-    VkRenderPass renderpass = m_pRenderpass->get();
-    VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
-    UInt2D extent = m_pFrame->getExtent2D();
+    updateViewportScissor();
+    VkPipelineLayout pipelineLayout = m_pipelineLayout;
+    VkPipeline       pipeline       = m_pPipeline->get();
+    VkRenderPass     renderpass     = m_pRenderpass->get();
+    VkFramebuffer    framebuffer    = m_pFrame->getFramebuffer();
+    VkRect2D         scissor        = m_scissor;
+    VkViewport       viewport       = m_viewport;
+    
+    VkDeviceSize offsets  = 0;
+    VkBuffer vertexBuffer = m_pSphere->getVertexBuffer()->get();
+    VkBuffer indexBuffer  = m_pSphere->getIndexBuffer()->get();
+    uint32_t indexSize    = m_pSphere->getIndexSize();
+    
+    VkDescriptorSet cameraDescSet  = m_pDescriptor->getDescriptorSet(S0);
+    VkDescriptorSet miscDescSet    = m_pDescriptor->getDescriptorSet(S1);
+    VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
+    
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+    clearValues[0].color = {0.0f, 1.0f, .50f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
+    
     
     VkRenderPassBeginInfo renderBeginInfo{};
     renderBeginInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -26,16 +40,27 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.pClearValues    = clearValues.data();
     renderBeginInfo.renderPass      = renderpass;
     renderBeginInfo.framebuffer     = framebuffer;
-    renderBeginInfo.renderArea.extent = extent;
-    renderBeginInfo.renderArea.offset = {0,0};
+    renderBeginInfo.renderArea      = scissor;
+    
+    vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+    vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
     
     vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S0, 1, &cameraDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S1, 1, &miscDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S2, 1, &textureDescSet, 0, nullptr);
+    
+    vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, &offsets);
+    vkCmdBindIndexBuffer  (cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+    vkCmdDrawIndexed(cmdBuffer, indexSize, 1, 0, 0, 0);
     
     vkCmdEndRenderPass(cmdBuffer);
-    
 }
 
 void MainPipeline::setupShader() {
@@ -200,6 +225,18 @@ void MainPipeline::createFrame(UInt2D size) {
     m_pFrame->createDepthResource();
     m_pFrame->createFramebuffer(m_pRenderpass);
     m_cleaner.push([=](){ m_pFrame->cleanup(); });
+}
+
+void MainPipeline::updateViewportScissor() {
+    UInt2D extent = m_pFrame->getExtent2D();
+    m_viewport.x = 0.f;
+    m_viewport.y = 0.f;
+    m_viewport.width  = extent.width;
+    m_viewport.height = extent.height;
+    m_viewport.minDepth = 0.f;
+    m_viewport.maxDepth = 1.f;
+    m_scissor.offset = {0, 0};
+    m_scissor.extent = extent;
 }
 
 std::string MainPipeline::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }

@@ -36,11 +36,15 @@ public:
     glm::mat4 getMatrix();
     VkPipelineVertexInputStateCreateInfo getVertexStateInfo();
     
+    Buffer*  getVertexBuffer();
+    Buffer*  getIndexBuffer();
+    uint32_t getIndexSize();
+    
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
-    Buffer* m_vertexBuffer;
-    Buffer* m_indexBuffer;
+    Buffer* m_pVertexBuffer;
+    Buffer* m_pIndexBuffer;
     
     glm::mat4 m_model;
     

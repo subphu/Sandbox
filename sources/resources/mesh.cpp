@@ -20,8 +20,8 @@ Mesh::~Mesh() {}
 Mesh::Mesh() : m_model(glm::mat4(1.0f)) {}
 
 void Mesh::cleanup() {
-    m_indexBuffer->cleanup();
-    m_vertexBuffer->cleanup();
+    m_pIndexBuffer->cleanup();
+    m_pVertexBuffer->cleanup();
 }
 
 void Mesh::createPlane() {
@@ -188,7 +188,7 @@ void Mesh::createVertexBuffer() {
     
     tempBuffer->cleanup();
     
-    m_vertexBuffer = vertexBuffer;
+    m_pVertexBuffer = vertexBuffer;
 }
 
 void Mesh::createIndexBuffer() {
@@ -207,7 +207,7 @@ void Mesh::createIndexBuffer() {
     
     tempBuffer->cleanup();
     
-    { m_indexBuffer = indexBuffer; }
+    { m_pIndexBuffer = indexBuffer; }
 }
 
 void Mesh::createVertexStateInfo() {
@@ -246,7 +246,11 @@ void Mesh::translate(glm::vec3 translation)    { m_model = glm::translate(m_mode
 glm::mat4 Mesh::getMatrix() { return m_model; }
 VkPipelineVertexInputStateCreateInfo Mesh::getVertexStateInfo() { return m_vertexStateInfo; }
 
-uint32_t Mesh::sizeofPositions() { return m_sizeofPosition * (uint32_t) m_positions.size(); }
-uint32_t Mesh::sizeofNormals  () { return m_sizeofNormal   * (uint32_t) m_normals.size(); }
-uint32_t Mesh::sizeofTexCoords() { return m_sizeofTexCoord * (uint32_t) m_texCoords.size(); }
-uint32_t Mesh::sizeofIndices  () { return m_sizeofIndex    * (uint32_t) m_indices.size(); }
+Buffer*  Mesh::getVertexBuffer() { return m_pVertexBuffer ; }
+Buffer*  Mesh::getIndexBuffer()  { return m_pIndexBuffer;   }
+uint32_t Mesh::getIndexSize()    { return UINT32(m_indices.size()); }
+
+uint32_t Mesh::sizeofPositions() { return m_sizeofPosition * UINT32(m_positions.size()); }
+uint32_t Mesh::sizeofNormals  () { return m_sizeofNormal   * UINT32(m_normals.size()); }
+uint32_t Mesh::sizeofTexCoords() { return m_sizeofTexCoord * UINT32(m_texCoords.size()); }
+uint32_t Mesh::sizeofIndices  () { return m_sizeofIndex    * UINT32(m_indices.size()); }

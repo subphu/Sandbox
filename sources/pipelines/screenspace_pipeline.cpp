@@ -13,29 +13,17 @@ ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
 void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
 void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
-    VkPipeline pipeline = m_pPipeline->get();
-    VkRenderPass renderpass = m_pRenderpass->get();
-    VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
-    UInt2D extent = m_pFrame->getExtent2D();
+    updateViewportScissor();
+//    VkPipelineLayout pipelineLayout = m_pipelineLayout;
+    VkPipeline       pipeline       = m_pPipeline->get();
+    VkRenderPass     renderpass     = m_pRenderpass->get();
+    VkFramebuffer    framebuffer    = m_pFrame->getFramebuffer();
+    VkRect2D         scissor        = m_scissor;
+    VkViewport       viewport       = m_viewport;
     
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
-    
-    VkViewport viewport{};
-    viewport.x = 0.f;
-    viewport.y = 0.f;
-    viewport.width  = extent.width;
-    viewport.height = extent.height;
-    viewport.minDepth = 0.f;
-    viewport.maxDepth = 1.f;
-    
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = extent;
-    
-    vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-    vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
     
     VkRenderPassBeginInfo renderBeginInfo{};
     renderBeginInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -43,8 +31,10 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.pClearValues    = clearValues.data();
     renderBeginInfo.renderPass      = renderpass;
     renderBeginInfo.framebuffer     = framebuffer;
-    renderBeginInfo.renderArea.extent = extent;
-    renderBeginInfo.renderArea.offset = {0,0};
+    renderBeginInfo.renderArea      = scissor;
+    
+    vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+    vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
     
     vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -114,6 +104,18 @@ void ScreenSpacePipeline::createGUI(Window* pWindow) {
     m_pGUI = new GUI();
     m_pGUI->initGUI(pWindow, pRenderpass);
     m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
+}
+
+void ScreenSpacePipeline::updateViewportScissor() {
+    UInt2D extent = m_pFrame->getExtent2D();
+    m_viewport.x = 0.f;
+    m_viewport.y = 0.f;
+    m_viewport.width  = extent.width;
+    m_viewport.height = extent.height;
+    m_viewport.minDepth = 0.f;
+    m_viewport.maxDepth = 1.f;
+    m_scissor.offset = {0, 0};
+    m_scissor.extent = extent;
 }
 
 void ScreenSpacePipeline::setFrame(Frame *pFrame) { m_pFrame = pFrame; }

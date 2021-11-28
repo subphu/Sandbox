@@ -7,6 +7,7 @@
 #include "../renderer/device.hpp"
 #include "../renderer/pipeline.hpp"
 #include "../renderer/renderpass.hpp"
+#include "../renderer/descriptor.hpp"
 #include "../resources/frame.hpp"
 #include "../window/gui.hpp"
 #include "../window/window.hpp"
@@ -36,10 +37,18 @@ private:
     Device* m_pDevice;
     Pipeline* m_pPipeline;
     Renderpass* m_pRenderpass;
+    Descriptor* m_pDescriptor;
+    
     Frame* m_pFrame;
     GUI* m_pGUI;
-
+    
+    VkViewport m_viewport{};
+    VkRect2D   m_scissor{};
+    
     VkPipelineLayout m_pipelineLayout;
     
     VECTOR<VkPipelineShaderStageCreateInfo> m_shaderStages;
+  
+    void updateViewportScissor();
+    
 };

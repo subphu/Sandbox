@@ -62,12 +62,17 @@ private:
     Misc         m_misc{};
     CameraMatrix m_cameraMatrix{};
     
+    VkViewport m_viewport{};
+    VkRect2D   m_scissor{};
+    
     uint textureIdx = 6; // 3,4,
     
     VkPipelineLayout m_pipelineLayout;
     
     VkPushConstantRange m_pushConstantRange;
     VECTOR<VkPipelineShaderStageCreateInfo> m_shaderStages;
+    
+    void updateViewportScissor();
     
 private:
     const uint USED_TEXTURE = 5;
