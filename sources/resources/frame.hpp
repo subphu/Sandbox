@@ -24,11 +24,13 @@ public:
     
     VkFramebuffer getFramebuffer();
     UInt2D        getExtent2D();
+    Image*        getColorImage();
+    Image*        getDepthImage();
     
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
-    Image*  m_pImage;
+    Image*  m_pColorImage;
     Image*  m_pDepthImage;
     
     UInt2D  m_size{};

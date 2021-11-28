@@ -19,19 +19,19 @@ void Frame::createDepthResource() {
 }
 
 void Frame::createImageResource() {
-    m_pImage = new Image();
-    m_pImage->setupForColor(m_size);
-    m_pImage->create();
-    m_attachments.push_back(m_pImage->getImageView());
-    m_cleaner.push([=](){ m_pImage->cleanup(); });
+    m_pColorImage = new Image();
+    m_pColorImage->setupForColor(m_size);
+    m_pColorImage->create();
+    m_attachments.push_back(m_pColorImage->getImageView());
+    m_cleaner.push([=](){ m_pColorImage->cleanup(); });
 }
 
 void Frame::createImageResource(VkImage image, VkFormat format) {
-    m_pImage = new Image();
-    m_pImage->setupForSwapchain(image, format);
-    m_pImage->createForSwapchain();
-    m_attachments.push_back(m_pImage->getImageView());
-    m_cleaner.push([=](){ m_pImage->cleanup(); });
+    m_pColorImage = new Image();
+    m_pColorImage->setupForSwapchain(image, format);
+    m_pColorImage->createForSwapchain();
+    m_attachments.push_back(m_pColorImage->getImageView());
+    m_cleaner.push([=](){ m_pColorImage->cleanup(); });
 }
 
 void Frame::createFramebuffer(Renderpass* renderpass) {
@@ -59,3 +59,5 @@ void Frame::createFramebuffer(Renderpass* renderpass) {
 
 VkFramebuffer Frame::getFramebuffer() { return m_framebuffer; }
 UInt2D Frame::getExtent2D() { return m_size; }
+Image* Frame::getColorImage() { return m_pColorImage;}
+Image* Frame::getDepthImage() { return m_pDepthImage;}
