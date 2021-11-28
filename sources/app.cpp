@@ -45,6 +45,7 @@ void App::createScreenSpacePipeline() {
     LOG("App::createScreenSpacePipeline");
     m_pScreenSpacePipeline = new ScreenSpacePipeline();
     m_pScreenSpacePipeline->setupShader();
+    m_pScreenSpacePipeline->createDescriptor();
     m_pScreenSpacePipeline->createRenderpass();
     m_pScreenSpacePipeline->createPipelineLayout();
     m_pScreenSpacePipeline->createPipeline();
@@ -95,6 +96,7 @@ void App::createMainPipeline() {
     m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
     
     m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
+    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame()->getColorImage());
 }
 
 void App::setup() {
@@ -136,6 +138,7 @@ void App::update(long iteration) {
 
 void App::draw(long iteration) {
     Swapchain* pSwapchain = m_pSwapchain;
+    MainPipeline* pMainPipeline = m_pMainPipeline;
     ScreenSpacePipeline* pScreenSpacePipeline = m_pScreenSpacePipeline;
     
     pSwapchain->prepareFrame();
@@ -145,6 +148,8 @@ void App::draw(long iteration) {
     VkCommandBufferBeginInfo commandBeginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     VkResult result = vkBeginCommandBuffer(cmdBuffer, &commandBeginInfo);
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
+    
+    pMainPipeline->render(cmdBuffer);
     
     pScreenSpacePipeline->setFrame(pCurrentFrame);
     pScreenSpacePipeline->render(cmdBuffer);

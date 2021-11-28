@@ -14,12 +14,15 @@ void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
 void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     updateViewportScissor();
-//    VkPipelineLayout pipelineLayout = m_pipelineLayout;
+    Image*           pRenderImage   = m_pRenderImage;
+    VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
     VkRenderPass     renderpass     = m_pRenderpass->get();
     VkFramebuffer    framebuffer    = m_pFrame->getFramebuffer();
     VkRect2D         scissor        = m_scissor;
     VkViewport       viewport       = m_viewport;
+    
+    VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S0);
     
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -33,10 +36,15 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.framebuffer     = framebuffer;
     renderBeginInfo.renderArea      = scissor;
     
+    pRenderImage->cmdTransitionPresentToShader(cmdBuffer);
+    
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
     
     vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S0, 1, &textureDescSet, 0, nullptr);
 
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
@@ -44,6 +52,8 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     m_pGUI->renderGUI(cmdBuffer);
     
     vkCmdEndRenderPass(cmdBuffer);
+    
+    pRenderImage->cmdTransitionShaderToPresent(cmdBuffer);
 }
 
 void ScreenSpacePipeline::setupShader() {
@@ -52,6 +62,26 @@ void ScreenSpacePipeline::setupShader() {
     Shader* fragShader = new Shader(SPIRV_PATH + "swapchain.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
     m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
+}
+
+void ScreenSpacePipeline::setupInput(Image* pImage) {
+    LOG("ScreenSpacePipeline::setupShader");
+    m_pRenderImage = pImage;
+    
+    m_pDescriptor->setupPointerImage(S0, B0, pImage->getDescriptorInfo());
+    m_pDescriptor->update(S0);
+}
+
+void ScreenSpacePipeline::createDescriptor() {
+    m_pDescriptor = new Descriptor();
+    m_pDescriptor->setupLayout(S0);
+    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->createLayout(S0);
+    
+    m_pDescriptor->createPool();
+    m_pDescriptor->allocate(S0);
+    m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
 void ScreenSpacePipeline::createRenderpass() {
@@ -66,7 +96,13 @@ void ScreenSpacePipeline::createRenderpass() {
 void ScreenSpacePipeline::createPipelineLayout() {
     LOG("ScreenSpacePipeline::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{ VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+    VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
+    
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts    = &descSetLayout;
+    
     VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout);
     CHECK_VKRESULT(result, "failed to create pipeline layout!");
     m_cleaner.push([=](){ vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr); });

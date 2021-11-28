@@ -9,6 +9,7 @@
 #include "../renderer/renderpass.hpp"
 #include "../renderer/descriptor.hpp"
 #include "../resources/frame.hpp"
+#include "../resources/image.hpp"
 #include "../window/gui.hpp"
 #include "../window/window.hpp"
 
@@ -22,7 +23,10 @@ public:
     void render(VkCommandBuffer cmdBuffer);
     
     void setupShader();
+    void setupInput(Image* pImage);
     
+    
+    void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     void createRenderpass();
@@ -39,6 +43,7 @@ private:
     Renderpass* m_pRenderpass;
     Descriptor* m_pDescriptor;
     
+    Image* m_pRenderImage;
     Frame* m_pFrame;
     GUI* m_pGUI;
     

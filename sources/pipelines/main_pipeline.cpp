@@ -239,6 +239,8 @@ void MainPipeline::updateViewportScissor() {
     m_scissor.extent = extent;
 }
 
+Frame* MainPipeline::getFrame() { return m_pFrame; }
+
 std::string MainPipeline::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }
 std::string MainPipeline::getAlbedoTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
 std::string MainPipeline::getAOTexturePath()        { return PBR_PATH + getTextureName() + TEXTURE_AO_PATH; }

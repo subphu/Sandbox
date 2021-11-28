@@ -45,6 +45,8 @@ public:
     void createRenderpass();
     void createFrame(UInt2D size);
     
+    Frame* getFrame();
+    
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
