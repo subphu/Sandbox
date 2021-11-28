@@ -61,7 +61,6 @@ void Image::setupForTexture(const std::string filepath) {
     m_imageViewInfo.format    = m_imageInfo.format;
     m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
     m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    
 }
 
 void Image::setupForHDRTexture(const std::string filepath) {
@@ -113,17 +112,11 @@ void Image::create() {
     createImage();
     allocateImageMemory();
     createImageView();
-}
-
-void Image::createForTexture() {
-    createImage();
-    allocateImageMemory();
-    createImageView();
     createSampler();
     createDescriptorInfo();
 }
 
-void Image::createForCubemap() {
+void Image::createForTexture() {
     createImage();
     allocateImageMemory();
     createImageView();
@@ -272,16 +265,52 @@ void Image::cmdCopyRawHDRToImage() {
     tempBuffer->cleanup();
 }
 
+void Image::cmdTransitionPresentToShader(VkCommandBuffer cmdBuffer) {
+    VkImage image = m_image;
+    
+    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
+    barrier.image         = image;
+    barrier.oldLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.layerCount = 1;
+    
+    vkCmdPipelineBarrier(cmdBuffer,
+                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         0,
+                         0, nullptr,
+                         0, nullptr,
+                         1, &barrier);
+}
+
+void Image::cmdTransitionShaderToPresent(VkCommandBuffer cmdBuffer) {
+    VkImage image = m_image;
+    
+    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
+    barrier.image         = image;
+    barrier.oldLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.layerCount = 1;
+    
+    vkCmdPipelineBarrier(cmdBuffer,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                         0,
+                         0, nullptr,
+                         0, nullptr,
+                         1, &barrier);
+}
+
 void Image::cmdTransitionToTransferDest() {
-    LOG("Image::cmdTransitionToTransferDest");
     VkImage               image         = m_image;
     VkImageCreateInfo     imageInfo     = m_imageInfo;
     VkImageViewCreateInfo imageViewInfo = m_imageViewInfo;
-    
-    Commander* pCommander = System::Commander();
-    
-    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(commandBuffer);
+    Commander*            pCommander    = System::Commander();
+    VkCommandBuffer       cmdBuffer     = pCommander->createCommandBuffer();
     
     VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
     barrier.image         = image;
@@ -291,15 +320,51 @@ void Image::cmdTransitionToTransferDest() {
     barrier.subresourceRange.levelCount = imageInfo.mipLevels;
     barrier.subresourceRange.layerCount = imageViewInfo.subresourceRange.layerCount;
     
-    vkCmdPipelineBarrier(commandBuffer,
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    vkCmdPipelineBarrier(cmdBuffer,
                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                          VK_PIPELINE_STAGE_TRANSFER_BIT,
                          0,
                          0, nullptr,
                          0, nullptr,
                          1, &barrier);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
+void Image::cmdCopyImageToImage(Image* pSrcImage) {
+    LOG("Image::cmdCopyImageToImage");
+    VkImage               srcImage         = pSrcImage->getImage();
+    VkImageCreateInfo     srcImageInfo     = pSrcImage->getImageInfo();
+    VkImageViewCreateInfo srcImageViewInfo = pSrcImage->getImageViewInfo();
+    VkImage               dstImage         = m_image;
+    VkImageCreateInfo     dstImageInfo     = m_imageInfo;
+    VkImageViewCreateInfo dstImageViewInfo = m_imageViewInfo;
     
-    pCommander->endSingleTimeCommands(commandBuffer);
+    Commander* pCommander = System::Commander();
+    
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    
+    VkImageCopy region{};
+    region.srcOffset = {0, 0, 0};
+    region.srcSubresource.aspectMask     = srcImageViewInfo.subresourceRange.aspectMask;
+    region.srcSubresource.baseArrayLayer = srcImageViewInfo.subresourceRange.baseArrayLayer;
+    region.srcSubresource.layerCount     = srcImageViewInfo.subresourceRange.layerCount;
+    region.srcSubresource.mipLevel       = srcImageViewInfo.subresourceRange.baseMipLevel;
+    
+    region.dstOffset = {0, 0, 0};
+    region.dstSubresource.aspectMask     = dstImageViewInfo.subresourceRange.aspectMask;
+    region.dstSubresource.baseArrayLayer = dstImageViewInfo.subresourceRange.baseArrayLayer;
+    region.dstSubresource.layerCount     = dstImageViewInfo.subresourceRange.layerCount;
+    region.dstSubresource.mipLevel       = dstImageViewInfo.subresourceRange.baseMipLevel;
+    region.extent = srcImageInfo.extent;
+    
+    vkCmdCopyImage(cmdBuffer,
+                   srcImage, srcImageInfo.initialLayout,
+                   dstImage, dstImageInfo.initialLayout,
+                   1, &region);
+    
+    pCommander->endSingleTimeCommands(cmdBuffer);
 }
 
 void Image::cmdCopyBufferToImage(VkBuffer buffer) {
@@ -310,8 +375,8 @@ void Image::cmdCopyBufferToImage(VkBuffer buffer) {
     
     Commander* pCommander = System::Commander();
     
-    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(commandBuffer);
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
     
     VkBufferImageCopy region{};
     region.bufferOffset      = 0;
@@ -324,15 +389,15 @@ void Image::cmdCopyBufferToImage(VkBuffer buffer) {
     region.imageSubresource.layerCount      = imageViewInfo.subresourceRange.layerCount;
     
     region.imageOffset = {0, 0, 0};
-    region.imageExtent = {imageInfo.extent.width, imageInfo.extent.height, 1};
+    region.imageExtent = imageInfo.extent;
     
-    vkCmdCopyBufferToImage(commandBuffer,
+    vkCmdCopyBufferToImage(cmdBuffer,
                            buffer,
                            image,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1, &region);
     
-    pCommander->endSingleTimeCommands(commandBuffer);
+    pCommander->endSingleTimeCommands(cmdBuffer);
 }
 
 void Image::cmdGenerateMipmaps() {
@@ -354,8 +419,8 @@ void Image::cmdGenerateMipmaps() {
         throw std::runtime_error("texture image format does not support linear blitting!");
     }
     
-    VkCommandBuffer commandBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(commandBuffer);
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -380,7 +445,7 @@ void Image::cmdGenerateMipmaps() {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-        vkCmdPipelineBarrier(commandBuffer,
+        vkCmdPipelineBarrier(cmdBuffer,
                              VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
                              0, nullptr,
                              0, nullptr,
@@ -401,7 +466,7 @@ void Image::cmdGenerateMipmaps() {
         blit.dstSubresource.baseArrayLayer = 0;
         blit.dstSubresource.layerCount     = layerCount;
         
-        vkCmdBlitImage(commandBuffer,
+        vkCmdBlitImage(cmdBuffer,
                        image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                        image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                        1, &blit,
@@ -412,7 +477,7 @@ void Image::cmdGenerateMipmaps() {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-        vkCmdPipelineBarrier(commandBuffer,
+        vkCmdPipelineBarrier(cmdBuffer,
                              VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
                              0, nullptr,
                              0, nullptr,
@@ -428,13 +493,13 @@ void Image::cmdGenerateMipmaps() {
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-    vkCmdPipelineBarrier(commandBuffer,
+    vkCmdPipelineBarrier(cmdBuffer,
                          VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
                          0, nullptr,
                          0, nullptr,
                          1, &barrier);
     
-    pCommander->endSingleTimeCommands(commandBuffer);
+    pCommander->endSingleTimeCommands(cmdBuffer);
 
 }
 
@@ -446,6 +511,8 @@ unsigned int    Image::getChannelSize() { return GetChannelSize(m_imageInfo.form
 VkDeviceSize    Image::getImageSize  () { return m_imageInfo.extent.width * m_imageInfo.extent.height * getChannelSize() * m_imageInfo.arrayLayers; }
 VkDescriptorImageInfo* Image::getDescriptorInfo() { return &m_descriptorInfo; }
 
+VkImageCreateInfo     Image::getImageInfo()     { return m_imageInfo;}
+VkImageViewCreateInfo Image::getImageViewInfo() { return m_imageViewInfo;}
 
 
 // Private ==================================================

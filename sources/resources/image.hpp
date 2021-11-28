@@ -24,7 +24,6 @@ public:
     
     void create              ();
     void createForTexture    ();
-    void createForCubemap    ();
     void createForSwapchain  ();
      
     void createImage         ();
@@ -38,8 +37,12 @@ public:
     void cmdCopyCubemapToImage();
     
     void cmdTransitionToTransferDest();
-    void cmdCopyBufferToImage      (VkBuffer buffer);
-    void cmdGenerateMipmaps        ();
+    void cmdTransitionPresentToShader(VkCommandBuffer cmdBuffer);
+    void cmdTransitionShaderToPresent(VkCommandBuffer cmdBuffer);
+    
+    void cmdCopyImageToImage        (Image* srcImage);
+    void cmdCopyBufferToImage       (VkBuffer buffer);
+    void cmdGenerateMipmaps         ();
     
     VkImage          getImage      ();
     VkImageView      getImageView  ();
@@ -49,8 +52,8 @@ public:
     unsigned int     getChannelSize();
     VkDescriptorImageInfo* getDescriptorInfo();
     
-    VkImageCreateInfo     m_imageInfo{};
-    VkImageViewCreateInfo m_imageViewInfo{};
+    VkImageCreateInfo     getImageInfo();
+    VkImageViewCreateInfo getImageViewInfo();
     
 private:
     Cleaner m_cleaner;
@@ -65,6 +68,9 @@ private:
     VkImageView      m_imageView      = VK_NULL_HANDLE;
     VkDeviceMemory   m_imageMemory    = VK_NULL_HANDLE;
     VkDescriptorImageInfo m_descriptorInfo{};
+    
+    VkImageCreateInfo     m_imageInfo{};
+    VkImageViewCreateInfo m_imageViewInfo{};
     
     // For Texture
     VkSampler m_sampler = VK_NULL_HANDLE;
