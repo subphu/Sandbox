@@ -10,7 +10,7 @@ layout(set = 1, binding = 0) buffer outputBuffer {
 
 layout(set = 1, binding = 1) uniform Misc {
     vec3 viewPosition;
-    uint buffSize;
+    uint sampleSize;
 };
 
 // Textures ==================================================

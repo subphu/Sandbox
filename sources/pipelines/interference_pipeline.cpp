@@ -18,14 +18,14 @@ void InterferencePipeline::setupShader() {
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
 
-void InterferencePipeline::setupInput(uint length, float n) {
-    m_details.n      = n;
-    m_details.length = length;
+void InterferencePipeline::setupInput(uint sampleSize, float n) {
+    m_details.n = n;
+    m_details.sampleSize = sampleSize;
 }
 
 void InterferencePipeline::setupOutput() {
     LOG("InterferencePipeline::createOutputBuffer");
-    uint floatCount = m_details.length * CHANNEL;
+    uint floatCount = m_details.sampleSize * CHANNEL;
     uint outputSize = floatCount * sizeof(float);
     std::vector<float> outputData(floatCount, 0.0f);
     
@@ -34,6 +34,9 @@ void InterferencePipeline::setupOutput() {
                                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     m_pOutputBuffer->create();
     m_pOutputBuffer->fillBufferFull(outputData.data());
+    
+    m_pDescriptor->setupPointerBuffer(S0, B0, m_pOutputBuffer->getDescriptorInfo());
+    m_pDescriptor->update(S0);
 }
 
 void InterferencePipeline::createDescriptor() {
@@ -47,8 +50,6 @@ void InterferencePipeline::createDescriptor() {
     m_pDescriptor->createPool();
 
     m_pDescriptor->allocate(S0);
-    m_pDescriptor->setupPointerBuffer(S0, B0, m_pOutputBuffer->getDescriptorInfo());
-    m_pDescriptor->update(S0);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
@@ -103,7 +104,7 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
-    vkCmdDispatch(cmdBuffer, details.length / 256, 1, 1);
+    vkCmdDispatch(cmdBuffer, details.sampleSize / 256, 1, 1);
 }
 
 Buffer* InterferencePipeline::getOutputBuffer() { return m_pOutputBuffer; }

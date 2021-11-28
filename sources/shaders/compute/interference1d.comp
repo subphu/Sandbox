@@ -9,7 +9,7 @@ layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 layout(set=0, binding=0) buffer outputBuffer { vec4 imageData[]; };
 
 layout(push_constant) uniform pushConstants {
-    uint length;
+    uint sampleSize;
     float n;
 };
 
@@ -23,10 +23,10 @@ vec3 measure(float opd) {
 }
 
 void main() {
-    if(gl_GlobalInvocationID.x >= length) return;
+    if(gl_GlobalInvocationID.x >= sampleSize) return;
 
     uint  idx = gl_GlobalInvocationID.x;
-    float scale = float(idx) / float(length);
+    float scale = float(idx) / float(sampleSize);
     float opd = maxOpd * scale;
 
     vec3 col = measure(opd);

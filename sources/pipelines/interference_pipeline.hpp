@@ -8,12 +8,10 @@
 #include "../renderer/descriptor.hpp"
 #include "../resources/buffer.hpp"
 
-#define CHANNEL 4
-
 class InterferencePipeline {
 
     struct InterferenceDetails {
-        uint length;
+        uint sampleSize;
         float n; // refractive index
     };
 
@@ -25,7 +23,7 @@ public:
     void dispatch(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput(uint length, float n);
+    void setupInput(uint sampleSize, float n);
     void setupOutput();
     
     void createDescriptor();

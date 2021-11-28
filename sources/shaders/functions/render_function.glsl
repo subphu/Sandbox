@@ -39,11 +39,11 @@ float getTheta1(vec3 N) {
 
 uint getIndex1D(float opd) {
     float scale = opd / maxOpd;
-    return uint(scale * float(buffSize));
+    return uint(scale * float(sampleSize));
 }
 
 uint getIndex2D(float scaleRad) {
-    uint x   = uint(buffSize * scaleRad);
-    uint y   = uint(buffSize * scaleD);
-    return uint(y * buffSize + x);
+    uint x   = uint(sampleSize * scaleRad);
+    uint y   = uint(sampleSize * scaleD);
+    return uint(y * sampleSize + x);
 }

@@ -5,7 +5,7 @@ layout(set = 1, binding = 0) uniform sampler2D texSampler;
 layout(set = 1, binding = 1) buffer outputBuffer { vec4 imageData[]; };
 
 layout(set = 1, binding = 2) uniform Misc {
-    uint buffSize;
+    uint sampleSize;
 } misc;
 
 layout(location = 0) in vec3 fragNormal;
@@ -16,9 +16,9 @@ layout(location = 0) out vec4 outColor;
 
 
 void main() {
-    uint x = uint(fragTexCoord.x * misc.buffSize);
-    uint y = uint(fragTexCoord.y * misc.buffSize);
-    uint idx = y*misc.buffSize + x;
+    uint x = uint(fragTexCoord.x * misc.sampleSize);
+    uint y = uint(fragTexCoord.y * misc.sampleSize);
+    uint idx = y*misc.sampleSize + x;
     outColor = imageData[idx];
     outColor = texture(texSampler, fragTexCoord);
 }

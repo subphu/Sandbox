@@ -69,6 +69,8 @@
 
 #define PI 3.14159265358979323846
 
+#define CHANNEL 4
+
 const std::string SPIRV_PATH = "resources/spirv/";
 const std::string MODEL_PATH = "resources/models/";
 const std::string PBR_PATH   = "resources/textures/PBR/";
