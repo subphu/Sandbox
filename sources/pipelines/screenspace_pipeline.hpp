@@ -5,6 +5,7 @@
 
 #include "../include.h"
 #include "../renderer/device.hpp"
+#include "../renderer/pipeline.hpp"
 #include "../renderer/renderpass.hpp"
 #include "../resources/frame.hpp"
 #include "../window/gui.hpp"
@@ -33,14 +34,12 @@ public:
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
+    Pipeline* m_pPipeline;
     Renderpass* m_pRenderpass;
     Frame* m_pFrame;
     GUI* m_pGUI;
-    
-    VkGraphicsPipelineCreateInfo m_pipelineInfo{};
 
     VkPipelineLayout m_pipelineLayout;
-    VkPipeline m_pipeline;
     
     VECTOR<VkPipelineShaderStageCreateInfo> m_shaderStages;
 };

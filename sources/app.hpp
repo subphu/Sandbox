@@ -11,6 +11,8 @@
 #include "pipelines/screenspace_pipeline.hpp"
 #include "pipelines/interference_pipeline.hpp"
 #include "pipelines/main_pipeline.hpp"
+#include "resources/camera.hpp"
+#include "resources/buffer.hpp"
 
 class App {
 public:
@@ -50,6 +52,9 @@ private:
     void createInterferencePipeline();
     void dispatchInterference();
     void createMainPipeline();
+    
+    void moveView(Window* pWindow);
+    void moveViewLock(Window* pWindow);
     
     void checkResized();
     

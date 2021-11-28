@@ -11,6 +11,8 @@
 		2613475D26F88D3900B3E6A7 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2613475B26F88D3900B3E6A7 /* app.cpp */; };
 		2615790526F8C6BF0093D4AF /* device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790326F8C6BF0093D4AF /* device.cpp */; };
 		2615790F26FB8E7D0093D4AF /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790D26FB8E7D0093D4AF /* window.cpp */; };
+		265A2C862750B8AE004D1025 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C842750B8AE004D1025 /* camera.cpp */; };
+		265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C872751BA8A004D1025 /* pipeline.cpp */; };
 		26B313C52715C60F00DD0339 /* commander.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C32715C60F00DD0339 /* commander.cpp */; };
 		26B313C82715DA8C00DD0339 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C62715DA8C00DD0339 /* system.cpp */; };
 		26B6BF9226A873CE00223ED8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B6BF9126A873CE00223ED8 /* main.cpp */; };
@@ -73,6 +75,10 @@
 		2615790426F8C6BF0093D4AF /* device.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = device.hpp; sourceTree = "<group>"; };
 		2615790D26FB8E7D0093D4AF /* window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = window.cpp; sourceTree = "<group>"; };
 		2615790E26FB8E7D0093D4AF /* window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = window.hpp; sourceTree = "<group>"; };
+		265A2C842750B8AE004D1025 /* camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
+		265A2C852750B8AE004D1025 /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
+		265A2C872751BA8A004D1025 /* pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline.cpp; sourceTree = "<group>"; };
+		265A2C882751BA8A004D1025 /* pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pipeline.hpp; sourceTree = "<group>"; };
 		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
 		26B313C32715C60F00DD0339 /* commander.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commander.cpp; sourceTree = "<group>"; };
 		26B313C42715C60F00DD0339 /* commander.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = commander.hpp; sourceTree = "<group>"; };
@@ -190,6 +196,8 @@
 				26C502D227329BF80010F43F /* renderpass.hpp */,
 				26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */,
 				26CA4E1B273C1FF400AC3D64 /* descriptor.hpp */,
+				265A2C872751BA8A004D1025 /* pipeline.cpp */,
+				265A2C882751BA8A004D1025 /* pipeline.hpp */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -395,6 +403,8 @@
 				26F973322719688000DFEC48 /* frame.hpp */,
 				26E70219274CC9D40097A974 /* mesh.cpp */,
 				26E7021A274CC9D40097A974 /* mesh.hpp */,
+				265A2C842750B8AE004D1025 /* camera.cpp */,
+				265A2C852750B8AE004D1025 /* camera.hpp */,
 			);
 			path = resources;
 			sourceTree = "<group>";
@@ -487,6 +497,7 @@
 				26C502D327329BF80010F43F /* renderpass.cpp in Sources */,
 				26E70215274BA6850097A974 /* imgui_impl_glfw.cpp in Sources */,
 				26E70206274BA6670097A974 /* imgui_tables.cpp in Sources */,
+				265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */,
 				26E70207274BA6670097A974 /* imgui_demo.cpp in Sources */,
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
@@ -498,6 +509,7 @@
 				26E7021B274CC9D40097A974 /* mesh.cpp in Sources */,
 				26F9732A2719686000DFEC48 /* image.cpp in Sources */,
 				26B313C82715DA8C00DD0339 /* system.cpp in Sources */,
+				265A2C862750B8AE004D1025 /* camera.cpp in Sources */,
 				26E70218274CA1BA0097A974 /* main_pipeline.cpp in Sources */,
 				26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */,
 				26E701F9274B9E900097A974 /* gui.cpp in Sources */,

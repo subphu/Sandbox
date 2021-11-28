@@ -5,6 +5,7 @@
 
 #include "../include.h"
 #include "../renderer/device.hpp"
+#include "../renderer/pipeline.hpp"
 #include "../renderer/descriptor.hpp"
 #include "../resources/buffer.hpp"
 
@@ -35,6 +36,7 @@ public:
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
+    Pipeline* m_pPipeline;
     Descriptor* m_pDescriptor;
     
     Buffer* m_pOutputBuffer;
@@ -42,7 +44,6 @@ private:
     InterferenceDetails m_details;
     
     VkPipelineLayout m_pipelineLayout;
-    VkPipeline m_pipeline;
     
     VkPushConstantRange m_pushConstantRange;
     VkPipelineShaderStageCreateInfo m_shaderStage;

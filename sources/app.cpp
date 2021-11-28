@@ -15,7 +15,7 @@ void App::cleanup() { m_cleaner.flush("App"); }
 
 void App::initWindow() {
     m_pWindow = new Window();
-    m_pWindow->create({600, 600}, "Vulkan");
+    m_pWindow->create({800, 600}, "Vulkan");
     m_pWindow->setWindowPosition(0, 0);
     m_pWindow->enableInput();
     m_cleaner.push([=](){ m_pWindow->close(); });
@@ -64,12 +64,13 @@ void App::createInterferencePipeline() {
     LOG("App::renderInterference");
     m_pInterferencePipeline = new InterferencePipeline();
     m_pInterferencePipeline->setupShader();
+    m_pInterferencePipeline->createDescriptor();
     m_pInterferencePipeline->setupInput(m_opdSample, m_refractiveIndex);
     m_pInterferencePipeline->setupOutput();
-    m_pInterferencePipeline->createDescriptor();
     m_pInterferencePipeline->createPipelineLayout();
     m_pInterferencePipeline->createPipeline();
     m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
+    m_cleaner.push([=](){ m_pInterferencePipeline->getOutputBuffer()->cleanup(); });
 }
 
 void App::dispatchInterference() {
@@ -85,15 +86,19 @@ void App::createMainPipeline() {
     
     m_pMainPipeline = new MainPipeline();
     m_pMainPipeline->setupShader();
-    m_pMainPipeline->setupInput(m_pInterferencePipeline->getOutputBuffer());
     m_pMainPipeline->createDescriptor();
+    m_pMainPipeline->setupInput(m_opdSample);
     m_pMainPipeline->createRenderpass();
     m_pMainPipeline->createPipelineLayout();
     m_pMainPipeline->createPipeline();
     m_pMainPipeline->createFrame(size);
+    m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
+    
+    m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
 }
 
 void App::setup() {
+    m_pCamera = new Camera();
     initWindow();
     initDevice();
     initCommander();
@@ -103,7 +108,7 @@ void App::setup() {
     createInterferencePipeline();
     dispatchInterference();
     
-//    createMainPipeline();
+    createMainPipeline();
 }
 
 void App::loop() {
@@ -122,7 +127,11 @@ void App::loop() {
 }
 
 void App::update(long iteration) {
+    Settings* settings = System::Settings();
+    if (settings->LockFocus) moveViewLock(m_pWindow);
+    else                     moveView(m_pWindow);
     
+    m_pMainPipeline->updateCameraInput(m_pCamera);
 }
 
 void App::draw(long iteration) {
@@ -144,6 +153,34 @@ void App::draw(long iteration) {
     
     pSwapchain->submitFrame();
     pSwapchain->presentFrame();
+}
+
+void App::moveView(Window* pWindow) {
+    m_pCamera->setLockFocus(System::Settings()->LockFocus);
+    glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
+    movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a);
+    movement.y += pWindow->getKeyState(key_q) - pWindow->getKeyState(key_e);
+    movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s);
+    m_pCamera->move(movement);
+    
+    glm::vec2 delta = pWindow->getCursorMovement();
+    m_pCamera->turn(delta * glm::vec2(4.0, 4.0));
+}
+
+void App::moveViewLock(Window* pWindow) {
+    m_pCamera->setLockFocus(System::Settings()->LockFocus);
+    glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
+    movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a);
+    movement.y += pWindow->getKeyState(key_q) - pWindow->getKeyState(key_e);
+    movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s);
+    
+    if (pWindow->getMouseBtnState(mouse_btn_left)) {
+        glm::vec2 cursorOffset = pWindow->getCursorOffset();
+        movement.x += cursorOffset.x * 0.2f;
+        movement.y += cursorOffset.y * 0.2f;
+    }
+    movement.z += pWindow->getScrollOffset().y;
+    m_pCamera->move(movement);
 }
 
 void App::checkResized() {

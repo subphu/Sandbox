@@ -12,6 +12,7 @@ MainPipeline::MainPipeline() : m_pDevice(System::Device()) {}
 void MainPipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
 
 void MainPipeline::render(VkCommandBuffer cmdBuffer) {
+    VkPipeline pipeline = m_pPipeline->get();
     VkRenderPass renderpass = m_pRenderpass->get();
     VkFramebuffer framebuffer = m_pFrame->getFramebuffer();
     UInt2D extent = m_pFrame->getExtent2D();
@@ -30,7 +31,7 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     
     vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     
     
     vkCmdEndRenderPass(cmdBuffer);
@@ -45,14 +46,21 @@ void MainPipeline::setupShader() {
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void MainPipeline::setupInput(Buffer* pInterferenceBuffer) {
+void MainPipeline::setupInput(uint sampleSize) {
     LOG("MainPipeline::setupInput");
+    m_misc.sampleSize = sampleSize;
+    
+    uint outputSize = sampleSize * CHANNEL * sizeof(float);
+    m_pInterferenceBuffer = new Buffer();
+    m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    m_pInterferenceBuffer->create();
+    m_cleaner.push([=](){ m_pInterferenceBuffer->cleanup(); });
+    
     m_pCameraBuffer = new Buffer();
-    m_pCameraBuffer->setup(sizeof(Misc), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    m_pCameraBuffer->setup(sizeof(CameraMatrix), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     m_pCameraBuffer->create();
     m_cleaner.push([=](){ m_pCameraBuffer->cleanup(); });
-    
-    m_pInterferenceBuffer = pInterferenceBuffer;
     
     m_pMiscBuffer = new Buffer();
     m_pMiscBuffer->setup(sizeof(Misc), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
@@ -86,9 +94,19 @@ void MainPipeline::setupInput(Buffer* pInterferenceBuffer) {
     m_cleaner.push([=](){ m_pSphere->cleanup(); });
 }
 
-void MainPipeline::updateInput() {
-    m_pMiscBuffer->fillBuffer(&m_misc, sizeof(Misc));
+void MainPipeline::updateCameraInput(Camera* pCamera) {
+    UInt2D size = m_pFrame->getExtent2D();
+    m_misc.viewPosition = pCamera->getPosition();
+    m_cameraMatrix.view = pCamera->getViewMatrix();
+    m_cameraMatrix.proj = pCamera->getProjection((float) size.width / size.height);
+    m_cameraMatrix.model = m_pSphere->getMatrix();
     
+    m_pMiscBuffer->fillBuffer(&m_misc, sizeof(Misc));
+    m_pCameraBuffer->fillBuffer(&m_cameraMatrix, sizeof(CameraMatrix));
+}
+
+void MainPipeline::updateInterferenceInput(Buffer* pInterferenceBuffer) {
+    m_pInterferenceBuffer->cmdCopyFromBuffer(pInterferenceBuffer->get(), pInterferenceBuffer->getBufferSize());
 }
 
 void MainPipeline::createDescriptor() {
@@ -117,6 +135,7 @@ void MainPipeline::createDescriptor() {
     m_pDescriptor->allocate(S0);
     m_pDescriptor->allocate(S1);
     m_pDescriptor->allocate(S2);
+    m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
 void MainPipeline::createRenderpass() {
@@ -149,86 +168,30 @@ void MainPipeline::createPipelineLayout() {
 
 void MainPipeline::createPipeline() {
     LOG("MainPipeline::createPipeline");
-    VkDevice device = m_pDevice->getDevice();
-    Renderpass* pRenderpass = m_pRenderpass;
+    VkRenderPass renderpass = m_pRenderpass->get();
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VECTOR<VkPipelineShaderStageCreateInfo> shaderStages = m_shaderStages;
-    
-    VkPipelineViewportStateCreateInfo viewportInfo{};
-    viewportInfo.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportInfo.viewportCount = 1;
-    viewportInfo.scissorCount  = 1;
-
-    VECTOR<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-
-    VkPipelineDynamicStateCreateInfo dynamicInfo{};
-    dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicInfo.dynamicStateCount = UINT32(dynamicStates.size());
-    dynamicInfo.pDynamicStates    = dynamicStates.data();
-    
-    VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
-    inputAssemblyInfo.sType    = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    
-    VkPipelineRasterizationStateCreateInfo rasterizationInfo{};
-    rasterizationInfo.sType       = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizationInfo.cullMode    = VK_CULL_MODE_NONE;
-    rasterizationInfo.frontFace   = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    rasterizationInfo.lineWidth   = 1.0f;
-    
-    VkPipelineMultisampleStateCreateInfo multisampleInfo{};
-    multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampleInfo.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
-
-    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable         = VK_TRUE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.colorBlendOp        = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp        = VK_BLEND_OP_ADD;
-    
-    VkPipelineColorBlendStateCreateInfo colorBlendInfo{};
-    colorBlendInfo.sType             = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlendInfo.attachmentCount   = 1;
-    colorBlendInfo.pAttachments      = &colorBlendAttachment;
-    
-    VkPipelineDepthStencilStateCreateInfo depthStencilInfo{};
-    depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencilInfo.depthTestEnable        = VK_TRUE;
-    depthStencilInfo.depthWriteEnable       = VK_TRUE;
-    depthStencilInfo.depthBoundsTestEnable  = VK_FALSE;
-    depthStencilInfo.stencilTestEnable      = VK_TRUE;
-    depthStencilInfo.depthCompareOp         = VK_COMPARE_OP_LESS;
-
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = m_pSphere->getVertexStateInfo();
+    
+    m_pPipeline = new Pipeline();
+    m_pPipeline->setRenderpass(renderpass);
+    m_pPipeline->setPipelineLayout(pipelineLayout);
+    m_pPipeline->setShaderStages(shaderStages);
+    m_pPipeline->setVertexInputInfo(vertexInputInfo);
+    
+    m_pPipeline->setupViewportInfo();
+    m_pPipeline->setupInputAssemblyInfo();
+    m_pPipeline->setupRasterizationInfo();
+    m_pPipeline->setupMultisampleInfo();
+    
+    m_pPipeline->enableBlendAttachment();
+    m_pPipeline->setupColorBlendInfo();
+    
+    m_pPipeline->setupDynamicInfo();
+    m_pPipeline->setupDepthStencilInfo();
 
-    VkGraphicsPipelineCreateInfo pipelineInfo{};
-    pipelineInfo.sType      = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.layout     = pipelineLayout;
-    pipelineInfo.renderPass = pRenderpass->get();
-    pipelineInfo.subpass    = 0;
-    pipelineInfo.stageCount = UINT32(shaderStages.size());
-    pipelineInfo.pStages             = shaderStages.data();
-    pipelineInfo.pVertexInputState   = &vertexInputInfo;
-    pipelineInfo.pViewportState      = &viewportInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
-    pipelineInfo.pRasterizationState = &rasterizationInfo;
-    pipelineInfo.pMultisampleState   = &multisampleInfo;
-    pipelineInfo.pColorBlendState    = &colorBlendInfo;
-    pipelineInfo.pDynamicState       = &dynamicInfo;
-    pipelineInfo.pDepthStencilState  = &depthStencilInfo;
-    
-    VkPipeline pipeline;
-    VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline );
-    CHECK_VKRESULT(result, "failed to create graphics pipeline!");
-    m_cleaner.push([=](){ vkDestroyPipeline(device, pipeline, nullptr); });
-    
-    m_pipeline = pipeline;
+    m_pPipeline->createGraphicsPipeline();
+    m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
 void MainPipeline::createFrame(UInt2D size) {
@@ -236,6 +199,7 @@ void MainPipeline::createFrame(UInt2D size) {
     m_pFrame->createImageResource();
     m_pFrame->createDepthResource();
     m_pFrame->createFramebuffer(m_pRenderpass);
+    m_cleaner.push([=](){ m_pFrame->cleanup(); });
 }
 
 std::string MainPipeline::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }

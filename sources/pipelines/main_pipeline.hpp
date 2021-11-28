@@ -5,11 +5,13 @@
 
 #include "../include.h"
 #include "../renderer/device.hpp"
+#include "../renderer/pipeline.hpp"
 #include "../renderer/renderpass.hpp"
 #include "../renderer/descriptor.hpp"
 #include "../resources/buffer.hpp"
 #include "../resources/frame.hpp"
 #include "../resources/mesh.hpp"
+#include "../resources/camera.hpp"
 
 struct CameraMatrix {
     glm::mat4 model;
@@ -33,8 +35,9 @@ public:
     void render(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput(Buffer* pInterferenceBuffer);
-    void updateInput();
+    void setupInput(uint sampleSize);
+    void updateCameraInput(Camera* pCamera);
+    void updateInterferenceInput(Buffer* pInterferenceBuffer);
     
     void createDescriptor();
     void createPipelineLayout();
@@ -45,6 +48,7 @@ public:
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
+    Pipeline* m_pPipeline;
     Renderpass* m_pRenderpass;
     Descriptor* m_pDescriptor;
     
@@ -61,7 +65,6 @@ private:
     uint textureIdx = 6; // 3,4,
     
     VkPipelineLayout m_pipelineLayout;
-    VkPipeline m_pipeline;
     
     VkPushConstantRange m_pushConstantRange;
     VECTOR<VkPipelineShaderStageCreateInfo> m_shaderStages;

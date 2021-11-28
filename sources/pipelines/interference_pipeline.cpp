@@ -77,24 +77,20 @@ void InterferencePipeline::createPipelineLayout() {
 
 void InterferencePipeline::createPipeline() {
     LOG("InterferencePipeline::createPipeline");
-    VkDevice device = m_pDevice->getDevice();
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipelineShaderStageCreateInfo shaderStage = m_shaderStage;
-
-    VkComputePipelineCreateInfo pipelineInfo{};
-    pipelineInfo.sType  = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-    pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.stage  = shaderStage;
     
-    VkResult result = vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline );
-    CHECK_VKRESULT(result, "failed to create graphics pipeline!");
-    m_cleaner.push([=](){ vkDestroyPipeline(device, m_pipeline, nullptr); });
+    m_pPipeline = new Pipeline();
+    m_pPipeline->setPipelineLayout(pipelineLayout);
+    m_pPipeline->setShaderStages({shaderStage});
+    m_pPipeline->createComputePipeline();
+    m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
 void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     LOG("InterferencePipeline::dispatch");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
-    VkPipeline          pipeline = m_pipeline;
+    VkPipeline          pipeline = m_pPipeline->get();
     VkDescriptorSet     descSet  = m_pDescriptor->getDescriptorSet(S0);
     InterferenceDetails details  = m_details;
     
