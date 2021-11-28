@@ -19,7 +19,7 @@ struct CameraMatrix {
 
 struct Misc {
     glm::vec3 viewPosition;
-    uint bufferSize;
+    uint sampleSize;
 };
 
 class MainPipeline {

@@ -42,8 +42,9 @@ private:
     Buffer* m_vertexBuffer;
     Buffer* m_indexBuffer;
     
-    glm::mat4 m_model = glm::mat4(1.0f);
+    glm::mat4 m_model;
     
+    VECTOR<VkVertexInputAttributeDescription> m_vertexAttrDescs;
     VkPipelineVertexInputStateCreateInfo m_vertexStateInfo{};
     
     VECTOR<glm::vec3> m_positions;

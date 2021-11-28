@@ -120,6 +120,7 @@ void Image::createForTexture() {
     allocateImageMemory();
     createImageView();
     createSampler();
+    createDescriptorInfo();
 }
 
 void Image::createForCubemap() {
@@ -127,6 +128,7 @@ void Image::createForCubemap() {
     allocateImageMemory();
     createImageView();
     createSampler();
+    createDescriptorInfo();
 }
 
 void Image::createForSwapchain() {
@@ -228,7 +230,7 @@ void Image::cmdCopyCubemapToImage() {
     }
     
     cmdTransitionToTransferDest();
-    cmdCopyBufferToImage(tempBuffer->getBuffer());
+    cmdCopyBufferToImage(tempBuffer->get());
     cmdGenerateMipmaps();
     
     tempBuffer->cleanup();
@@ -246,7 +248,7 @@ void Image::cmdCopyRawDataToImage() {
     tempBuffer->fillBufferFull(rawData);
     
     cmdTransitionToTransferDest();
-    cmdCopyBufferToImage(tempBuffer->getBuffer());
+    cmdCopyBufferToImage(tempBuffer->get());
     cmdGenerateMipmaps();
     
     tempBuffer->cleanup();
@@ -264,7 +266,7 @@ void Image::cmdCopyRawHDRToImage() {
     tempBuffer->fillBufferFull(rawData);
     
     cmdTransitionToTransferDest();
-    cmdCopyBufferToImage(tempBuffer->getBuffer());
+    cmdCopyBufferToImage(tempBuffer->get());
     cmdGenerateMipmaps();
     
     tempBuffer->cleanup();

@@ -29,7 +29,7 @@ public:
     void* mapMemory  (VkDeviceSize size);
     void  unmapMemory();
     
-    VkBuffer       getBuffer      ();
+    VkBuffer       get      ();
     VkDeviceSize   getBufferSize  ();
     VkDeviceMemory getBufferMemory();
     VkDescriptorBufferInfo* getDescriptorInfo();

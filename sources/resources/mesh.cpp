@@ -16,8 +16,8 @@
 
 #include "../system.hpp"
 
-Mesh::Mesh() {}
 Mesh::~Mesh() {}
+Mesh::Mesh() : m_model(glm::mat4(1.0f)) {}
 
 void Mesh::cleanup() {
     m_indexBuffer->cleanup();
@@ -184,7 +184,7 @@ void Mesh::createVertexBuffer() {
     Buffer* vertexBuffer = new Buffer();
     vertexBuffer->setup(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     vertexBuffer->create();
-    vertexBuffer->cmdCopyFromBuffer(tempBuffer->getBuffer(), bufferSize);
+    vertexBuffer->cmdCopyFromBuffer(tempBuffer->get(), bufferSize);
     
     tempBuffer->cleanup();
     
@@ -203,7 +203,7 @@ void Mesh::createIndexBuffer() {
     Buffer* indexBuffer = new Buffer();
     indexBuffer->setup(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     indexBuffer->create();
-    indexBuffer->cmdCopyFromBuffer(tempBuffer->getBuffer(), bufferSize);
+    indexBuffer->cmdCopyFromBuffer(tempBuffer->get(), bufferSize);
     
     tempBuffer->cleanup();
     
@@ -211,32 +211,32 @@ void Mesh::createIndexBuffer() {
 }
 
 void Mesh::createVertexStateInfo() {
-    VkVertexInputBindingDescription bindingDesc{};
-    bindingDesc.binding = 0;
-    bindingDesc.stride = m_sizeofPosition + m_sizeofNormal + m_sizeofTexCoord;
-    bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    VkVertexInputBindingDescription* bindingDesc = new VkVertexInputBindingDescription();
+    bindingDesc->binding = 0;
+    bindingDesc->stride = m_sizeofPosition + m_sizeofNormal + m_sizeofTexCoord;
+    bindingDesc->inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     
-    VECTOR<VkVertexInputAttributeDescription> vertexAttrDescs(3);
-    vertexAttrDescs[0].binding = 0;
-    vertexAttrDescs[0].location = 0;
-    vertexAttrDescs[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-    vertexAttrDescs[0].offset = 0;
+    m_vertexAttrDescs.resize(3);
+    m_vertexAttrDescs[0].binding  = 0;
+    m_vertexAttrDescs[0].location = 0;
+    m_vertexAttrDescs[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    m_vertexAttrDescs[0].offset   = 0;
     
-    vertexAttrDescs[1].binding = 0;
-    vertexAttrDescs[1].location = 1;
-    vertexAttrDescs[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    vertexAttrDescs[1].offset = m_sizeofPosition;
+    m_vertexAttrDescs[1].binding  = 0;
+    m_vertexAttrDescs[1].location = 1;
+    m_vertexAttrDescs[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
+    m_vertexAttrDescs[1].offset   = m_sizeofPosition;
     
-    vertexAttrDescs[2].binding = 0;
-    vertexAttrDescs[2].location = 2;
-    vertexAttrDescs[2].format = VK_FORMAT_R32G32_SFLOAT;
-    vertexAttrDescs[2].offset = m_sizeofPosition + m_sizeofNormal;
+    m_vertexAttrDescs[2].binding  = 0;
+    m_vertexAttrDescs[2].location = 2;
+    m_vertexAttrDescs[2].format   = VK_FORMAT_R32G32_SFLOAT;
+    m_vertexAttrDescs[2].offset   = m_sizeofPosition + m_sizeofNormal;
     
     m_vertexStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     m_vertexStateInfo.vertexBindingDescriptionCount = 1;
-    m_vertexStateInfo.pVertexBindingDescriptions = &bindingDesc;
-    m_vertexStateInfo.vertexAttributeDescriptionCount = UINT32(vertexAttrDescs.size());
-    m_vertexStateInfo.pVertexAttributeDescriptions = vertexAttrDescs.data();
+    m_vertexStateInfo.pVertexBindingDescriptions = bindingDesc;
+    m_vertexStateInfo.vertexAttributeDescriptionCount = UINT32(m_vertexAttrDescs.size());
+    m_vertexStateInfo.pVertexAttributeDescriptions = m_vertexAttrDescs.data();
 }
 
 void Mesh::scale(glm::vec3 size)               { m_model = glm::scale(m_model, size); }
