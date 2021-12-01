@@ -63,6 +63,9 @@ void GUI::drawStatusWindow() {
                 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
     
+    ImGui::Text("Camera x:%.2f y:%.2f z:%.2f",
+                settings->CameraPos.x, settings->CameraPos.y, settings->CameraPos.z);
+    
     ImGui::Checkbox("Lock FPS"  , &settings->LockFPS);
     ImGui::Checkbox("Lock Focus", &settings->LockFocus);
     

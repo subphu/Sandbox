@@ -134,6 +134,7 @@ void App::update(long iteration) {
     else                     moveView(m_pWindow);
     
     m_pMainPipeline->updateCameraInput(m_pCamera);
+    System::Settings()->CameraPos = m_pCamera->getPosition();
 }
 
 void App::draw(long iteration) {
