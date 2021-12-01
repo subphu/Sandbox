@@ -30,9 +30,8 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
     
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {0.0f, 1.0f, .50f, 1.0f};
-    clearValues[1].depthStencil = {1.0f, 0};
-    
+    clearValues[0].color = System::Settings()->ClearColor;
+    clearValues[1].depthStencil = System::Settings()->ClearDepth;
     
     VkRenderPassBeginInfo renderBeginInfo{};
     renderBeginInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

@@ -11,8 +11,10 @@ struct Settings {
     bool LockFPS   = false;
     bool LockFocus = false;
     
-    float ClearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    float ClearDepth    = 1.0f;
+    glm::vec3 CameraPos = {};
+    
+    VkClearColorValue        ClearColor = {0.1f, 0.1f, 0.1f, 1.0f};
+    VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
 };
 
