@@ -9,7 +9,7 @@
 struct Settings {
     bool ShowDemo  = false;
     bool LockFPS   = false;
-    bool LockFocus = false;
+    bool LockFocus = true;
     
     glm::vec3 CameraPos = {};
     

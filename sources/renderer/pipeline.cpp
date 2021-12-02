@@ -74,7 +74,7 @@ void Pipeline::setupDepthStencilInfo() {
     m_depthStencilInfo.depthTestEnable       = VK_TRUE;
     m_depthStencilInfo.depthWriteEnable      = VK_TRUE;
     m_depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
-    m_depthStencilInfo.stencilTestEnable     = VK_TRUE;
+    m_depthStencilInfo.stencilTestEnable     = VK_FALSE;
     m_depthStencilInfo.depthCompareOp        = VK_COMPARE_OP_LESS;
 }
 
