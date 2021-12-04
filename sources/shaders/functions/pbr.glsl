@@ -56,7 +56,7 @@ vec3 pbr() {
         vec3 H = normalize(V + L);
         float dist = length(lightPosition - fragPosition);
         float attenuation = 1.0 / (dist * dist);
-        vec3 radiance = lights.color.xyz * attenuation;
+        vec3 radiance = lights.radiance.xyz * attenuation;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);

@@ -13,19 +13,20 @@
 #include "../resources/mesh.hpp"
 #include "../resources/camera.hpp"
 
-struct CameraMatrix {
-    glm::mat4 model;
+struct UBCamera {
     glm::mat4 view;
     glm::mat4 proj;
 };
 
-struct Misc {
+struct PCMisc {
+    glm::mat4 model;
     glm::vec3 viewPosition;
     uint sampleSize;
+    uint isLight;
 };
 
-struct Lights {
-    glm::vec4 color;
+struct UBLights {
+    glm::vec4 readiance;
     glm::vec4 position[4];
     uint total = 4;
 };
@@ -61,7 +62,6 @@ private:
     Renderpass* m_pRenderpass;
     Descriptor* m_pDescriptor;
     
-    Buffer* m_pMiscBuffer;
     Buffer* m_pLightBuffer;
     Buffer* m_pCameraBuffer;
     Buffer* m_pInterferenceBuffer;
@@ -69,9 +69,9 @@ private:
     Mesh*   m_pSphere;
     VECTOR<Image*> m_pTextures;
     
-    Misc         m_misc{};
-    Lights       m_lights{};
-    CameraMatrix m_cameraMatrix{};
+    PCMisc   m_misc{};
+    UBLights m_lights{};
+    UBCamera m_cameraMatrix{};
     
     VkViewport m_viewport{};
     VkRect2D   m_scissor{};

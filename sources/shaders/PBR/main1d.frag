@@ -4,17 +4,20 @@
 #include "../functions/constants.glsl"
 
 // Buffers ==================================================
+
+layout(push_constant) uniform Misc {
+    mat4 model;
+    vec3 viewPosition;
+    uint sampleSize;
+    uint isLight;
+};
+
 layout(set = 1, binding = 0) buffer Interference {
     vec4 color[];
 } interference;
 
-layout(set = 1, binding = 1) uniform Misc {
-    vec3 viewPosition;
-    uint sampleSize;
-};
-
-layout(set = 1, binding = 2) uniform Lights {
-    vec3 color;
+layout(set = 1, binding = 1) uniform Lights {
+    vec3 radiance;
     vec3 position[4];
     uint total;
 } lights;
@@ -46,8 +49,8 @@ void main() {
     float theta2 = refractionAngle(n1, theta1, n2);
     float opd    = getOPD(d, theta2, n2);
 
-    uint idx = getIndex1D(opd);
-    outColor = interference.color[idx];
+//    uint idx = getIndex1D(opd);
+//    outColor = interference.color[idx];
     
     vec4 pbrColor = vec4(pbr(), 1.0);
     outColor = pbrColor;
@@ -56,4 +59,5 @@ void main() {
 //    if (metallic > 0.5) {
 //        outColor = pbrColor * interference.color[idx] * 2.4;
 //    }
+    if (isLight == 1) outColor = vec4(1.0);
 }

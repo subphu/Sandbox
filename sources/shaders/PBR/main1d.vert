@@ -1,8 +1,14 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(set = 0, binding = 0) uniform MVP {
+layout(push_constant) uniform Details {
     mat4 model;
+    vec3 viewPosition;
+    uint sampleSize;
+    uint isLight;
+};
+
+layout(set = 0, binding = 0) uniform Camera {
     mat4 view;
     mat4 proj;
 };
