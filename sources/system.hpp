@@ -13,7 +13,7 @@ struct Settings {
     
     glm::vec3 CameraPos = {};
     
-    VkClearColorValue        ClearColor = {0.1f, 0.1f, 0.1f, 1.0f};
+    VkClearColorValue        ClearColor = {0.01f, 0.01f, 0.01f, 1.0f};
     VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
 };

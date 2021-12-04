@@ -133,6 +133,7 @@ void App::update(long iteration) {
     if (settings->LockFocus) moveViewLock(m_pWindow);
     else                     moveView(m_pWindow);
     
+    m_pMainPipeline->updateLightInput(iteration);
     m_pMainPipeline->updateCameraInput(m_pCamera);
     System::Settings()->CameraPos = m_pCamera->getPosition();
 }

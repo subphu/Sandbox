@@ -5,8 +5,8 @@
 
 // Buffers ==================================================
 layout(set = 1, binding = 0) buffer outputBuffer {
-    vec4 imageData[];
-};
+    vec4 color[];
+} interference;
 
 layout(set = 1, binding = 1) uniform Misc {
     vec3 viewPosition;
@@ -31,7 +31,7 @@ layout(location = 0) out vec4 outColor;
 // Functions ==================================================
 #include "../functions/interference.glsl"
 #include "../functions/render_function.glsl"
-#include "../functions/pbr.glsl"
+//#include "../functions/pbr.glsl"
 
 void main() {
     
@@ -42,12 +42,12 @@ void main() {
     
     vec3  color  = deltaInterferences(opd);
     
-    vec4 pbrColor = vec4(pbr(), 1.0);
+//    vec4 pbrColor = vec4(pbr(), 1.0);
 
-    outColor = pbrColor;
+//    outColor = pbrColor;
     
-    float metallic  = texture(metallicMap, fragTexCoord).r;
-    if (metallic > 0.5) {
-        outColor = pbrColor * vec4(color, 1.0) * 2.4;
-    }
+//    float metallic  = texture(metallicMap, fragTexCoord).r;
+//    if (metallic > 0.5) {
+//        outColor = pbrColor * vec4(color, 1.0) * 2.4;
+//    }
 }

@@ -4,14 +4,20 @@
 #include "../functions/constants.glsl"
 
 // Buffers ==================================================
-layout(set = 1, binding = 0) buffer outputBuffer {
-    vec4 imageData[];
-};
+layout(set = 1, binding = 0) buffer Interference {
+    vec4 color[];
+} interference;
 
 layout(set = 1, binding = 1) uniform Misc {
     vec3 viewPosition;
     uint sampleSize;
 };
+
+layout(set = 1, binding = 2) uniform Lights {
+    vec3 color;
+    vec3 position[4];
+    uint total;
+} lights;
 
 // Textures ==================================================
 layout(set = 2, binding = 0) uniform sampler2D albedoMap;
@@ -41,13 +47,13 @@ void main() {
     float opd    = getOPD(d, theta2, n2);
 
     uint idx = getIndex1D(opd);
-    outColor = imageData[idx];
+    outColor = interference.color[idx];
     
-//    vec4 pbrColor = vec4(pbr(), 1.0);
-//    outColor = pbrColor;
+    vec4 pbrColor = vec4(pbr(), 1.0);
+    outColor = pbrColor;
 //
 //    float metallic  = texture(metallicMap, fragTexCoord).r;
 //    if (metallic > 0.5) {
-//        outColor = pbrColor * imageData[idx] * 2.4;
+//        outColor = pbrColor * interference.color[idx] * 2.4;
 //    }
 }

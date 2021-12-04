@@ -24,6 +24,12 @@ struct Misc {
     uint sampleSize;
 };
 
+struct Lights {
+    glm::vec4 color;
+    glm::vec4 position[4];
+    uint total = 4;
+};
+
 class MainPipeline {
     
     
@@ -36,6 +42,7 @@ public:
     
     void setupShader();
     void setupInput(uint sampleSize);
+    void updateLightInput(long iteration);
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Buffer* pInterferenceBuffer);
     
@@ -55,6 +62,7 @@ private:
     Descriptor* m_pDescriptor;
     
     Buffer* m_pMiscBuffer;
+    Buffer* m_pLightBuffer;
     Buffer* m_pCameraBuffer;
     Buffer* m_pInterferenceBuffer;
     Frame*  m_pFrame;
@@ -62,6 +70,7 @@ private:
     VECTOR<Image*> m_pTextures;
     
     Misc         m_misc{};
+    Lights       m_lights{};
     CameraMatrix m_cameraMatrix{};
     
     VkViewport m_viewport{};

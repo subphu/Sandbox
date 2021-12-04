@@ -73,6 +73,7 @@ void MainPipeline::setupShader() {
 void MainPipeline::setupInput(uint sampleSize) {
     LOG("MainPipeline::setupInput");
     m_misc.sampleSize = sampleSize;
+    m_lights.total = 4;
     
     uint outputSize = sampleSize * CHANNEL * sizeof(float);
     m_pInterferenceBuffer = new Buffer();
@@ -91,6 +92,11 @@ void MainPipeline::setupInput(uint sampleSize) {
     m_pMiscBuffer->create();
     m_cleaner.push([=](){ m_pMiscBuffer->cleanup(); });
     
+    m_pLightBuffer = new Buffer();
+    m_pLightBuffer->setup(sizeof(Lights), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    m_pLightBuffer->create();
+    m_cleaner.push([=](){ m_pLightBuffer->cleanup(); });
+    
     for (std::string path : getPBRTexturePaths()) {
         Image* pTexture = new Image();
         pTexture->setupForTexture(path);
@@ -103,6 +109,7 @@ void MainPipeline::setupInput(uint sampleSize) {
     m_pDescriptor->setupPointerBuffer(S0, B0, m_pCameraBuffer->getDescriptorInfo());
     m_pDescriptor->setupPointerBuffer(S1, B0, m_pInterferenceBuffer->getDescriptorInfo());
     m_pDescriptor->setupPointerBuffer(S1, B1, m_pMiscBuffer->getDescriptorInfo());
+    m_pDescriptor->setupPointerBuffer(S1, B2, m_pLightBuffer->getDescriptorInfo());
     for (uint i = 0; i < m_pTextures.size(); i++)
         m_pDescriptor->setupPointerImage(S2, i, m_pTextures[i]->getDescriptorInfo());
     
@@ -116,6 +123,18 @@ void MainPipeline::setupInput(uint sampleSize) {
     m_pSphere->createIndexBuffer();
     m_pSphere->createVertexStateInfo();
     m_cleaner.push([=](){ m_pSphere->cleanup(); });
+}
+
+void MainPipeline::updateLightInput(long iteration) {
+    const float distScale = 8.f;
+    const float distance  = glm::radians(360.f/m_lights.total);
+    m_lights.color = glm::vec4(200.0f);
+    for (int i = 0; i < m_lights.total; i++) {
+        m_lights.position[i].z = 8.f;
+        m_lights.position[i].x = sin(iteration / 1000.f + i * distance) * distScale;
+        m_lights.position[i].y = cos(iteration / 1000.f + i * distance) * distScale;
+    }
+    m_pLightBuffer->fillBuffer(&m_lights, sizeof(Lights));
 }
 
 void MainPipeline::updateCameraInput(Camera* pCamera) {
@@ -145,6 +164,8 @@ void MainPipeline::createDescriptor() {
     m_pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                      VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->addLayoutBindings(S1, B1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                     VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S1, B2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                      VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S1);
     
