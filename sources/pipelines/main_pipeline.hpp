@@ -52,6 +52,7 @@ public:
     void createPipeline();
     void createRenderpass();
     void createFrame(UInt2D size);
+    void recreateFrame(UInt2D size);
     
     Frame* getFrame();
     

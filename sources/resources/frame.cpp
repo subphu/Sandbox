@@ -16,6 +16,7 @@ void Frame::createDepthResource() {
     m_pDepthImage->create();
     m_attachments.push_back(m_pDepthImage->getImageView());
     m_cleaner.push([=](){ m_pDepthImage->cleanup(); });
+    m_cleaner.push([=](){ m_attachments.pop_back(); });
 }
 
 void Frame::createImageResource() {
@@ -24,6 +25,7 @@ void Frame::createImageResource() {
     m_pColorImage->create();
     m_attachments.push_back(m_pColorImage->getImageView());
     m_cleaner.push([=](){ m_pColorImage->cleanup(); });
+    m_cleaner.push([=](){ m_attachments.pop_back(); });
 }
 
 void Frame::createImageResource(VkImage image, VkFormat format) {
@@ -32,6 +34,7 @@ void Frame::createImageResource(VkImage image, VkFormat format) {
     m_pColorImage->createForSwapchain();
     m_attachments.push_back(m_pColorImage->getImageView());
     m_cleaner.push([=](){ m_pColorImage->cleanup(); });
+    m_cleaner.push([=](){ m_attachments.pop_back(); });
 }
 
 void Frame::createFramebuffer(Renderpass* renderpass) {
@@ -61,3 +64,5 @@ VkFramebuffer Frame::getFramebuffer() { return m_framebuffer; }
 UInt2D Frame::getExtent2D() { return m_size; }
 Image* Frame::getColorImage() { return m_pColorImage;}
 Image* Frame::getDepthImage() { return m_pDepthImage;}
+
+void Frame::setSize(UInt2D size) { m_size = size; }

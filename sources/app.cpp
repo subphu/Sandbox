@@ -193,6 +193,9 @@ void App::moveViewLock(Window* pWindow) {
 void App::checkResized() {
     if (!m_pWindow->checkResized()) return;
     LOG("App::resized");
+    UInt2D size = m_pWindow->getFrameSize();
     
     m_pSwapchain->recreate();
+    m_pMainPipeline->recreateFrame(size);
+    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame()->getColorImage());
 }

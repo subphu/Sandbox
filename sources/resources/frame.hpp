@@ -27,6 +27,8 @@ public:
     Image*        getColorImage();
     Image*        getDepthImage();
     
+    void setSize(UInt2D size);
+    
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;

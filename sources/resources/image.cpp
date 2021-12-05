@@ -16,7 +16,7 @@ Image::Image() : m_pDevice(System::Device()),
 void Image::cleanup() { m_cleaner.flush("Image"); }
 
 void Image::setupForDepth(UInt2D size) {
-    LOG("Image::setupForColor");
+    LOG("Image::setupForDepth");
     m_imageInfo.extent = {size.width, size.height, 1};
     m_imageInfo.format = VK_FORMAT_D24_UNORM_S8_UINT;
     m_imageInfo.usage  = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |

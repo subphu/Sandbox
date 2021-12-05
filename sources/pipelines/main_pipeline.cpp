@@ -12,7 +12,6 @@ MainPipeline::MainPipeline() : m_pDevice(System::Device()) {}
 void MainPipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
 
 void MainPipeline::render(VkCommandBuffer cmdBuffer) {
-    updateViewportScissor();
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
     VkRenderPass     renderpass     = m_pRenderpass->get();
@@ -249,11 +248,23 @@ void MainPipeline::createPipeline() {
 }
 
 void MainPipeline::createFrame(UInt2D size) {
+    LOG("MainPipeline::createFrame");
     m_pFrame = new Frame(size);
     m_pFrame->createImageResource();
     m_pFrame->createDepthResource();
     m_pFrame->createFramebuffer(m_pRenderpass);
     m_cleaner.push([=](){ m_pFrame->cleanup(); });
+    updateViewportScissor();
+}
+
+void MainPipeline::recreateFrame(UInt2D size) {
+    LOG("MainPipeline::recreateFrame");
+    m_pFrame->cleanup();
+    m_pFrame->setSize(size);
+    m_pFrame->createImageResource();
+    m_pFrame->createDepthResource();
+    m_pFrame->createFramebuffer(m_pRenderpass);
+    updateViewportScissor();
 }
 
 void MainPipeline::updateViewportScissor() {
