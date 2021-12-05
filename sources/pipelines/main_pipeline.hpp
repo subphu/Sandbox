@@ -26,8 +26,9 @@ struct PCMisc {
 };
 
 struct UBLights {
-    glm::vec4 readiance;
+    glm::vec4 color;
     glm::vec4 position[4];
+    float radiance;
     uint total = 4;
 };
 

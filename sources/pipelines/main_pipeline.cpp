@@ -65,6 +65,7 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     m_misc.isLight = 1;
     for (int i = 0; i < m_lights.total; i++) {
         m_misc.model = glm::translate(glm::mat4(1.0), glm::vec3(m_lights.position[i]));
+        m_misc.model = glm::scale(m_misc.model, glm::vec3(0.2));
         vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PCMisc), &m_misc);
         
         vkCmdDrawIndexed(cmdBuffer, indexSize, 1, 0, 0, 0);
@@ -131,13 +132,16 @@ void MainPipeline::setupInput(uint sampleSize) {
 }
 
 void MainPipeline::updateLightInput(long iteration) {
-    const float distScale = 8.f;
-    const float distance  = glm::radians(360.f/m_lights.total);
-    m_lights.readiance = glm::vec4(200.0f);
+    Settings* settings = System::Settings();
+    m_lights.radiance = settings->Radiance;
+    m_lights.total = settings->TotalLight;
+    m_lights.color = settings->LightColor;
+    glm::vec2 distance = settings->Distance;
+    float interval = glm::radians(360.f/m_lights.total);
     for (int i = 0; i < m_lights.total; i++) {
-        m_lights.position[i].z = 8.f;
-        m_lights.position[i].x = sin(iteration / 1000.f + i * distance) * distScale;
-        m_lights.position[i].y = cos(iteration / 1000.f + i * distance) * distScale;
+        m_lights.position[i].z = distance.x;
+        m_lights.position[i].x = sin(iteration / 1000.f + i * interval) * distance.y;
+        m_lights.position[i].y = cos(iteration / 1000.f + i * interval) * distance.y;
     }
     m_pLightBuffer->fillBuffer(&m_lights, sizeof(UBLights));
 }

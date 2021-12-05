@@ -39,7 +39,7 @@ void GUI::initGUI(Window* pWindow, Renderpass* pRenderpass) {
     });
 }
 
-void GUI::renderGUI(VkCommandBuffer commandBuffer) {
+void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
     Settings* settings = System::Settings();
     
     ImGui_ImplVulkan_NewFrame();
@@ -50,7 +50,7 @@ void GUI::renderGUI(VkCommandBuffer commandBuffer) {
     drawStatusWindow();
     
     ImGui::Render();
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
 }
 
 void GUI::drawStatusWindow() {
@@ -59,25 +59,42 @@ void GUI::drawStatusWindow() {
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::Begin("Status");
     
-    ImGui::Text("%.3f ms/frame (%.1f FPS)",
+    ImGui::Checkbox("Lock", &settings->LockFPS);
+    ImGui::SameLine();
+    ImGui::Text("FPS %.1f (%.3f ms/fr)",
                 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
     
-    ImGui::Text("Camera x:%.2f y:%.2f z:%.2f",
+    ImGui::Checkbox("Focus,", &settings->LockFocus);
+    ImGui::SameLine();
+    ImGui::Text("x:%.2f y:%.2f z:%.2f",
                 settings->CameraPos.x, settings->CameraPos.y, settings->CameraPos.z);
     
-    ImGui::Checkbox("Lock FPS"  , &settings->LockFPS);
-    ImGui::Checkbox("Lock Focus", &settings->LockFocus);
     
     ImGui::ColorEdit3("Clear Color", (float*) &settings->ClearColor);
-
-//    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+    
+    ImGui::Separator();
+    if (ImGui::CollapsingHeader("Light")) {
+        ImGui::SliderInt("Total", &settings->TotalLight, 1, 4);
+        ImGui::DragFloat2("Distance", (float*) &settings->Distance, 0.05f);
+        ImGui::DragFloat("Radiance", &settings->Radiance, 10.f, 0.f, 10000.f);
+        ImGui::ColorEdit3("Color", (float*) &settings->LightColor);
+    }
+    ImGui::Separator();
+    
+    
+    ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
+    
+//    ImGui::Image(m_imTexture, {100, 100});
 //    if (ImGui::Button("Button"))
 //        counter++;
 //    ImGui::SameLine();
 //    ImGui::Text("counter = %d", counter);
     
-    ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
     
     ImGui::End();
+}
+
+void GUI::addImage(Image* image) {
+    m_imTexture = (ImTextureID)ImGui_ImplVulkan_CreateTexture(image->getSampler(), image->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }

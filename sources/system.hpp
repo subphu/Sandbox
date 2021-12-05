@@ -16,6 +16,12 @@ struct Settings {
     VkClearColorValue        ClearColor = {0.01f, 0.01f, 0.01f, 1.0f};
     VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
+    
+    // Lights
+    int       TotalLight  = 4;
+    float     Radiance    = 200.f;
+    glm::vec2 Distance    = {8.f, 8.f};
+    glm::vec4 LightColor  = {1.f, 1.f, 1.f, 1.f};
 };
 
 class System {

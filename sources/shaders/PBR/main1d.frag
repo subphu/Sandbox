@@ -17,8 +17,9 @@ layout(set = 1, binding = 0) buffer Interference {
 } interference;
 
 layout(set = 1, binding = 1) uniform Lights {
-    vec3 radiance;
-    vec3 position[4];
+    vec4 color;
+    vec4 position[4];
+    float radiance;
     uint total;
 } lights;
 
@@ -59,5 +60,5 @@ void main() {
 //    if (metallic > 0.5) {
 //        outColor = pbrColor * interference.color[idx] * 2.4;
 //    }
-    if (isLight == 1) outColor = vec4(1.0);
+    if (isLight == 1) outColor = lights.color;
 }
