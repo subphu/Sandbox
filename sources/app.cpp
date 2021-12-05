@@ -166,27 +166,30 @@ void App::moveView(Window* pWindow) {
     m_pCamera->setLockFocus(System::Settings()->LockFocus);
     glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
     movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a);
-    movement.y += pWindow->getKeyState(key_q) - pWindow->getKeyState(key_e);
+    movement.y += pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q);
     movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s);
     m_pCamera->move(movement);
     
-    glm::vec2 delta = pWindow->getCursorMovement();
-    m_pCamera->turn(delta * glm::vec2(4.0, 4.0));
+    if (pWindow->getMouseBtnState(mouse_btn_left)) {
+        glm::vec2 delta = pWindow->getCursorOffset();
+        m_pCamera->turn(delta * glm::vec2(-4.0, -4.0));
+    }
 }
 
 void App::moveViewLock(Window* pWindow) {
     m_pCamera->setLockFocus(System::Settings()->LockFocus);
+    float scale = m_pCamera->getDistance() / 5.;
     glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
-    movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a);
-    movement.y += pWindow->getKeyState(key_q) - pWindow->getKeyState(key_e);
-    movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s);
+    movement.x += (pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a)) * scale;
+    movement.y += (pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q)) * scale;
+    movement.z += (pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s)) * scale * 0.8;
     
     if (pWindow->getMouseBtnState(mouse_btn_left)) {
         glm::vec2 cursorOffset = pWindow->getCursorOffset();
-        movement.x += cursorOffset.x * 0.2f;
-        movement.y += cursorOffset.y * 0.2f;
+        movement.x += cursorOffset.x * scale;
+        movement.y += cursorOffset.y * scale;
     }
-    movement.z += pWindow->getScrollOffset().y;
+    movement.z += pWindow->getScrollOffset().y * scale * 0.8;
     m_pCamera->move(movement);
 }
 

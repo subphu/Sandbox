@@ -71,6 +71,10 @@ void Window::setSize(UInt2D size) {
     glfwSetWindowSize(m_pWindow, size.width, size.height);
 }
 
+void Window::setCursorPosition(glm::vec2 pos) {
+    glfwSetCursorPos(m_pWindow, pos.x, pos.y);
+}
+
 void Window::setWindowPosition(uint x, uint y) {
     glfwSetWindowPos(m_pWindow, x, y);
 }
@@ -103,22 +107,6 @@ glm::vec2 Window::getCursorPosition() { return m_cursorPos; }
 glm::vec2 Window::getCursorOffset() { return m_cursorOffset; }
 glm::vec2 Window::getScrollOffset() { return m_scrollOffset; }
 GLFWwindow* Window::getGLFWwindow() { return m_pWindow; }
-
-glm::vec2 Window::getCursorMovement() {
-    if (!getMouseBtnState(mouse_btn_left)) {
-        resetInput();
-        return glm::vec2(0, 0);
-    }
-    glm::vec2 lastPos = m_cursorPos;
-    if (lastPos.x == 0 && lastPos.y == 0) {
-        resetInput();
-        return glm::vec2(0, 0);
-    }
-    resetInput();
-    glm::vec2 newPos = m_cursorPos;
-    glm::vec2 move = glm::vec2(newPos.x - lastPos.x, newPos.y - lastPos.y);
-    return glm::clamp(move, glm::vec2(-99, -99), glm::vec2(99, 99));
-}
 
 void Window::ResizeCallback(GLFWwindow* window, int width, int height) {
     auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));

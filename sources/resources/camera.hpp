@@ -13,21 +13,22 @@ public:
     Camera(glm::vec3 position, glm::vec3 direction = glm::vec3(0, 0, 0));
     
     void reset();
-    void setInvertedAxis(bool value);
-    void setLockFocus(bool value);
-    void setSpeed(float value);
-    void setPosition(glm::vec3 position);
     void lookAt(glm::vec3 focusPos);
-    
     void move(glm::vec3 direction);
     void turn(glm::vec2 delta);
     void zoom(float delta);
     
+    void setInvertedAxis(bool value);
+    void setLockFocus(bool value);
+    void setSpeed(float value);
+    void setPosition(glm::vec3 position);
+    
+    float getDistance();
     glm::vec3 getFront();
     glm::vec3 getPosition();
     glm::mat4 getViewMatrix();
     glm::mat4 getProjection(float ratio);
-    
+
 private:
     glm::vec3 focusPoint;
     glm::vec3 position;
@@ -51,7 +52,5 @@ private:
     bool useConstraint;
     
     void updateVector();
-    void updateRotation();
-    void adjustDistance(float distance);
 };
 
