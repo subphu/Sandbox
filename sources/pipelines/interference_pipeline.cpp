@@ -24,10 +24,15 @@ void InterferencePipeline::setupInput(uint sampleSize, float n) {
 }
 
 void InterferencePipeline::setupOutput() {
-    LOG("InterferencePipeline::createOutputBuffer");
+    LOG("InterferencePipeline::setupOutput");
     uint floatCount = m_details.sampleSize * CHANNEL;
     uint outputSize = floatCount * sizeof(float);
     std::vector<float> outputData(floatCount, 0.0f);
+    
+    m_pOutputImage = new Image();
+    m_pOutputImage->setupForStorage({m_details.sampleSize/128 , 1});
+    m_pOutputImage->createWithSampler();
+    m_pOutputImage->cmdTransitionToStorageWrite();
     
     m_pOutputBuffer = new Buffer();
     m_pOutputBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
@@ -36,6 +41,7 @@ void InterferencePipeline::setupOutput() {
     m_pOutputBuffer->fillBufferFull(outputData.data());
     
     m_pDescriptor->setupPointerBuffer(S0, B0, m_pOutputBuffer->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S0, B1, m_pOutputImage->getDescriptorInfo());
     m_pDescriptor->update(S0);
 }
 
@@ -45,6 +51,8 @@ void InterferencePipeline::createDescriptor() {
     
     m_pDescriptor->setupLayout(S0);
     m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                     VK_SHADER_STAGE_COMPUTE_BIT);
+    m_pDescriptor->addLayoutBindings(S0, B1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
                                      VK_SHADER_STAGE_COMPUTE_BIT);
     m_pDescriptor->createLayout(S0);
     m_pDescriptor->createPool();
@@ -100,7 +108,8 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
-    vkCmdDispatch(cmdBuffer, details.sampleSize / 256, 1, 1);
+    vkCmdDispatch(cmdBuffer, details.sampleSize / 128, 1, 1);
 }
 
+Image * InterferencePipeline::getOutputImage () { return m_pOutputImage; }
 Buffer* InterferencePipeline::getOutputBuffer() { return m_pOutputBuffer; }

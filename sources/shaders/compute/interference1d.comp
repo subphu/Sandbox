@@ -4,9 +4,10 @@
 #include "../functions/constants.glsl"
 #include "../functions/interference.glsl"
 
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
 layout(set=0, binding=0) buffer outputBuffer { vec4 imageData[]; };
+layout(set=0, binding=1, rgba8) uniform writeonly image2D outputImage;
 
 layout(push_constant) uniform pushConstants {
     uint sampleSize;
@@ -31,5 +32,6 @@ void main() {
 
     vec3 col = measure(opd);
 
+    imageStore(outputImage, ivec2(idx/128, 0), vec4(col, 1.0));
     imageData[idx] = vec4(col, 1.0);
 }

@@ -7,6 +7,7 @@
 #include "../renderer/device.hpp"
 #include "../renderer/pipeline.hpp"
 #include "../renderer/descriptor.hpp"
+#include "../resources/image.hpp"
 #include "../resources/buffer.hpp"
 
 class InterferencePipeline {
@@ -31,6 +32,7 @@ public:
     void createPipelineLayout();
     void createPipeline();
     
+    Image*  getOutputImage();
     Buffer* getOutputBuffer();
     
 private:
@@ -39,6 +41,7 @@ private:
     Pipeline* m_pPipeline;
     Descriptor* m_pDescriptor;
     
+    Image*  m_pOutputImage;
     Buffer* m_pOutputBuffer;
     
     InterferenceDetails m_details;
