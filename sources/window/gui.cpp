@@ -88,6 +88,7 @@ void GUI::drawStatusWindow() {
     ImGui::Separator();
     
     ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
+    ImGui::Image(m_heightMapTexID, {234, 234});
     
     ImGui::End();
 }
@@ -108,4 +109,9 @@ void GUI::changeStyle() {
 void GUI::addInterferenceImage(Image* pImage) {
     pImage->cmdTransitionToShaderR();
     m_interferenceTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addHeightMapImage(Image* pImage) {
+    pImage->cmdTransitionToShaderR();
+    m_heightMapTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }

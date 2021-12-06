@@ -20,17 +20,15 @@ public:
     ScreenSpacePipeline();
     
     void cleanup();
-    void render(VkCommandBuffer cmdBuffer);
+    void render(VkCommandBuffer cmdBuffer, GUI* pGUI);
     
     void setupShader();
     void setupInput(Frame* pFrame);
-    void setupGUIInput(Image* pImage);
     
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     void createRenderpass();
-    void createGUI(Window* pWindow);
     
     void setFrame(Frame* pFrame);
     
@@ -45,7 +43,6 @@ private:
     
     Frame* m_pInputFrame;
     Frame* m_pFrame;
-    GUI* m_pGUI;
     
     VkViewport m_viewport{};
     VkRect2D   m_scissor{};

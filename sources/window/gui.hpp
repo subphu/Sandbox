@@ -22,11 +22,14 @@ public:
     void renderGUI(VkCommandBuffer cmdBuffer);
     
     void addInterferenceImage(Image* pImage);
+    void addHeightMapImage(Image* pImage);
     
 private:
     Cleaner m_cleaner;
     Window* m_pWindow;
+    
     ImTextureID m_interferenceTexID;
+    ImTextureID m_heightMapTexID;
     
     ImGui_ImplVulkan_InitInfo m_initInfo{};
     

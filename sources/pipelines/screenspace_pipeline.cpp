@@ -12,7 +12,7 @@ ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
 
 void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
-void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
+void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer, GUI* pGUI) {
     Image*           pInputImage    = m_pInputFrame->getColorImage();;
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
@@ -48,7 +48,7 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     vkCmdDraw(cmdBuffer, 3, 1, 0, 0);
     
-    m_pGUI->renderGUI(cmdBuffer);
+    pGUI->renderGUI(cmdBuffer);
     
     vkCmdEndRenderPass(cmdBuffer);
     
@@ -71,10 +71,6 @@ void ScreenSpacePipeline::setupInput(Frame* pFrame) {
     m_pDescriptor->update(S0);
     pImage->cmdTransitionToPresent();
     m_pInputFrame = pFrame;
-}
-
-void ScreenSpacePipeline::setupGUIInput(Image *pImage) {
-    m_pGUI->addInterferenceImage(pImage);
 }
 
 void ScreenSpacePipeline::createDescriptor() {
@@ -140,14 +136,6 @@ void ScreenSpacePipeline::createPipeline() {
 
     m_pPipeline->createGraphicsPipeline();
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
-}
-
-void ScreenSpacePipeline::createGUI(Window* pWindow) {
-    LOG("ScreenSpacePipeline::createGUI");
-    Renderpass* pRenderpass = m_pRenderpass;
-    m_pGUI = new GUI();
-    m_pGUI->initGUI(pWindow, pRenderpass);
-    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
 }
 
 void ScreenSpacePipeline::updateViewportScissor() {

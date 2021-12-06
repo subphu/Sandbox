@@ -27,6 +27,7 @@ private:
     Commander* m_pCommander;
     
     Camera* m_pCamera;
+    GUI*    m_pGUI;
     
     Swapchain* m_pSwapchain;
     ScreenSpacePipeline* m_pScreenSpacePipeline;
@@ -51,6 +52,8 @@ private:
     void createFluidPipeline();
     void dispatchInterference();
     void createMainPipeline();
+    
+    void createGUI();
     
     void moveView(Window* pWindow);
     void moveViewLock(Window* pWindow);

@@ -53,7 +53,6 @@ void App::createScreenSpacePipeline() {
     m_pScreenSpacePipeline->createRenderpass();
     m_pScreenSpacePipeline->createPipelineLayout();
     m_pScreenSpacePipeline->createPipeline();
-    m_pScreenSpacePipeline->createGUI(m_pWindow);
     m_cleaner.push([=](){ m_pScreenSpacePipeline->cleanup(); });
 }
 
@@ -65,6 +64,22 @@ void App::createSwapchain() {
     m_pSwapchain->create();
     m_pSwapchain->createFrames(pRenderpass);
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
+}
+
+void App::createMainPipeline() {
+    LOG("App::createMainPipeline");
+    UInt2D size = m_pWindow->getFrameSize();
+    m_pMainPipeline = new MainPipeline();
+    m_pMainPipeline->setupShader();
+    m_pMainPipeline->createDescriptor();
+    m_pMainPipeline->setupInput();
+    m_pMainPipeline->createRenderpass();
+    m_pMainPipeline->createPipelineLayout();
+    m_pMainPipeline->createPipeline();
+    m_pMainPipeline->createFrame(size);
+    m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
+    
+    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame());
 }
 
 void App::createFluidPipeline() {
@@ -84,7 +99,7 @@ void App::createInterferencePipeline() {
     m_pInterferencePipeline = new InterferencePipeline();
     m_pInterferencePipeline->setupShader();
     m_pInterferencePipeline->createDescriptor();
-    m_pInterferencePipeline->setupInput(m_opdSample, m_refractiveIndex);
+    m_pInterferencePipeline->setupInput();
     m_pInterferencePipeline->setupOutput();
     m_pInterferencePipeline->createPipelineLayout();
     m_pInterferencePipeline->createPipeline();
@@ -98,24 +113,20 @@ void App::dispatchInterference() {
     m_pCommander->endSingleTimeCommands(cmdBuffer);
     
     m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
-    m_pScreenSpacePipeline->setupGUIInput(m_pInterferencePipeline->getOutputImage());
 }
 
-void App::createMainPipeline() {
-    LOG("App::createMainPipeline");
-    UInt2D size = m_pWindow->getFrameSize();
+void App::createGUI() {
+    LOG("App::createGUI");
+    Window*     pWindow      = m_pWindow;
+    Renderpass* pRenderpass  = m_pScreenSpacePipeline->getRenderpass();
+    Image* heightMapImage    = m_pFluidPipeline->getHeightImage();
+    Image* InterferenceImage = m_pInterferencePipeline->getOutputImage();
     
-    m_pMainPipeline = new MainPipeline();
-    m_pMainPipeline->setupShader();
-    m_pMainPipeline->createDescriptor();
-    m_pMainPipeline->setupInput(m_opdSample);
-    m_pMainPipeline->createRenderpass();
-    m_pMainPipeline->createPipelineLayout();
-    m_pMainPipeline->createPipeline();
-    m_pMainPipeline->createFrame(size);
-    m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
-    
-    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame());
+    m_pGUI = new GUI();
+    m_pGUI->initGUI(pWindow, pRenderpass);
+    m_pGUI->addHeightMapImage(heightMapImage);
+    m_pGUI->addInterferenceImage(InterferenceImage);
+    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
 }
 
 void App::setup() {
@@ -131,6 +142,7 @@ void App::setup() {
     createInterferencePipeline();
     dispatchInterference();
     
+    createGUI();
 }
 
 void App::loop() {
@@ -168,7 +180,9 @@ void App::loop() {
 void App::draw(long iteration) {
     Swapchain* pSwapchain = m_pSwapchain;
     MainPipeline* pMainPipeline = m_pMainPipeline;
+    FluidPipeline* pFluidPipeline = m_pFluidPipeline;
     ScreenSpacePipeline* pScreenSpacePipeline = m_pScreenSpacePipeline;
+    GUI* pGUI = m_pGUI;
     
     pSwapchain->prepareFrame();
     Frame*      pCurrentFrame = pSwapchain->getCurrentFrame();
@@ -178,10 +192,12 @@ void App::draw(long iteration) {
     VkResult result = vkBeginCommandBuffer(cmdBuffer, &commandBeginInfo);
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
     
+    pFluidPipeline->dispatch(cmdBuffer);
+    
     pMainPipeline->render(cmdBuffer);
     
     pScreenSpacePipeline->setFrame(pCurrentFrame);
-    pScreenSpacePipeline->render(cmdBuffer);
+    pScreenSpacePipeline->render(cmdBuffer, pGUI);
     
     vkEndCommandBuffer(cmdBuffer);
     
