@@ -10,6 +10,7 @@
 #include "renderer/swapchain.hpp"
 #include "pipelines/screenspace_pipeline.hpp"
 #include "pipelines/interference_pipeline.hpp"
+#include "pipelines/fluid_pipeline.hpp"
 #include "pipelines/main_pipeline.hpp"
 #include "resources/camera.hpp"
 #include "resources/buffer.hpp"
@@ -36,6 +37,7 @@ private:
     float m_refractiveIndex = 1.5f;
     
     
+    FluidPipeline* m_pFluidPipeline;
     
     void cleanup();
     void setup();
@@ -50,6 +52,7 @@ private:
     void createSwapchain();
     void createScreenSpacePipeline();
     void createInterferencePipeline();
+    void createFluidPipeline();
     void dispatchInterference();
     void createMainPipeline();
     

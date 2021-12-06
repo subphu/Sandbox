@@ -14,6 +14,7 @@ void App::run() {
 void App::cleanup() { m_cleaner.flush("App"); }
 
 void App::initWindow() {
+    LOG("App::initWindow");
     m_pWindow = new Window();
     m_pWindow->create({800, 600}, "Vulkan");
     m_pWindow->setWindowPosition(0, 0);
@@ -22,11 +23,13 @@ void App::initWindow() {
 }
 
 void App::initDevice() {
+    LOG("App::initDevice");
+    Window* pWindow = m_pWindow;
     m_pDevice = new Device();
     m_pDevice->setup();
     m_pDevice->createInstance();
     m_pDevice->createDebugMessenger();
-    m_pDevice->createSurface(m_pWindow->getGLFWwindow());
+    m_pDevice->createSurface(pWindow->getGLFWwindow());
     m_pDevice->selectPhysicalDevice();
     m_pDevice->createLogicalDevice();
     System::Instance().setDevice(m_pDevice);
@@ -34,6 +37,7 @@ void App::initDevice() {
 }
 
 void App::initCommander() {
+    LOG("App::initCommander");
     m_pCommander = new Commander();
     m_pCommander->setupPool();
     m_pCommander->createPool();
@@ -54,11 +58,25 @@ void App::createScreenSpacePipeline() {
 }
 
 void App::createSwapchain() {
+    LOG("App::createSwapchain");
+    Renderpass* pRenderpass = m_pScreenSpacePipeline->getRenderpass();
     m_pSwapchain = new Swapchain();
     m_pSwapchain->setup();
     m_pSwapchain->create();
-    m_pSwapchain->createFrames(m_pScreenSpacePipeline->getRenderpass());
+    m_pSwapchain->createFrames(pRenderpass);
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
+}
+
+void App::createFluidPipeline() {
+    LOG("App::createFluidPipeline");
+    m_pFluidPipeline = new FluidPipeline();
+    m_pFluidPipeline->setupShader();
+    m_pFluidPipeline->createDescriptor();
+    m_pFluidPipeline->setupInput();
+    m_pFluidPipeline->setupOutput();
+    m_pFluidPipeline->createPipelineLayout();
+    m_pFluidPipeline->createPipeline();
+    m_cleaner.push([=](){ m_pFluidPipeline->cleanup(); });
 }
 
 void App::createInterferencePipeline() {
@@ -110,6 +128,7 @@ void App::setup() {
     createSwapchain();
     createMainPipeline();
     
+    createFluidPipeline();
     createInterferencePipeline();
     dispatchInterference();
     
@@ -147,16 +166,6 @@ void App::loop() {
     m_pDevice->waitIdle();
 }
 
-void App::update(long iteration) {
-    Settings* settings = System::Settings();
-    if (settings->LockFocus) moveViewLock(m_pWindow);
-    else                     moveView(m_pWindow);
-    
-    m_pMainPipeline->updateLightInput(iteration);
-    m_pMainPipeline->updateCameraInput(m_pCamera);
-    System::Settings()->CameraPos = m_pCamera->getPosition();
-}
-
 void App::draw(long iteration) {
     Swapchain* pSwapchain = m_pSwapchain;
     MainPipeline* pMainPipeline = m_pMainPipeline;
@@ -179,6 +188,16 @@ void App::draw(long iteration) {
     
     pSwapchain->submitFrame();
     pSwapchain->presentFrame();
+}
+
+void App::update(long iteration) {
+    Settings* settings = System::Settings();
+    if (settings->LockFocus) moveViewLock(m_pWindow);
+    else                     moveView(m_pWindow);
+    
+    m_pMainPipeline->updateLightInput(iteration);
+    m_pMainPipeline->updateCameraInput(m_pCamera);
+    System::Settings()->CameraPos = m_pCamera->getPosition();
 }
 
 void App::moveView(Window* pWindow) {
