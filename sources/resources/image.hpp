@@ -16,29 +16,39 @@ public:
     
     void setupForDepth      (UInt2D size);
     void setupForColor      (UInt2D size);
+    void setupForStorage    (UInt2D size);
     void setupForSwapchain  (VkImage image, VkFormat imageFormat);
+    
     void setupForTexture    (const std::string filepath);
     void setupForHDRTexture (const std::string filepath);
     void setupForCubemap    (const std::string *filepaths);
     void setupForCubemap    (UInt2D size);
     
-    void create              ();
-    void createForTexture    ();
-    void createForSwapchain  ();
+    void create             ();
+    void createWithSampler  ();
+    void createForSwapchain ();
      
-    void createImage         ();
-    void createImageView     ();
-    void allocateImageMemory ();
-    void createDescriptorInfo();
-    void createSampler       ();
+    void createImage        ();
+    void createImageView    ();
+    void allocateImageMemory();
+    void createSampler      ();
     
     void cmdCopyRawHDRToImage ();
     void cmdCopyRawDataToImage();
     void cmdCopyCubemapToImage();
     
-    void cmdTransitionToTransferDest();
-    void cmdTransitionPresentToShader(VkCommandBuffer cmdBuffer);
-    void cmdTransitionShaderToPresent(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToStorageWrite();
+    void cmdTransitionToTransferDst();
+    void cmdTransitionToShaderRead();
+    void cmdTransitionToShaderRead(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToPresent();
+    void cmdTransitionToPresent(VkCommandBuffer cmdBuffer);
+    
+    void cmdChangeLayout(VkCommandBuffer cmdBuffer,
+                         VkImageLayout newLayout,
+                         VkAccessFlags dstAccess,
+                         VkPipelineStageFlags srcStage,
+                         VkPipelineStageFlags dstStage);
     
     void cmdCopyImageToImage        (Image* srcImage);
     void cmdCopyBufferToImage       (VkBuffer buffer);
@@ -52,8 +62,11 @@ public:
     unsigned int     getChannelSize();
     VkDescriptorImageInfo* getDescriptorInfo();
     
+    VkImageLayout         getImageLayout();
     VkImageCreateInfo     getImageInfo();
     VkImageViewCreateInfo getImageViewInfo();
+    
+    void setImageLayout(VkImageLayout imageLayout);
     
 private:
     Cleaner m_cleaner;
@@ -67,11 +80,12 @@ private:
     VkImage          m_image          = VK_NULL_HANDLE;
     VkImageView      m_imageView      = VK_NULL_HANDLE;
     VkDeviceMemory   m_imageMemory    = VK_NULL_HANDLE;
-    VkDescriptorImageInfo m_descriptorInfo{};
     
+    VkImageLayout         m_imageLayout;
     VkImageCreateInfo     m_imageInfo{};
     VkImageViewCreateInfo m_imageViewInfo{};
-    
+    VkDescriptorImageInfo m_descriptorInfo{};
+
     // For Texture
     VkSampler m_sampler = VK_NULL_HANDLE;
     

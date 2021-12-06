@@ -107,8 +107,9 @@ void MainPipeline::setupInput(uint sampleSize) {
     for (std::string path : getPBRTexturePaths()) {
         Image* pTexture = new Image();
         pTexture->setupForTexture(path);
-        pTexture->createForTexture();
+        pTexture->createWithSampler();
         pTexture->cmdCopyRawDataToImage();
+        pTexture->cmdTransitionToShaderRead();
         m_pTextures.push_back(pTexture);
         m_cleaner.push([=](){ pTexture->cleanup(); });
     }

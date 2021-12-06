@@ -13,7 +13,6 @@ ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
 void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
 void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
-    updateViewportScissor();
     Image*           pRenderImage   = m_pRenderImage;
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
@@ -36,7 +35,7 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.framebuffer     = framebuffer;
     renderBeginInfo.renderArea      = scissor;
     
-    pRenderImage->cmdTransitionPresentToShader(cmdBuffer);
+    pRenderImage->cmdTransitionToShaderRead(cmdBuffer);
     
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
@@ -53,7 +52,7 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     
     vkCmdEndRenderPass(cmdBuffer);
     
-    pRenderImage->cmdTransitionShaderToPresent(cmdBuffer);
+    pRenderImage->cmdTransitionToPresent(cmdBuffer);
 }
 
 void ScreenSpacePipeline::setupShader() {
@@ -65,14 +64,16 @@ void ScreenSpacePipeline::setupShader() {
 }
 
 void ScreenSpacePipeline::setupInput(Image* pImage) {
-    LOG("ScreenSpacePipeline::setupShader");
-    m_pRenderImage = pImage;
-    
+    LOG("ScreenSpacePipeline::setupInput");
+    pImage->cmdTransitionToShaderRead();
     m_pDescriptor->setupPointerImage(S0, B0, pImage->getDescriptorInfo());
     m_pDescriptor->update(S0);
+    pImage->cmdTransitionToPresent();
+    m_pRenderImage = pImage;
 }
 
 void ScreenSpacePipeline::createDescriptor() {
+    LOG("ScreenSpacePipeline::createDescriptor");
     m_pDescriptor = new Descriptor();
     m_pDescriptor->setupLayout(S0);
     m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -85,6 +86,7 @@ void ScreenSpacePipeline::createDescriptor() {
 }
 
 void ScreenSpacePipeline::createRenderpass() {
+    LOG("ScreenSpacePipeline::createRenderpass");
     VkSurfaceFormatKHR surfaceFormat = m_pDevice->getSurfaceFormat();
     m_pRenderpass = new Renderpass();
     m_pRenderpass->setupColorAttachment(surfaceFormat.format);
@@ -136,6 +138,7 @@ void ScreenSpacePipeline::createPipeline() {
 }
 
 void ScreenSpacePipeline::createGUI(Window* pWindow) {
+    LOG("ScreenSpacePipeline::createGUI");
     Renderpass* pRenderpass = m_pRenderpass;
     m_pGUI = new GUI();
     m_pGUI->initGUI(pWindow, pRenderpass);
@@ -154,7 +157,7 @@ void ScreenSpacePipeline::updateViewportScissor() {
     m_scissor.extent = extent;
 }
 
-void ScreenSpacePipeline::setFrame(Frame *pFrame) { m_pFrame = pFrame; }
+void ScreenSpacePipeline::setFrame(Frame *pFrame) { m_pFrame = pFrame;  updateViewportScissor(); }
 
 Renderpass* ScreenSpacePipeline::getRenderpass() { return m_pRenderpass; }
 

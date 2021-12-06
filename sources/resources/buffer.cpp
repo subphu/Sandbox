@@ -105,6 +105,7 @@ void Buffer::unmapMemory() {
 VkBuffer       Buffer::get      () { return m_buffer;       }
 VkDeviceMemory Buffer::getBufferMemory() { return m_bufferMemory; }
 VkDeviceSize   Buffer::getBufferSize  () { return m_bufferInfo.size; }
+
 VkDescriptorBufferInfo* Buffer::getDescriptorInfo() { return &m_descriptorInfo; }
 
 

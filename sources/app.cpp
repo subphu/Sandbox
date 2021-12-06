@@ -79,6 +79,8 @@ void App::dispatchInterference() {
     m_pCommander->beginSingleTimeCommands(cmdBuffer);
     m_pInterferencePipeline->dispatch(cmdBuffer);
     m_pCommander->endSingleTimeCommands(cmdBuffer);
+    
+    m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
 }
 
 void App::createMainPipeline() {
@@ -95,7 +97,6 @@ void App::createMainPipeline() {
     m_pMainPipeline->createFrame(size);
     m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
     
-    m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
     m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame()->getColorImage());
 }
 
@@ -106,11 +107,11 @@ void App::setup() {
     initCommander();
     createScreenSpacePipeline();
     createSwapchain();
+    createMainPipeline();
     
     createInterferencePipeline();
     dispatchInterference();
     
-    createMainPipeline();
 }
 
 void App::loop() {

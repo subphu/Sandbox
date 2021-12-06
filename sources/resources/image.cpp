@@ -11,7 +11,8 @@
 Image::~Image() {}
 Image::Image() : m_pDevice(System::Device()),
                  m_imageInfo(GetDefaultImageCreateInfo()),
-                 m_imageViewInfo(GetDefaultImageViewCreateInfo()) {}
+                 m_imageViewInfo(GetDefaultImageViewCreateInfo()),
+                 m_imageLayout(VK_IMAGE_LAYOUT_UNDEFINED) {}
 
 void Image::cleanup() { m_cleaner.flush("Image"); }
 
@@ -31,6 +32,16 @@ void Image::setupForColor(UInt2D size) {
     m_imageInfo.extent = {size.width, size.height, 1};
     m_imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
     m_imageInfo.usage  = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                         VK_IMAGE_USAGE_SAMPLED_BIT;
+    
+    m_imageViewInfo.format = m_imageInfo.format;
+    m_imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+}
+
+void Image::setupForStorage(UInt2D size) {
+    m_imageInfo.extent = {size.width, size.height, 1};
+    m_imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    m_imageInfo.usage  = VK_IMAGE_USAGE_STORAGE_BIT |
                          VK_IMAGE_USAGE_SAMPLED_BIT;
     
     m_imageViewInfo.format = m_imageInfo.format;
@@ -112,16 +123,13 @@ void Image::create() {
     createImage();
     allocateImageMemory();
     createImageView();
-    createSampler();
-    createDescriptorInfo();
 }
 
-void Image::createForTexture() {
+void Image::createWithSampler() {
     createImage();
     allocateImageMemory();
     createImageView();
     createSampler();
-    createDescriptorInfo();
 }
 
 void Image::createForSwapchain() {
@@ -171,12 +179,6 @@ void Image::allocateImageMemory() {
     m_imageMemory = imageMemory;
 }
 
-void Image::createDescriptorInfo() {
-    m_descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    m_descriptorInfo.imageView   = m_imageView;
-    m_descriptorInfo.sampler     = m_sampler;
-}
-
 void Image::createSampler() {
     LOG("Image::createSampler");
     VkDevice device    = m_pDevice->getDevice();
@@ -208,27 +210,6 @@ void Image::createSampler() {
     m_sampler = sampler;
 }
 
-void Image::cmdCopyCubemapToImage() {
-    LOG("Image::copyCubemapToImage");
-    VECTOR<unsigned char*> rawData = m_rawCubemap;
-    
-    VkDeviceSize imageSize = getImageSize();
-    uint32_t     layerSize = imageSize / 6.0;
-    
-    Buffer *tempBuffer = new Buffer();
-    tempBuffer->setup(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-    tempBuffer->create();
-    for (int i = 0; i < 6; ++i) {
-        tempBuffer->fillBuffer(rawData[i], layerSize, layerSize * i);
-    }
-    
-    cmdTransitionToTransferDest();
-    cmdCopyBufferToImage(tempBuffer->get());
-    cmdGenerateMipmaps();
-    
-    tempBuffer->cleanup();
-}
-
 void Image::cmdCopyRawDataToImage() {
     LOG("Image::copyRawDataToImage");
     unsigned char* rawData = m_rawData;
@@ -240,7 +221,7 @@ void Image::cmdCopyRawDataToImage() {
     tempBuffer->create();
     tempBuffer->fillBufferFull(rawData);
     
-    cmdTransitionToTransferDest();
+    cmdTransitionToTransferDst();
     cmdCopyBufferToImage(tempBuffer->get());
     cmdGenerateMipmaps();
     
@@ -258,77 +239,113 @@ void Image::cmdCopyRawHDRToImage() {
     tempBuffer->create();
     tempBuffer->fillBufferFull(rawData);
     
-    cmdTransitionToTransferDest();
+    cmdTransitionToTransferDst();
     cmdCopyBufferToImage(tempBuffer->get());
     cmdGenerateMipmaps();
     
     tempBuffer->cleanup();
 }
 
-void Image::cmdTransitionPresentToShader(VkCommandBuffer cmdBuffer) {
-    VkImage image = m_image;
+void Image::cmdCopyCubemapToImage() {
+    LOG("Image::copyCubemapToImage");
+    VECTOR<unsigned char*> rawData = m_rawCubemap;
     
-    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
-    barrier.image         = image;
-    barrier.oldLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-    barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.layerCount = 1;
+    VkDeviceSize imageSize = getImageSize();
+    uint32_t     layerSize = imageSize / 6.0;
     
-    vkCmdPipelineBarrier(cmdBuffer,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                         0,
-                         0, nullptr,
-                         0, nullptr,
-                         1, &barrier);
+    Buffer *tempBuffer = new Buffer();
+    tempBuffer->setup(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    tempBuffer->create();
+    for (int i = 0; i < 6; ++i) {
+        tempBuffer->fillBuffer(rawData[i], layerSize, layerSize * i);
+    }
+    
+    cmdTransitionToTransferDst();
+    cmdCopyBufferToImage(tempBuffer->get());
+    
+    tempBuffer->cleanup();
 }
 
-void Image::cmdTransitionShaderToPresent(VkCommandBuffer cmdBuffer) {
-    VkImage image = m_image;
-    
-    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
-    barrier.image         = image;
-    barrier.oldLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    barrier.newLayout     = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.layerCount = 1;
-    
-    vkCmdPipelineBarrier(cmdBuffer,
-                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         0,
-                         0, nullptr,
-                         0, nullptr,
-                         1, &barrier);
+void Image::cmdTransitionToShaderRead() {
+    LOG("Image::cmdTransitionToShaderRead");
+    Commander*      pCommander = System::Commander();
+    VkCommandBuffer cmdBuffer  = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    cmdTransitionToShaderRead(cmdBuffer);
+    pCommander->endSingleTimeCommands(cmdBuffer);
 }
 
-void Image::cmdTransitionToTransferDest() {
-    VkImage               image         = m_image;
-    VkImageCreateInfo     imageInfo     = m_imageInfo;
-    VkImageViewCreateInfo imageViewInfo = m_imageViewInfo;
+void Image::cmdTransitionToShaderRead(VkCommandBuffer cmdBuffer) {
+    cmdChangeLayout(cmdBuffer,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VK_ACCESS_SHADER_READ_BIT,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+}
+
+void Image::cmdTransitionToPresent() {
+    LOG("Image::cmdTransitionToPresent");
+    Commander*      pCommander = System::Commander();
+    VkCommandBuffer cmdBuffer  = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    cmdTransitionToPresent(cmdBuffer);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
+void Image::cmdTransitionToPresent(VkCommandBuffer cmdBuffer) {
+    cmdChangeLayout(cmdBuffer,
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+}
+
+void Image::cmdTransitionToStorageWrite() {
+    LOG("Image::cmdTransitionToStorageWrite");
+    Commander*      pCommander = System::Commander();
+    VkCommandBuffer cmdBuffer  = pCommander->createCommandBuffer();
+    
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    cmdChangeLayout(cmdBuffer,
+                    VK_IMAGE_LAYOUT_GENERAL,
+                    VK_ACCESS_SHADER_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
+void Image::cmdTransitionToTransferDst() {
+    LOG("Image::cmdTransitionToTransferDest");
     Commander*            pCommander    = System::Commander();
     VkCommandBuffer       cmdBuffer     = pCommander->createCommandBuffer();
     
-    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
-    barrier.image         = image;
-    barrier.oldLayout     = imageInfo.initialLayout;
-    barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barrier.subresourceRange.levelCount = imageInfo.mipLevels;
-    barrier.subresourceRange.layerCount = imageViewInfo.subresourceRange.layerCount;
-    
     pCommander->beginSingleTimeCommands(cmdBuffer);
+    cmdChangeLayout(cmdBuffer,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
+void Image::cmdChangeLayout(VkCommandBuffer cmdBuffer,
+                            VkImageLayout newLayout,
+                            VkAccessFlags dstAccess,
+                            VkPipelineStageFlags srcStage,
+                            VkPipelineStageFlags dstStage) {
+    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
+    barrier.image         = m_image;
+    barrier.oldLayout     = m_imageLayout;
+    barrier.newLayout     = newLayout;
+    barrier.dstAccessMask = dstAccess;
+    barrier.subresourceRange = m_imageViewInfo.subresourceRange;
+    
+    m_imageLayout = newLayout;
     vkCmdPipelineBarrier(cmdBuffer,
-                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                         VK_PIPELINE_STAGE_TRANSFER_BIT,
-                         0,
+                         srcStage, dstStage, 0,
                          0, nullptr,
                          0, nullptr,
                          1, &barrier);
-    pCommander->endSingleTimeCommands(cmdBuffer);
 }
 
 void Image::cmdCopyImageToImage(Image* pSrcImage) {
@@ -422,15 +439,9 @@ void Image::cmdGenerateMipmaps() {
     VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
     pCommander->beginSingleTimeCommands(cmdBuffer);
 
-    VkImageMemoryBarrier barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    VkImageMemoryBarrier barrier = GetDefaultImageMemoryBarrier();
     barrier.image = image;
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.levelCount     = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount     = layerCount;
+    barrier.subresourceRange.layerCount = layerCount;
 
     int32_t mipWidth  = imageInfo.extent.width;
     int32_t mipHeight = imageInfo.extent.height;
@@ -444,9 +455,9 @@ void Image::cmdGenerateMipmaps() {
         barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
         vkCmdPipelineBarrier(cmdBuffer,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
                              0, nullptr,
                              0, nullptr,
                              1, &barrier);
@@ -473,12 +484,12 @@ void Image::cmdGenerateMipmaps() {
                        VK_FILTER_LINEAR);
         
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         vkCmdPipelineBarrier(cmdBuffer,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
                              0, nullptr,
                              0, nullptr,
                              1, &barrier);
@@ -486,21 +497,7 @@ void Image::cmdGenerateMipmaps() {
         mipWidth  = halfMipWidth;
         mipHeight = halfMipHeight;
     }
-    
-    barrier.subresourceRange.baseMipLevel = imageInfo.mipLevels - 1;
-    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-    vkCmdPipelineBarrier(cmdBuffer,
-                         VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                         0, nullptr,
-                         0, nullptr,
-                         1, &barrier);
-    
     pCommander->endSingleTimeCommands(cmdBuffer);
-
 }
 
 VkImage         Image::getImage      () { return m_image;       }
@@ -509,11 +506,19 @@ VkDeviceMemory  Image::getImageMemory() { return m_imageMemory; }
 VkSampler       Image::getSampler    () { return m_sampler;     }
 unsigned int    Image::getChannelSize() { return GetChannelSize(m_imageInfo.format); }
 VkDeviceSize    Image::getImageSize  () { return m_imageInfo.extent.width * m_imageInfo.extent.height * getChannelSize() * m_imageInfo.arrayLayers; }
-VkDescriptorImageInfo* Image::getDescriptorInfo() { return &m_descriptorInfo; }
 
-VkImageCreateInfo     Image::getImageInfo()     { return m_imageInfo;}
-VkImageViewCreateInfo Image::getImageViewInfo() { return m_imageViewInfo;}
+VkDescriptorImageInfo* Image::getDescriptorInfo() {
+    m_descriptorInfo.imageLayout = m_imageLayout;
+    m_descriptorInfo.imageView   = m_imageView;
+    m_descriptorInfo.sampler     = m_sampler;
+    return &m_descriptorInfo;
+}
 
+VkImageLayout         Image::getImageLayout()   { return m_imageLayout; }
+VkImageCreateInfo     Image::getImageInfo()     { return m_imageInfo; }
+VkImageViewCreateInfo Image::getImageViewInfo() { return m_imageViewInfo; }
+
+void Image::setImageLayout(VkImageLayout imageLayout) { m_imageLayout = imageLayout;}
 
 // Private ==================================================
 
