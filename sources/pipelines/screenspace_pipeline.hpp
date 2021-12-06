@@ -24,6 +24,7 @@ public:
     
     void setupShader();
     void setupInput(Frame* pFrame);
+    void setupGUIInput(Image* pImage);
     
     void createDescriptor();
     void createPipelineLayout();

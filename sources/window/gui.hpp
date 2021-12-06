@@ -21,15 +21,17 @@ public:
     void initGUI(Window* pWindow, Renderpass* pRenderpass);
     void renderGUI(VkCommandBuffer cmdBuffer);
     
-    void addImage(Image* image);
+    void addInterferenceImage(Image* pImage);
     
 private:
     Cleaner m_cleaner;
     Window* m_pWindow;
-    ImTextureID m_imTexture;
+    ImTextureID m_interferenceTexID;
     
     ImGui_ImplVulkan_InitInfo m_initInfo{};
     
+    void changeStyle();
     void drawStatusWindow();
+    void drawInterferenceWindow();
 };
 

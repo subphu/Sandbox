@@ -37,6 +37,7 @@ void GUI::initGUI(Window* pWindow, Renderpass* pRenderpass) {
         vkDestroyDescriptorPool(device, m_initInfo.DescriptorPool, nullptr);
         ImGui_ImplVulkan_Shutdown();
     });
+    m_pWindow = pWindow;
 }
 
 void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
@@ -46,8 +47,10 @@ void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     
+    changeStyle();
     if (settings->ShowDemo) ImGui::ShowDemoWindow(&settings->ShowDemo);
     drawStatusWindow();
+    drawInterferenceWindow();
     
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
@@ -55,8 +58,10 @@ void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
 
 void GUI::drawStatusWindow() {
     Settings* settings = System::Settings();
+    UInt2D  windowSize = m_pWindow->getSize();
     
     ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(250, windowSize.height));
     ImGui::Begin("Status");
     
     ImGui::Checkbox("Lock", &settings->LockFPS);
@@ -70,10 +75,10 @@ void GUI::drawStatusWindow() {
     ImGui::Text("x:%.2f y:%.2f z:%.2f",
                 settings->CameraPos.x, settings->CameraPos.y, settings->CameraPos.z);
     
-    
-    ImGui::ColorEdit3("Clear Color", (float*) &settings->ClearColor);
+    ImGui::ColorEdit3("Clear", (float*) &settings->ClearColor);
     
     ImGui::Separator();
+    ImGui::SetNextItemOpen(true);
     if (ImGui::CollapsingHeader("Light")) {
         ImGui::SliderInt("Total", &settings->TotalLight, 1, 4);
         ImGui::DragFloat2("Distance", (float*) &settings->Distance, 0.05f);
@@ -82,19 +87,26 @@ void GUI::drawStatusWindow() {
     }
     ImGui::Separator();
     
-    
     ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
-    
-//    ImGui::Image(m_imTexture, {100, 100});
-//    if (ImGui::Button("Button"))
-//        counter++;
-//    ImGui::SameLine();
-//    ImGui::Text("counter = %d", counter);
-    
     
     ImGui::End();
 }
 
-void GUI::addImage(Image* image) {
-    m_imTexture = (ImTextureID)ImGui_ImplVulkan_CreateTexture(image->getSampler(), image->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+void GUI::drawInterferenceWindow() {
+    ImGui::SetNextWindowPos(ImVec2(250, 0));
+    ImGui::SetNextWindowSize(ImVec2(420, 75));
+    ImGui::Begin("Interference");
+    ImGui::Image(m_interferenceTexID, {400, 40});
+    ImGui::End();
+}
+
+void GUI::changeStyle() {
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.,0.,0.,0.2);
+}
+
+void GUI::addInterferenceImage(Image* pImage) {
+    pImage->cmdTransitionToShaderRead();
+    m_interferenceTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+    m_cleaner.push([=](){ pImage->cleanup(); });
 }

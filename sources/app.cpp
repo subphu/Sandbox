@@ -81,6 +81,7 @@ void App::dispatchInterference() {
     m_pCommander->endSingleTimeCommands(cmdBuffer);
     
     m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
+    m_pScreenSpacePipeline->setupGUIInput(m_pInterferencePipeline->getOutputImage());
 }
 
 void App::createMainPipeline() {
@@ -97,7 +98,7 @@ void App::createMainPipeline() {
     m_pMainPipeline->createFrame(size);
     m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
     
-    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame()->getColorImage());
+    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame());
 }
 
 void App::setup() {
@@ -201,5 +202,5 @@ void App::checkResized() {
     
     m_pSwapchain->recreate();
     m_pMainPipeline->recreateFrame(size);
-    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame()->getColorImage());
+    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame());
 }

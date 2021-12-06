@@ -73,6 +73,10 @@ void ScreenSpacePipeline::setupInput(Frame* pFrame) {
     m_pInputFrame = pFrame;
 }
 
+void ScreenSpacePipeline::setupGUIInput(Image *pImage) {
+    m_pGUI->addInterferenceImage(pImage);
+}
+
 void ScreenSpacePipeline::createDescriptor() {
     LOG("ScreenSpacePipeline::createDescriptor");
     m_pDescriptor = new Descriptor();
