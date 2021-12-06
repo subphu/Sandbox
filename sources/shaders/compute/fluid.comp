@@ -1,0 +1,67 @@
+#version 460
+#extension GL_ARB_separate_shader_objects : enable
+
+#include "../functions/constants.glsl"
+#include "../functions/interference.glsl"
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(set=0, binding=0, rgba8) uniform image2D fluidImage;
+layout(set=0, binding=1, rgba8) uniform writeonly image2D heightImage;
+
+layout(push_constant) uniform pushConstants {
+    ivec2 size;
+};
+
+#define RotNum 5
+
+const float ang = 2.0*3.1415926535/float(RotNum);
+mat2 m  = mat2(cos(ang),sin(ang),-sin(ang),cos(ang));
+mat2 mh = mat2(cos(ang*0.5),sin(ang*0.5),-sin(ang*0.5),cos(ang*0.5));
+
+float getRot(vec2 pos, vec2 b) {
+    vec2 p = b;
+    float rot=0.0;
+    for(int i=0; i < RotNum; i++) {
+        ivec2 uv = ivec2(mod(round(pos+p), size.xy));
+        rot += dot(imageLoad(fluidImage, uv).xy-vec2(0.5),p.yx*vec2(1,-1));
+        p = m * p;
+    }
+    return rot / float(RotNum) / dot(b, b);
+}
+
+void main() {
+    uint xi = gl_GlobalInvocationID.x;
+    uint yi = gl_GlobalInvocationID.y;
+
+    if(xi >= size.x || yi >= size.y) return;
+    
+    vec2 pos = vec2(xi, yi);
+    
+    vec2 b = vec2(cos(ang),sin(ang));
+    vec2 v = vec2(0);
+    float bbMax=0.7*size.y; bbMax*=bbMax;
+    for(int l=0;l<20;l++)
+    {
+        if ( dot(b,b) > bbMax ) break;
+        vec2 p = b;
+        for(int i=0;i<RotNum;i++)
+        {
+            v+=p.yx*getRot(pos+p,-mh*b);
+            p = m*p;
+        }
+        b*=2.0;
+    }
+    
+    ivec2 uv = ivec2(mod((pos+v*vec2(-1,1)*2.0), size.xy));
+    vec4 fragColor=imageLoad(fluidImage,uv);
+    
+    // add a little "motor" in the center
+    vec2 scr=(vec2(xi, yi)/size.xy)*2.0-vec2(1.0);
+    fragColor.xy += (0.01*scr.xy / (dot(scr,scr)/0.1+0.3));
+    
+    float h = length(min(fragColor.xyz, 1.0));
+    
+    imageStore(fluidImage , ivec2(xi, yi), fragColor);
+    imageStore(heightImage, ivec2(xi, yi), vec4(h, h, h, 1.0));
+}

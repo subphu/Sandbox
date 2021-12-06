@@ -18,6 +18,7 @@ $glslc_dir/glslc $shader_dir/shader.comp -o $spirv_dir/comp.spv
 $glslc_dir/glslc $shader_dir/swapchain.vert -o $spirv_dir/swapchain.vert.spv
 $glslc_dir/glslc $shader_dir/swapchain.frag -o $spirv_dir/swapchain.frag.spv
 
+$glslc_dir/glslc $compute_dir/fluid.comp          -o $spirv_dir/fluid.spv
 $glslc_dir/glslc $compute_dir/interference1d.comp -o $spirv_dir/interference1d.spv
 #$glslc_dir/glslc $compute_dir/interference2d.comp -o $spirv_dir/interference2d.spv
 
