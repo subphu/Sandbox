@@ -117,15 +117,32 @@ void App::setup() {
 
 void App::loop() {
     LOG("App::loop");
+    auto lastTime = Time::now();
+    float frameDelay = 1.f/60.f;
+    float lag = frameDelay;
 
     long iteration = 0;
     while (m_pWindow->isOpen()) {
+        bool lockFps = System::Settings()->LockFPS;
+        
         iteration++;
         m_pWindow->pollEvents();
         checkResized();
         update(iteration);
-        draw(iteration);
         m_pWindow->resetInput();
+        
+        lag -= frameDelay;
+        while (lag < frameDelay) {
+            draw(iteration);
+            lag += TimeDif(Time::now() - lastTime).count();
+            lastTime = Time::now();
+            
+            if (lockFps && lag < frameDelay) {
+                usleep((frameDelay - lag) * 1000000);
+                lag += TimeDif(Time::now() - lastTime).count();
+                lastTime = Time::now();
+            }
+        }
     }
     m_pDevice->waitIdle();
 }
@@ -180,18 +197,19 @@ void App::moveView(Window* pWindow) {
 
 void App::moveViewLock(Window* pWindow) {
     m_pCamera->setLockFocus(System::Settings()->LockFocus);
-    float scale = m_pCamera->getDistance() / 5.;
+    float scale = m_pCamera->getDistance() * .5;
     glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
     movement.x += (pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a)) * scale;
     movement.y += (pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q)) * scale;
-    movement.z += (pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s)) * scale * 0.8;
+    movement.z += (pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s)) * scale;
+    movement.z += pWindow->getScrollOffset().y * scale;
     
     if (pWindow->getMouseBtnState(mouse_btn_left)) {
+        scale = m_pCamera->getDistance() * .2;
         glm::vec2 cursorOffset = pWindow->getCursorOffset();
         movement.x += cursorOffset.x * scale;
         movement.y += cursorOffset.y * scale;
     }
-    movement.z += pWindow->getScrollOffset().y * scale * 0.8;
     m_pCamera->move(movement);
 }
 
