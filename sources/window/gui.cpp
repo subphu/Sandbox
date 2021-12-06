@@ -106,7 +106,7 @@ void GUI::changeStyle() {
 }
 
 void GUI::addInterferenceImage(Image* pImage) {
-    pImage->cmdTransitionToShaderRead();
+    pImage->cmdTransitionToShaderR();
     m_interferenceTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
     m_cleaner.push([=](){ pImage->cleanup(); });
 }

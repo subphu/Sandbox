@@ -35,7 +35,7 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.framebuffer     = framebuffer;
     renderBeginInfo.renderArea      = scissor;
     
-    pInputImage->cmdTransitionToShaderRead(cmdBuffer);
+    pInputImage->cmdTransitionToShaderR(cmdBuffer);
     
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
@@ -66,7 +66,7 @@ void ScreenSpacePipeline::setupShader() {
 void ScreenSpacePipeline::setupInput(Frame* pFrame) {
     LOG("ScreenSpacePipeline::setupInput");
     Image* pImage = pFrame->getColorImage();
-    pImage->cmdTransitionToShaderRead();
+    pImage->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S0, B0, pImage->getDescriptorInfo());
     m_pDescriptor->update(S0);
     pImage->cmdTransitionToPresent();

@@ -36,13 +36,18 @@ public:
     void cmdCopyRawHDRToImage ();
     void cmdCopyRawDataToImage();
     void cmdCopyCubemapToImage();
+    void cmdClearColorImage   (VkClearColorValue clearColor = {0, 0, 0, 1.});
     
-    void cmdTransitionToStorageWrite();
-    void cmdTransitionToTransferDst();
-    void cmdTransitionToShaderRead();
-    void cmdTransitionToShaderRead(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToShaderR();
+    void cmdTransitionToShaderR(VkCommandBuffer cmdBuffer);
     void cmdTransitionToPresent();
     void cmdTransitionToPresent(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToStorageW();
+    void cmdTransitionToStorageW(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToStorageRW();
+    void cmdTransitionToStorageRW(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToTransferDst();
+    void cmdTransitionToTransferDst(VkCommandBuffer cmdBuffer);
     
     void cmdChangeLayout(VkCommandBuffer cmdBuffer,
                          VkImageLayout newLayout,
@@ -50,9 +55,9 @@ public:
                          VkPipelineStageFlags srcStage,
                          VkPipelineStageFlags dstStage);
     
-    void cmdCopyImageToImage        (Image* srcImage);
-    void cmdCopyBufferToImage       (VkBuffer buffer);
-    void cmdGenerateMipmaps         ();
+    void cmdCopyImageToImage (VkCommandBuffer cmdBuffer, Image* srcImage);
+    void cmdCopyBufferToImage(VkCommandBuffer cmdBuffer, VkBuffer buffer);
+    void cmdGenerateMipmaps  (VkCommandBuffer cmdBuffer);
     
     VkImage          getImage      ();
     VkImageView      getImageView  ();
@@ -94,5 +99,7 @@ private:
     static VkImageCreateInfo     GetDefaultImageCreateInfo();
     static VkImageViewCreateInfo GetDefaultImageViewCreateInfo();
     static VkImageMemoryBarrier  GetDefaultImageMemoryBarrier();
+    
+    void cmdCall(void (Image::*cmdFunc)(VkCommandBuffer));
     
 };

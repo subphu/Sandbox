@@ -109,7 +109,7 @@ void MainPipeline::setupInput(uint sampleSize) {
         pTexture->setupForTexture(path);
         pTexture->createWithSampler();
         pTexture->cmdCopyRawDataToImage();
-        pTexture->cmdTransitionToShaderRead();
+        pTexture->cmdTransitionToShaderR();
         m_pTextures.push_back(pTexture);
         m_cleaner.push([=](){ pTexture->cleanup(); });
     }

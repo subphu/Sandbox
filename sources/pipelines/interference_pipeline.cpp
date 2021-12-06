@@ -32,7 +32,7 @@ void InterferencePipeline::setupOutput() {
     m_pOutputImage = new Image();
     m_pOutputImage->setupForStorage({m_details.sampleSize/128 , 1});
     m_pOutputImage->createWithSampler();
-    m_pOutputImage->cmdTransitionToStorageWrite();
+    m_pOutputImage->cmdTransitionToStorageW();
     
     m_pOutputBuffer = new Buffer();
     m_pOutputBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
