@@ -13,7 +13,7 @@ ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
 void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
 
 void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
-    Image*           pRenderImage   = m_pRenderImage;
+    Image*           pInputImage    = m_pInputFrame->getColorImage();;
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
     VkRenderPass     renderpass     = m_pRenderpass->get();
@@ -35,7 +35,7 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.framebuffer     = framebuffer;
     renderBeginInfo.renderArea      = scissor;
     
-    pRenderImage->cmdTransitionToShaderRead(cmdBuffer);
+    pInputImage->cmdTransitionToShaderRead(cmdBuffer);
     
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
@@ -52,7 +52,7 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer) {
     
     vkCmdEndRenderPass(cmdBuffer);
     
-    pRenderImage->cmdTransitionToPresent(cmdBuffer);
+    pInputImage->cmdTransitionToPresent(cmdBuffer);
 }
 
 void ScreenSpacePipeline::setupShader() {
@@ -63,13 +63,14 @@ void ScreenSpacePipeline::setupShader() {
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void ScreenSpacePipeline::setupInput(Image* pImage) {
+void ScreenSpacePipeline::setupInput(Frame* pFrame) {
     LOG("ScreenSpacePipeline::setupInput");
+    Image* pImage = pFrame->getColorImage();
     pImage->cmdTransitionToShaderRead();
     m_pDescriptor->setupPointerImage(S0, B0, pImage->getDescriptorInfo());
     m_pDescriptor->update(S0);
     pImage->cmdTransitionToPresent();
-    m_pRenderImage = pImage;
+    m_pInputFrame = pFrame;
 }
 
 void ScreenSpacePipeline::createDescriptor() {

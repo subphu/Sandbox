@@ -23,8 +23,7 @@ public:
     void render(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput(Image* pImage);
-    
+    void setupInput(Frame* pFrame);
     
     void createDescriptor();
     void createPipelineLayout();
@@ -43,7 +42,7 @@ private:
     Renderpass* m_pRenderpass;
     Descriptor* m_pDescriptor;
     
-    Image* m_pRenderImage;
+    Frame* m_pInputFrame;
     Frame* m_pFrame;
     GUI* m_pGUI;
     
