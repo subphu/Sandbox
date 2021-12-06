@@ -82,12 +82,12 @@ void MainPipeline::setupShader() {
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void MainPipeline::setupInput(uint sampleSize) {
+void MainPipeline::setupInput() {
     LOG("MainPipeline::setupInput");
-    m_misc.sampleSize = sampleSize;
-    m_lights.total = 4;
+    m_misc.sampleSize = System::Settings()->OPDSample;
+    m_lights.total = System::Settings()->TotalLight;
     
-    uint outputSize = sampleSize * CHANNEL * sizeof(float);
+    uint outputSize = m_misc.sampleSize * CHANNEL * sizeof(float);
     m_pInterferenceBuffer = new Buffer();
     m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
                                              VK_BUFFER_USAGE_TRANSFER_DST_BIT);

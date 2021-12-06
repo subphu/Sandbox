@@ -43,7 +43,7 @@ public:
     void render(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInput(uint sampleSize);
+    void setupInput();
     void updateLightInput(long iteration);
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Buffer* pInterferenceBuffer);

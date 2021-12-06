@@ -20,9 +20,9 @@ void InterferencePipeline::setupShader() {
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
 
-void InterferencePipeline::setupInput(uint sampleSize, float n) {
-    m_details.n = n;
-    m_details.sampleSize = sampleSize;
+void InterferencePipeline::setupInput() {
+    m_details.n = System::Settings()->RefractiveIndex;
+    m_details.sampleSize = System::Settings()->OPDSample;
 }
 
 void InterferencePipeline::setupOutput() {
@@ -45,6 +45,9 @@ void InterferencePipeline::setupOutput() {
     m_pDescriptor->setupPointerBuffer(S0, B0, m_pOutputBuffer->getDescriptorInfo());
     m_pDescriptor->setupPointerImage(S0, B1, m_pOutputImage->getDescriptorInfo());
     m_pDescriptor->update(S0);
+    
+    m_cleaner.push([=](){ m_pOutputImage->cleanup(); });
+    m_cleaner.push([=](){ m_pOutputBuffer->cleanup(); });
 }
 
 void InterferencePipeline::createDescriptor() {

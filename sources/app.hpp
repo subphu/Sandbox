@@ -33,10 +33,6 @@ private:
     InterferencePipeline* m_pInterferencePipeline;
     MainPipeline* m_pMainPipeline;
     
-    uint  m_opdSample       = 65536;
-    float m_refractiveIndex = 1.5f;
-    
-    
     FluidPipeline* m_pFluidPipeline;
     
     void cleanup();

@@ -89,7 +89,6 @@ void App::createInterferencePipeline() {
     m_pInterferencePipeline->createPipelineLayout();
     m_pInterferencePipeline->createPipeline();
     m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
-    m_cleaner.push([=](){ m_pInterferencePipeline->getOutputBuffer()->cleanup(); });
 }
 
 void App::dispatchInterference() {
