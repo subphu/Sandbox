@@ -6,6 +6,8 @@
 #include "../system.hpp"
 #include "../resources/shader.hpp"
 
+#define WORKGROUP_SIZE_X 128
+
 InterferencePipeline::~InterferencePipeline() {}
 InterferencePipeline::InterferencePipeline() : m_pDevice(System::Device()) {}
 
@@ -30,7 +32,7 @@ void InterferencePipeline::setupOutput() {
     std::vector<float> outputData(floatCount, 0.0f);
     
     m_pOutputImage = new Image();
-    m_pOutputImage->setupForStorage({m_details.sampleSize/128 , 1});
+    m_pOutputImage->setupForStorage({m_details.sampleSize / WORKGROUP_SIZE_X , 1});
     m_pOutputImage->createWithSampler();
     m_pOutputImage->cmdTransitionToStorageW();
     
@@ -108,7 +110,7 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
-    vkCmdDispatch(cmdBuffer, details.sampleSize / 128, 1, 1);
+    vkCmdDispatch(cmdBuffer, details.sampleSize / WORKGROUP_SIZE_X, 1, 1);
 }
 
 Image * InterferencePipeline::getOutputImage () { return m_pOutputImage; }
