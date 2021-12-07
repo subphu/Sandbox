@@ -80,8 +80,9 @@ template<typename T> struct Size { T width, height, depth; };
 
 typedef VkExtent2D UInt2D;
 
-typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::high_resolution_clock ChronoTime;
 typedef std::chrono::duration<float, std::chrono::seconds::period> TimeDif;
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimeVal;
 
 struct Cleaner {
     std::stack<std::function<void()>> stack;

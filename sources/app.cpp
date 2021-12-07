@@ -16,7 +16,7 @@ void App::cleanup() { m_cleaner.flush("App"); }
 void App::initWindow() {
     LOG("App::initWindow");
     m_pWindow = new Window();
-    m_pWindow->create({800, 600}, "Vulkan");
+    m_pWindow->create({1200, 800}, "Vulkan");
     m_pWindow->setWindowPosition(0, 0);
     m_pWindow->enableInput();
     m_cleaner.push([=](){ m_pWindow->close(); });
@@ -145,39 +145,7 @@ void App::setup() {
     createGUI();
 }
 
-void App::loop() {
-    LOG("App::loop");
-    auto lastTime = Time::now();
-    float frameDelay = 1.f/60.f;
-    float lag = frameDelay;
-
-    long iteration = 0;
-    while (m_pWindow->isOpen()) {
-        bool lockFps = System::Settings()->LockFPS;
-        
-        iteration++;
-        m_pWindow->pollEvents();
-        checkResized();
-        update(iteration);
-        m_pWindow->resetInput();
-        
-        lag -= frameDelay;
-        while (lag < frameDelay) {
-            draw(iteration);
-            lag += TimeDif(Time::now() - lastTime).count();
-            lastTime = Time::now();
-            
-            if (lockFps && lag < frameDelay) {
-                usleep((frameDelay - lag) * 1000000);
-                lag += TimeDif(Time::now() - lastTime).count();
-                lastTime = Time::now();
-            }
-        }
-    }
-    m_pDevice->waitIdle();
-}
-
-void App::draw(long iteration) {
+void App::draw() {
     Swapchain* pSwapchain = m_pSwapchain;
     MainPipeline* pMainPipeline = m_pMainPipeline;
     FluidPipeline* pFluidPipeline = m_pFluidPipeline;
@@ -205,12 +173,12 @@ void App::draw(long iteration) {
     pSwapchain->presentFrame();
 }
 
-void App::update(long iteration) {
+void App::update() {
     Settings* settings = System::Settings();
     if (settings->LockFocus) moveViewLock(m_pWindow);
     else                     moveView(m_pWindow);
     
-    m_pMainPipeline->updateLightInput(iteration);
+    m_pMainPipeline->updateLightInput();
     m_pMainPipeline->updateCameraInput(m_pCamera);
     System::Settings()->CameraPos = m_pCamera->getPosition();
 }
@@ -245,6 +213,30 @@ void App::moveViewLock(Window* pWindow) {
         movement.y += cursorOffset.y * scale;
     }
     m_pCamera->move(movement);
+}
+
+void App::loop() {
+    LOG("App::loop");
+    RenderTime* pRenderTime = System::RenderTime();
+    Settings  * pSettings   = System::Settings();
+    
+    while (m_pWindow->isOpen()) {
+        bool lockFps = System::Settings()->LockFPS;
+        
+        pSettings->Iteration++;
+        m_pWindow->pollEvents();
+        checkResized();
+        update();
+        m_pWindow->resetInput();
+        
+        pRenderTime->startRender();
+        while (pRenderTime->checkLag()) {
+            draw();
+            pRenderTime->addRenderTime();
+            pRenderTime->sleepIf(lockFps);
+        }
+    }
+    m_pDevice->waitIdle();
 }
 
 void App::checkResized() {

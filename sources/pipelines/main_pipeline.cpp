@@ -132,12 +132,13 @@ void MainPipeline::setupInput() {
     m_cleaner.push([=](){ m_pSphere->cleanup(); });
 }
 
-void MainPipeline::updateLightInput(long iteration) {
+void MainPipeline::updateLightInput() {
     Settings* settings = System::Settings();
     m_lights.radiance = settings->Radiance;
     m_lights.total = settings->TotalLight;
     m_lights.color = settings->LightColor;
     glm::vec2 distance = settings->Distance;
+    long iteration = settings->Iteration;
     float interval = glm::radians(360.f/m_lights.total);
     for (int i = 0; i < m_lights.total; i++) {
         m_lights.position[i].z = distance.x;

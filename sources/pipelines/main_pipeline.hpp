@@ -44,7 +44,7 @@ public:
     
     void setupShader();
     void setupInput();
-    void updateLightInput(long iteration);
+    void updateLightInput();
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Buffer* pInterferenceBuffer);
     

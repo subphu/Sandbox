@@ -11,6 +11,8 @@ struct Settings {
     bool LockFPS   = false;
     bool LockFocus = true;
     
+    long Iteration = 0;
+    
     glm::vec3 CameraPos = {};
     
     VkClearColorValue        ClearColor = {0.01f, 0.01f, 0.01f, 1.0f};
@@ -27,16 +29,39 @@ struct Settings {
     glm::vec4 LightColor  = {1.f, 1.f, 1.f, 1.f};
 };
 
+struct RenderTime {
+    TimeVal lastTime = ChronoTime::now();
+    float frameDelay = 1.f/60.f;
+    float lag = frameDelay;
+    
+    bool  checkLag    () { return lag < frameDelay; }
+    float getSleepTime() { return (frameDelay - lag) * 1000000; }
+    
+    void updateTime   () { lastTime = ChronoTime::now(); };
+    void startRender  () { lag -= frameDelay; };
+    void addRenderTime() {
+        lag += TimeDif(ChronoTime::now() - lastTime).count();
+        updateTime();
+    };
+    void sleepIf(bool condition) {
+        if (!condition || lag > frameDelay) return;
+        usleep(getSleepTime());
+        addRenderTime();
+    }
+};
+
 class System {
     
 public:
-    Device*    m_pDevice    = nullptr;
-    Commander* m_pCommander = nullptr;
-    Settings*  m_pSettings  = new struct Settings();
+    Device*     m_pDevice     = nullptr;
+    Commander*  m_pCommander  = nullptr;
+    Settings*   m_pSettings   = new struct Settings();
+    RenderTime* m_pRenderTime = new struct RenderTime();
     
-    static Device*    Device   () { return Instance().m_pDevice;    }
-    static Commander* Commander() { return Instance().m_pCommander; }
-    static Settings*  Settings () { return Instance().m_pSettings;  }
+    static Device*     Device    () { return Instance().m_pDevice;     }
+    static Commander*  Commander () { return Instance().m_pCommander;  }
+    static Settings*   Settings  () { return Instance().m_pSettings;   }
+    static RenderTime* RenderTime() { return Instance().m_pRenderTime; }
     
     static void setDevice   (class Device*    device   ) { Instance().m_pDevice    = device; }
     static void setCommander(class Commander* commander) { Instance().m_pCommander = commander; }

@@ -39,8 +39,8 @@ private:
     void cleanup();
     void setup();
     void loop();
-    void update(long iteration);
-    void draw(long iteration);
+    void update();
+    void draw();
     
     void initWindow();
     void initDevice();
