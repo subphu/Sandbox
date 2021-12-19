@@ -43,8 +43,9 @@ void Image::setupForStorage(UInt2D size) {
     m_imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
     m_imageInfo.usage  = VK_IMAGE_USAGE_STORAGE_BIT |
                          VK_IMAGE_USAGE_SAMPLED_BIT |
+                         VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                          VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    
+
     m_imageViewInfo.format = m_imageInfo.format;
 }
 
@@ -59,10 +60,14 @@ void Image::setupForTexture(const std::string filepath) {
     LOG("Image::setupForTexture");
     int width, height, channels;
     m_rawData = STBI::LoadImage(filepath, &width, &height, &channels);
-    
-    m_imageInfo.extent.width  = width;
-    m_imageInfo.extent.height = height;
-    m_imageInfo.mipLevels     = MaxMipLevel(width, height);
+    UInt2D size = { (uint)width, (uint)height };
+    setupForTexture(size);
+}
+
+void Image::setupForTexture(UInt2D size) {
+    m_imageInfo.extent.width  = size.width;
+    m_imageInfo.extent.height = size.height;
+    m_imageInfo.mipLevels     = MaxMipLevel(size.width, size.height);
     m_imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
     m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                                 VK_IMAGE_USAGE_TRANSFER_DST_BIT |
@@ -267,13 +272,13 @@ void Image::cmdClearColorImage(VkClearColorValue clearColor) {
 }
 
 void Image::cmdCopyImageToImage(VkCommandBuffer cmdBuffer, Image* pSrcImage) {
-    LOG("Image::cmdCopyImageToImage");
     VkImage               srcImage         = pSrcImage->getImage();
-    VkImageCreateInfo     srcImageInfo     = pSrcImage->getImageInfo();
+    VkImageLayout         srcImageLayout   = pSrcImage->getImageLayout();
     VkImageViewCreateInfo srcImageViewInfo = pSrcImage->getImageViewInfo();
     VkImage               dstImage         = m_image;
-    VkImageCreateInfo     dstImageInfo     = m_imageInfo;
+    VkImageLayout         dstImageLayout   = m_imageLayout;
     VkImageViewCreateInfo dstImageViewInfo = m_imageViewInfo;
+    VkExtent3D            extent           = m_imageInfo.extent;
     
     VkImageCopy region{};
     region.srcOffset = {0, 0, 0};
@@ -287,11 +292,11 @@ void Image::cmdCopyImageToImage(VkCommandBuffer cmdBuffer, Image* pSrcImage) {
     region.dstSubresource.baseArrayLayer = dstImageViewInfo.subresourceRange.baseArrayLayer;
     region.dstSubresource.layerCount     = dstImageViewInfo.subresourceRange.layerCount;
     region.dstSubresource.mipLevel       = dstImageViewInfo.subresourceRange.baseMipLevel;
-    region.extent = srcImageInfo.extent;
+    region.extent = extent;
     
     vkCmdCopyImage(cmdBuffer,
-                   srcImage, srcImageInfo.initialLayout,
-                   dstImage, dstImageInfo.initialLayout,
+                   srcImage, srcImageLayout,
+                   dstImage, dstImageLayout,
                    1, &region);
 }
 
@@ -430,6 +435,13 @@ void Image::cmdTransitionToTransferDst(VkCommandBuffer cmdBuffer) {
                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                     VK_PIPELINE_STAGE_TRANSFER_BIT);
 }
+void Image::cmdTransitionToTransferSrc(VkCommandBuffer cmdBuffer) {
+    cmdChangeLayout(cmdBuffer,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    VK_ACCESS_TRANSFER_READ_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT);
+}
 
 void Image::cmdChangeLayout(VkCommandBuffer cmdBuffer,
                             VkImageLayout newLayout,
@@ -456,6 +468,7 @@ void Image::cmdTransitionToPresent    () { cmdCall(&Image::cmdTransitionToPresen
 void Image::cmdTransitionToStorageW   () { cmdCall(&Image::cmdTransitionToStorageW);    }
 void Image::cmdTransitionToStorageRW  () { cmdCall(&Image::cmdTransitionToStorageRW);   }
 void Image::cmdTransitionToTransferDst() { cmdCall(&Image::cmdTransitionToTransferDst); }
+void Image::cmdTransitionToTransferSrc() { cmdCall(&Image::cmdTransitionToTransferSrc); }
 
 VkImage         Image::getImage      () { return m_image;       }
 VkImageView     Image::getImageView  () { return m_imageView;   }

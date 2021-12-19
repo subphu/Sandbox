@@ -20,6 +20,7 @@ public:
     void setupForSwapchain  (VkImage image, VkFormat imageFormat);
     
     void setupForTexture    (const std::string filepath);
+    void setupForTexture    (UInt2D size);
     void setupForHDRTexture (const std::string filepath);
     void setupForCubemap    (const std::string *filepaths);
     void setupForCubemap    (UInt2D size);
@@ -36,7 +37,7 @@ public:
     void cmdCopyRawHDRToImage ();
     void cmdCopyRawDataToImage();
     void cmdCopyCubemapToImage();
-    void cmdClearColorImage   (VkClearColorValue clearColor = {0, 0, 0, 1.});
+    void cmdClearColorImage   (VkClearColorValue clearColor = {0., 0., 0., 1.});
     
     void cmdTransitionToShaderR();
     void cmdTransitionToShaderR(VkCommandBuffer cmdBuffer);
@@ -48,6 +49,8 @@ public:
     void cmdTransitionToStorageRW(VkCommandBuffer cmdBuffer);
     void cmdTransitionToTransferDst();
     void cmdTransitionToTransferDst(VkCommandBuffer cmdBuffer);
+    void cmdTransitionToTransferSrc();
+    void cmdTransitionToTransferSrc(VkCommandBuffer cmdBuffer);
     
     void cmdChangeLayout(VkCommandBuffer cmdBuffer,
                          VkImageLayout newLayout,
