@@ -92,6 +92,8 @@ void App::createFluidPipeline() {
     m_pFluidPipeline->createPipelineLayout();
     m_pFluidPipeline->createPipeline();
     m_cleaner.push([=](){ m_pFluidPipeline->cleanup(); });
+    
+    m_pMainPipeline->updateHeightmapInput(m_pFluidPipeline->getHeightImage());
 }
 
 void App::createInterferencePipeline() {
@@ -121,6 +123,7 @@ void App::createGUI() {
     Window*     pWindow      = m_pWindow;
     Renderpass* pRenderpass  = m_pScreenSpacePipeline->getRenderpass();
     Image* heightMapImage    = m_pFluidPipeline->getHeightImage();
+    Image* iridescentImage   = m_pFluidPipeline->getIridescentImage();
     Image* InterferenceImage = m_pInterferencePipeline->getOutputImage();
     
     m_pGUI = new GUI();

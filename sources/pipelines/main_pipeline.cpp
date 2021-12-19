@@ -27,6 +27,7 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     VkDescriptorSet cameraDescSet  = m_pDescriptor->getDescriptorSet(S0);
     VkDescriptorSet lightsDescSet = m_pDescriptor->getDescriptorSet(S1);
     VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
+    VkDescriptorSet heightmapDescSet = m_pDescriptor->getDescriptorSet(S3);
     
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = System::Settings()->ClearColor;
@@ -52,6 +53,8 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
                             pipelineLayout, S1, 1, &lightsDescSet, 0, nullptr);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S2, 1, &textureDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S3, 1, &heightmapDescSet, 0, nullptr);
     
     vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, &offsets);
     vkCmdBindIndexBuffer  (cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
@@ -142,8 +145,8 @@ void MainPipeline::updateLightInput() {
     float interval = glm::radians(360.f/m_lights.total);
     for (int i = 0; i < m_lights.total; i++) {
         m_lights.position[i].z = distance.x;
-        m_lights.position[i].x = sin(iteration / 1000.f + i * interval) * distance.y;
-        m_lights.position[i].y = cos(iteration / 1000.f + i * interval) * distance.y;
+        m_lights.position[i].x = sin(iteration / 100.f + i * interval) * distance.y;
+        m_lights.position[i].y = cos(iteration / 100.f + i * interval) * distance.y;
     }
     m_pLightBuffer->fillBuffer(&m_lights, sizeof(UBLights));
 }
@@ -159,6 +162,13 @@ void MainPipeline::updateCameraInput(Camera* pCamera) {
 
 void MainPipeline::updateInterferenceInput(Buffer* pInterferenceBuffer) {
     m_pInterferenceBuffer->cmdCopyFromBuffer(pInterferenceBuffer->get(), pInterferenceBuffer->getBufferSize());
+}
+
+void MainPipeline::updateHeightmapInput(Image *pHeightmapImage) {
+    m_pHeightmapImage = pHeightmapImage;
+    m_pHeightmapImage->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S3, B0, m_pHeightmapImage->getDescriptorInfo());
+    m_pDescriptor->update(S3);
 }
 
 void MainPipeline::createDescriptor() {
@@ -183,10 +193,16 @@ void MainPipeline::createDescriptor() {
     }
     m_pDescriptor->createLayout(S2);
     
+    m_pDescriptor->setupLayout(S3);
+    m_pDescriptor->addLayoutBindings(S3, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->createLayout(S3);
+    
     m_pDescriptor->createPool();
     m_pDescriptor->allocate(S0);
     m_pDescriptor->allocate(S1);
     m_pDescriptor->allocate(S2);
+    m_pDescriptor->allocate(S3);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
@@ -205,7 +221,8 @@ void MainPipeline::createPipelineLayout() {
     VECTOR<VkDescriptorSetLayout> descSetLayouts = {
         m_pDescriptor->getDescriptorLayout(S0),
         m_pDescriptor->getDescriptorLayout(S1),
-        m_pDescriptor->getDescriptorLayout(S2)
+        m_pDescriptor->getDescriptorLayout(S2),
+        m_pDescriptor->getDescriptorLayout(S3)
     };
     
     VkPushConstantRange pushConstantRange{};

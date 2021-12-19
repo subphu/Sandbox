@@ -47,6 +47,7 @@ public:
     void updateLightInput();
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Buffer* pInterferenceBuffer);
+    void updateHeightmapInput(Image* pHeightmapImage);
     
     void createDescriptor();
     void createPipelineLayout();
@@ -68,7 +69,9 @@ private:
     Buffer* m_pCameraBuffer;
     Buffer* m_pInterferenceBuffer;
     Frame*  m_pFrame;
+    
     Mesh*   m_pSphere;
+    Image*  m_pHeightmapImage;
     VECTOR<Image*> m_pTextures;
     
     PCMisc   m_misc{};
