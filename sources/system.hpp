@@ -19,8 +19,9 @@ struct Settings {
     VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
     
-    uint  OPDSample       = 65536;
-    float RefractiveIndex = 1.5f;
+    UInt2D FluidSize       = {800, 800};
+    uint   OPDSample       = 65536;
+    float  RefractiveIndex = 1.5f;
     
     // Lights
     int       TotalLight  = 4;

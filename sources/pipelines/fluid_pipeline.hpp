@@ -14,6 +14,7 @@ class FluidPipeline {
 
     struct SimulationDetails {
         UInt2D size;
+        uint sampleSize;
     };
 
 public:
@@ -27,12 +28,15 @@ public:
     void setupInput();
     void setupOutput();
     
+    void updateInterferenceInput(Buffer* pInterferenceBuffer);
+    
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     
-    Image* getFluidImage ();
+    Image* getFluidImage();
     Image* getHeightImage();
+    Image* getIridescentImage();
     
 private:
     Cleaner m_cleaner;
@@ -40,8 +44,12 @@ private:
     Pipeline* m_pPipeline;
     Descriptor* m_pDescriptor;
     
+    Image* m_pSampledImage;
     Image* m_pFluidImage;
     Image* m_pHeightImage;
+    Image* m_pIridescentImage;
+    
+    Buffer* m_pInterferenceBuffer;
     
     SimulationDetails m_details;
     

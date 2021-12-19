@@ -6,11 +6,17 @@
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-layout(set=0, binding=0, rgba8) uniform image2D fluidImage;
-layout(set=0, binding=1, rgba8) uniform writeonly image2D heightImage;
+layout(set = 0, binding = 0) uniform sampler2D sampledImage;
+layout(set = 0, binding = 1, rgba8) uniform writeonly image2D fluidImage;
+layout(set = 0, binding = 2, rgba8) uniform writeonly image2D heightImage;
+layout(set = 0, binding = 3, rgba8) uniform writeonly image2D iridescentImage;
+layout(set = 0, binding = 9) buffer Interference {
+    vec4 color[];
+} interference;
 
 layout(push_constant) uniform pushConstants {
     ivec2 size;
+    uint sampleSize;
 };
 
 #define RotNum 5
@@ -23,8 +29,8 @@ float getRot(vec2 pos, vec2 b) {
     vec2 p = b;
     float rot=0.0;
     for(int i=0; i < RotNum; i++) {
-        ivec2 uv = ivec2(mod(round(pos+p), size.xy));
-        rot += dot(imageLoad(fluidImage, uv).xy-vec2(0.5),p.yx*vec2(1,-1));
+        vec2 uv = fract((pos+p)/size.xy);
+        rot += dot(texture(sampledImage, uv).xy-vec2(0.5),p.yx*vec2(1,-1));
         p = m * p;
     }
     return rot / float(RotNum) / dot(b, b);
@@ -53,15 +59,20 @@ void main() {
         b*=2.0;
     }
     
-    ivec2 uv = ivec2(mod((pos+v*vec2(-1,1)*2.0), size.xy));
-    vec4 fragColor=imageLoad(fluidImage,uv);
+    vec2 uv = fract((pos+v*vec2(-1,1)*2.0)/size.xy);
+    vec4 fluidMovement = texture(sampledImage,uv);
     
     // add a little "motor" in the center
     vec2 scr=(vec2(xi, yi)/size.xy)*2.0-vec2(1.0);
-    fragColor.xy += (0.01*scr.xy / (dot(scr,scr)/0.1+0.3));
+    fluidMovement.xy += (0.01*scr.xy / (dot(scr,scr)/0.1 + 0.3));
     
-    float h = length(min(fragColor.xyz, 1.0));
+    float h = length(fluidMovement.xyz) * 0.9;
+    vec4 heightColor = vec4(h, h, h, 1.0);
     
-    imageStore(fluidImage , ivec2(xi, yi), fragColor);
-    imageStore(heightImage, ivec2(xi, yi), vec4(h, h, h, 1.0));
+    float opd = 1.5 * 2.0 * h * cos(0) * scaleD;
+    vec4 iridescenceColor = interference.color[int(opd * sampleSize)];
+    
+    imageStore(fluidImage , ivec2(xi, yi), fluidMovement);
+    imageStore(heightImage, ivec2(xi, yi), heightColor);
+    imageStore(iridescentImage, ivec2(xi, yi), iridescenceColor);
 }

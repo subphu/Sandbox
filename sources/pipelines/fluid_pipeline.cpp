@@ -22,15 +22,34 @@ void FluidPipeline::setupShader() {
 }
 
 void FluidPipeline::setupInput() {
-    m_details.size = {800, 800};
+    m_details.sampleSize = System::Settings()->OPDSample;
+    m_details.size = System::Settings()->FluidSize;
+    
+    uint outputSize = m_details.sampleSize * CHANNEL * sizeof(float);
+    m_pInterferenceBuffer = new Buffer();
+    m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    m_pInterferenceBuffer->create();
+    m_pDescriptor->setupPointerBuffer(S0, B9, m_pInterferenceBuffer->getDescriptorInfo());
+    m_cleaner.push([=](){ m_pInterferenceBuffer->cleanup(); });
+}
+
+void FluidPipeline::updateInterferenceInput(Buffer* pInterferenceBuffer) {
+    m_pInterferenceBuffer->cmdCopyFromBuffer(pInterferenceBuffer->get(), pInterferenceBuffer->getBufferSize());
 }
 
 void FluidPipeline::setupOutput() {
+    m_pSampledImage = new Image();
+    m_pSampledImage->setupForStorage(m_details.size);
+    m_pSampledImage->createWithSampler();
+    m_pSampledImage->cmdClearColorImage();
+    m_pSampledImage->cmdTransitionToShaderR();
+    
     m_pFluidImage = new Image();
     m_pFluidImage->setupForStorage(m_details.size);
     m_pFluidImage->createWithSampler();
     m_pFluidImage->cmdClearColorImage();
-    m_pFluidImage->cmdTransitionToStorageRW();
+    m_pFluidImage->cmdTransitionToStorageW();
     
     m_pHeightImage = new Image();
     m_pHeightImage->setupForStorage(m_details.size);
@@ -38,12 +57,22 @@ void FluidPipeline::setupOutput() {
     m_pHeightImage->cmdClearColorImage();
     m_pHeightImage->cmdTransitionToStorageW();
     
-    m_pDescriptor->setupPointerImage(S0, B0, m_pFluidImage->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S0, B1, m_pHeightImage->getDescriptorInfo());
+    m_pIridescentImage = new Image();
+    m_pIridescentImage->setupForStorage(m_details.size);
+    m_pIridescentImage->createWithSampler();
+    m_pIridescentImage->cmdClearColorImage();
+    m_pIridescentImage->cmdTransitionToStorageW();
+    
+    m_pDescriptor->setupPointerImage(S0, B0, m_pSampledImage->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S0, B1, m_pFluidImage->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S0, B2, m_pHeightImage->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S0, B3, m_pIridescentImage->getDescriptorInfo());
     m_pDescriptor->update(S0);
     
+    m_cleaner.push([=](){ m_pSampledImage->cleanup(); });
     m_cleaner.push([=](){ m_pFluidImage->cleanup(); });
     m_cleaner.push([=](){ m_pHeightImage->cleanup(); });
+    m_cleaner.push([=](){ m_pIridescentImage->cleanup(); });
 }
 
 void FluidPipeline::createDescriptor() {
@@ -51,9 +80,15 @@ void FluidPipeline::createDescriptor() {
     m_pDescriptor = new Descriptor();
     
     m_pDescriptor->setupLayout(S0);
-    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                      VK_SHADER_STAGE_COMPUTE_BIT);
     m_pDescriptor->addLayoutBindings(S0, B1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                                     VK_SHADER_STAGE_COMPUTE_BIT);
+    m_pDescriptor->addLayoutBindings(S0, B2, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                                     VK_SHADER_STAGE_COMPUTE_BIT);
+    m_pDescriptor->addLayoutBindings(S0, B3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+                                     VK_SHADER_STAGE_COMPUTE_BIT);
+    m_pDescriptor->addLayoutBindings(S0, B9, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                      VK_SHADER_STAGE_COMPUTE_BIT);
     m_pDescriptor->createLayout(S0);
     m_pDescriptor->createPool();
@@ -102,8 +137,9 @@ void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
     VkDescriptorSet   descSet  = m_pDescriptor->getDescriptorSet(S0);
     SimulationDetails details  = m_details;
     
-    m_pFluidImage->cmdTransitionToStorageRW(cmdBuffer);
+    m_pFluidImage->cmdTransitionToStorageW(cmdBuffer);
     m_pHeightImage->cmdTransitionToStorageW(cmdBuffer);
+    m_pIridescentImage->cmdTransitionToStorageW(cmdBuffer);
     
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT,
                        0, sizeof(SimulationDetails), &details);
@@ -115,9 +151,17 @@ void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
                   details.size.width  / WORKGROUP_SIZE_X,
                   details.size.height / WORKGROUP_SIZE_Y, 1);
     
+    m_pFluidImage->cmdTransitionToTransferSrc(cmdBuffer);
+    m_pSampledImage->cmdTransitionToTransferDst(cmdBuffer);
+    
+    m_pSampledImage->cmdCopyImageToImage(cmdBuffer, m_pFluidImage);
+    
+    m_pSampledImage->cmdTransitionToShaderR(cmdBuffer);
     m_pFluidImage->cmdTransitionToShaderR(cmdBuffer);
     m_pHeightImage->cmdTransitionToShaderR(cmdBuffer);
+    m_pIridescentImage->cmdTransitionToShaderR(cmdBuffer);
 }
 
-Image * FluidPipeline::getFluidImage () { return m_pFluidImage;  }
-Image * FluidPipeline::getHeightImage() { return m_pHeightImage; }
+Image * FluidPipeline::getFluidImage     () { return m_pFluidImage;  }
+Image * FluidPipeline::getHeightImage    () { return m_pHeightImage; }
+Image * FluidPipeline::getIridescentImage() { return m_pIridescentImage; }

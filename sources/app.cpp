@@ -112,6 +112,7 @@ void App::dispatchInterference() {
     m_pInterferencePipeline->dispatch(cmdBuffer);
     m_pCommander->endSingleTimeCommands(cmdBuffer);
     
+    m_pFluidPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
     m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputBuffer());
 }
 
