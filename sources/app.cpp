@@ -164,7 +164,9 @@ void App::draw() {
     VkResult result = vkBeginCommandBuffer(cmdBuffer, &commandBeginInfo);
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
     
-    pFluidPipeline->dispatch(cmdBuffer);
+    if (System::Settings()->RunFluid) {
+        pFluidPipeline->dispatch(cmdBuffer);
+    }
     
     pMainPipeline->render(cmdBuffer);
     

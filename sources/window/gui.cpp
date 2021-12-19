@@ -89,6 +89,7 @@ void GUI::drawStatusWindow() {
     
     ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
     ImGui::Image(m_heightMapTexID, {234, 234});
+    ImGui::Checkbox("Simulate Fluid", &settings->RunFluid);
     
     ImGui::End();
 }
