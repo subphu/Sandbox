@@ -88,8 +88,18 @@ void GUI::drawStatusWindow() {
     ImGui::Separator();
     
     ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
-    ImGui::Image(m_heightMapTexID, {234, 234});
     ImGui::Checkbox("Simulate Fluid", &settings->RunFluid);
+    if (ImGui::BeginTabBar("MyTabBar")) {
+        if (ImGui::BeginTabItem("Height")) {
+            ImGui::Image(m_heightMapTexID, {234, 234});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Iridesence")) {
+            ImGui::Image(m_iridescentTexID, {234, 234});
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
     
     ImGui::End();
 }
@@ -115,4 +125,8 @@ void GUI::addInterferenceImage(Image* pImage) {
 void GUI::addHeightMapImage(Image* pImage) {
     pImage->cmdTransitionToShaderR();
     m_heightMapTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addIridescentImage(Image* pImage) {
+    m_iridescentTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }

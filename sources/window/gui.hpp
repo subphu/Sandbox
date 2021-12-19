@@ -23,6 +23,7 @@ public:
     
     void addInterferenceImage(Image* pImage);
     void addHeightMapImage(Image* pImage);
+    void addIridescentImage(Image* pImage);
     
 private:
     Cleaner m_cleaner;
@@ -30,6 +31,7 @@ private:
     
     ImTextureID m_interferenceTexID;
     ImTextureID m_heightMapTexID;
+    ImTextureID m_iridescentTexID;
     
     ImGui_ImplVulkan_InitInfo m_initInfo{};
     

@@ -129,6 +129,7 @@ void App::createGUI() {
     m_pGUI = new GUI();
     m_pGUI->initGUI(pWindow, pRenderpass);
     m_pGUI->addHeightMapImage(heightMapImage);
+    m_pGUI->addIridescentImage(iridescentImage);
     m_pGUI->addInterferenceImage(InterferenceImage);
     m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
 }
