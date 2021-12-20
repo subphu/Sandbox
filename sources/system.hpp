@@ -22,7 +22,8 @@ struct Settings {
     bool   RunFluid  = true;
     UInt2D FluidSize = {800, 800};
     
-    uint   OPDSample       = 65536;
+    uint   OPDSample       = 16384;
+    uint   RSample         = 11;
     float  RefractiveIndex = 1.5f;
     
     // Lights

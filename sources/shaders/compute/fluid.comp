@@ -16,7 +16,7 @@ layout(set = 0, binding = 9) buffer Interference {
 
 layout(push_constant) uniform pushConstants {
     ivec2 size;
-    uint sampleSize;
+    uint opdSample;
 };
 
 #define RotNum 5
@@ -70,7 +70,7 @@ void main() {
     vec4 heightColor = vec4(h, h, h, 1.0);
     
     float opd = 1.5 * 2.0 * h * cos(0) * scaleD;
-    vec4 iridescenceColor = interference.color[int(opd * sampleSize)];
+    vec4 iridescenceColor = interference.color[int(opd * opdSample)];
     
     imageStore(fluidImage , ivec2(xi, yi), fluidMovement);
     imageStore(heightImage, ivec2(xi, yi), heightColor);

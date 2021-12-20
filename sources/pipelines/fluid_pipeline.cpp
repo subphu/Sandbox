@@ -22,10 +22,10 @@ void FluidPipeline::setupShader() {
 }
 
 void FluidPipeline::setupInput() {
-    m_details.sampleSize = System::Settings()->OPDSample;
+    m_details.opdSample = System::Settings()->OPDSample;
     m_details.size = System::Settings()->FluidSize;
     
-    uint outputSize = m_details.sampleSize * CHANNEL * sizeof(float);
+    uint outputSize = m_details.opdSample * CHANNEL * sizeof(float);
     m_pInterferenceBuffer = new Buffer();
     m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
                                              VK_BUFFER_USAGE_TRANSFER_DST_BIT);

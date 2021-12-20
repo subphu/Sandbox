@@ -14,7 +14,7 @@ class FluidPipeline {
 
     struct SimulationDetails {
         UInt2D size;
-        uint sampleSize;
+        uint opdSample;
     };
 
 public:

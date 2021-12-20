@@ -22,17 +22,18 @@ void InterferencePipeline::setupShader() {
 
 void InterferencePipeline::setupInput() {
     m_details.n = System::Settings()->RefractiveIndex;
-    m_details.sampleSize = System::Settings()->OPDSample;
+    m_details.opdSample = System::Settings()->OPDSample;
+    m_details.rSample   = System::Settings()->RSample;
 }
 
 void InterferencePipeline::setupOutput() {
     LOG("InterferencePipeline::setupOutput");
-    uint floatCount = m_details.sampleSize * CHANNEL;
+    uint floatCount = m_details.opdSample * CHANNEL;
     uint outputSize = floatCount * sizeof(float);
     std::vector<float> outputData(floatCount, 0.0f);
     
     m_pOutputImage = new Image();
-    m_pOutputImage->setupForStorage({m_details.sampleSize / WORKGROUP_SIZE_X , 1});
+    m_pOutputImage->setupForStorage({m_details.opdSample, m_details.rSample});
     m_pOutputImage->createWithSampler();
     m_pOutputImage->cmdTransitionToStorageW();
     
@@ -113,7 +114,9 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
-    vkCmdDispatch(cmdBuffer, details.sampleSize / WORKGROUP_SIZE_X, 1, 1);
+    vkCmdDispatch(cmdBuffer, details.opdSample / WORKGROUP_SIZE_X, details.rSample, 1);
+    
+    m_pOutputImage->cmdTransitionToShaderR(cmdBuffer);
 }
 
 Image * InterferencePipeline::getOutputImage () { return m_pOutputImage; }

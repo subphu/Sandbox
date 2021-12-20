@@ -21,7 +21,7 @@ struct UBCamera {
 struct PCMisc {
     glm::mat4 model;
     glm::vec3 viewPosition;
-    uint sampleSize;
+    uint opdSample;
     uint isLight;
 };
 

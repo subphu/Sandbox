@@ -4,7 +4,7 @@
 layout(push_constant) uniform Details {
     mat4 model;
     vec3 viewPosition;
-    uint sampleSize;
+    uint opdSample;
     uint isLight;
 };
 

@@ -106,9 +106,9 @@ void GUI::drawStatusWindow() {
 
 void GUI::drawInterferenceWindow() {
     ImGui::SetNextWindowPos(ImVec2(250, 0));
-    ImGui::SetNextWindowSize(ImVec2(420, 75));
+    ImGui::SetNextWindowSize(ImVec2(420, 125));
     ImGui::Begin("Interference");
-    ImGui::Image(m_interferenceTexID, {400, 40});
+    ImGui::Image(m_interferenceTexID, {400, 90});
     ImGui::End();
 }
 
@@ -118,7 +118,6 @@ void GUI::changeStyle() {
 }
 
 void GUI::addInterferenceImage(Image* pImage) {
-    pImage->cmdTransitionToShaderR();
     m_interferenceTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
 

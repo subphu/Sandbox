@@ -13,7 +13,8 @@
 class InterferencePipeline {
 
     struct InterferenceDetails {
-        uint sampleSize;
+        uint opdSample;
+        uint rSample;
         float n; // refractive index
     };
 

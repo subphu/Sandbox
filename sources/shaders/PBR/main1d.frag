@@ -8,7 +8,7 @@
 layout(push_constant) uniform Misc {
     mat4 model;
     vec3 viewPosition;
-    uint sampleSize;
+    uint opdSample;
     uint isLight;
 };
 
@@ -60,7 +60,7 @@ void main() {
     vec4 pbrColor = vec4(pbr(), 1.0);
     outColor = pbrColor;
     
-    int idx = int(opd * sampleSize);
+    int idx = int(opd * opdSample);
     vec4 iridescence = interference.color[idx];
     outColor = iridescence;
 //

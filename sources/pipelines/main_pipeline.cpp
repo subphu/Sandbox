@@ -87,10 +87,10 @@ void MainPipeline::setupShader() {
 
 void MainPipeline::setupInput() {
     LOG("MainPipeline::setupInput");
-    m_misc.sampleSize = System::Settings()->OPDSample;
+    m_misc.opdSample = System::Settings()->OPDSample;
     m_lights.total = System::Settings()->TotalLight;
     
-    uint outputSize = m_misc.sampleSize * CHANNEL * sizeof(float);
+    uint outputSize = m_misc.opdSample * CHANNEL * sizeof(float);
     m_pInterferenceBuffer = new Buffer();
     m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
                                              VK_BUFFER_USAGE_TRANSFER_DST_BIT);
