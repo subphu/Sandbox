@@ -127,5 +127,6 @@ void GUI::addHeightMapImage(Image* pImage) {
 }
 
 void GUI::addIridescentImage(Image* pImage) {
+    pImage->cmdTransitionToShaderR();
     m_iridescentTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }

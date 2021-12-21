@@ -22,6 +22,7 @@ struct PCMisc {
     glm::mat4 model;
     glm::vec3 viewPosition;
     uint opdSample;
+    uint rSample;
     uint isLight;
 };
 
@@ -46,7 +47,7 @@ public:
     void setupInput();
     void updateLightInput();
     void updateCameraInput(Camera* pCamera);
-    void updateInterferenceInput(Buffer* pInterferenceBuffer);
+    void updateInterferenceInput(Image* pInterferenceImage);
     void updateHeightmapInput(Image* pHeightmapImage);
     
     void createDescriptor();
@@ -67,11 +68,11 @@ private:
     
     Buffer* m_pLightBuffer;
     Buffer* m_pCameraBuffer;
-    Buffer* m_pInterferenceBuffer;
     Frame*  m_pFrame;
     
     Mesh*   m_pSphere;
     Image*  m_pHeightmapImage;
+    Image*  m_pInterferenceImage;
     VECTOR<Image*> m_pTextures;
     
     PCMisc   m_misc{};

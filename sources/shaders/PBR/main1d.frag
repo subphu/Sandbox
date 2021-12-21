@@ -12,11 +12,7 @@ layout(push_constant) uniform Misc {
     uint isLight;
 };
 
-layout(set = 1, binding = 0) buffer Interference {
-    vec4 color[];
-} interference;
-
-layout(set = 1, binding = 1) uniform Lights {
+layout(set = 1, binding = 0) uniform Lights {
     vec4 color;
     vec4 position[4];
     float radiance;
@@ -31,6 +27,7 @@ layout(set = 2, binding = 3) uniform sampler2D normalMap;
 layout(set = 2, binding = 4) uniform sampler2D roughnessMap;
 
 layout(set = 3, binding = 0) uniform sampler2D heightMap;
+layout(set = 4, binding = 0) uniform sampler2D interferenceImage;
 
 // Inputs ==================================================
 layout(location = 0) in vec3 fragNormal;
@@ -60,8 +57,10 @@ void main() {
     vec4 pbrColor = vec4(pbr(), 1.0);
     outColor = pbrColor;
     
-    int idx = int(opd * opdSample);
-    vec4 iridescence = interference.color[idx];
+//    int idx = int(opd * opdSample);
+//    vec4 iridescence = interference.color[idx];
+    vec2 interferenceUV = vec2(opd, 0.5);
+    vec4 iridescence = texture(interferenceImage, interferenceUV);
     outColor = iridescence;
 //
 //    float metallic  = texture(metallicMap, fragTexCoord).r;

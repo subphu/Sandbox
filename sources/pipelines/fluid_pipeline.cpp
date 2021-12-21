@@ -23,19 +23,15 @@ void FluidPipeline::setupShader() {
 
 void FluidPipeline::setupInput() {
     m_details.opdSample = System::Settings()->OPDSample;
+    m_details.rSample = System::Settings()->RSample;
     m_details.size = System::Settings()->FluidSize;
-    
-    uint outputSize = m_details.opdSample * CHANNEL * sizeof(float);
-    m_pInterferenceBuffer = new Buffer();
-    m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-    m_pInterferenceBuffer->create();
-    m_pDescriptor->setupPointerBuffer(S0, B9, m_pInterferenceBuffer->getDescriptorInfo());
-    m_cleaner.push([=](){ m_pInterferenceBuffer->cleanup(); });
 }
 
-void FluidPipeline::updateInterferenceInput(Buffer* pInterferenceBuffer) {
-    m_pInterferenceBuffer->cmdCopyFromBuffer(pInterferenceBuffer->get(), pInterferenceBuffer->getBufferSize());
+void FluidPipeline::updateInterferenceInput(Image* pInterferenceImage) {
+    m_pInterferenceImage = pInterferenceImage;
+    m_pInterferenceImage->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S1, B0, m_pInterferenceImage->getDescriptorInfo());
+    m_pDescriptor->update(S1);
 }
 
 void FluidPipeline::setupOutput() {
@@ -88,19 +84,26 @@ void FluidPipeline::createDescriptor() {
                                      VK_SHADER_STAGE_COMPUTE_BIT);
     m_pDescriptor->addLayoutBindings(S0, B3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
                                      VK_SHADER_STAGE_COMPUTE_BIT);
-    m_pDescriptor->addLayoutBindings(S0, B9, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                     VK_SHADER_STAGE_COMPUTE_BIT);
     m_pDescriptor->createLayout(S0);
+    
+    m_pDescriptor->setupLayout(S1);
+    m_pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                     VK_SHADER_STAGE_COMPUTE_BIT);
+    m_pDescriptor->createLayout(S1);
     m_pDescriptor->createPool();
 
     m_pDescriptor->allocate(S0);
+    m_pDescriptor->allocate(S1);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
 void FluidPipeline::createPipelineLayout() {
     LOG("FluidPipeline::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
-    VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
+    VECTOR<VkDescriptorSetLayout> descSetLayouts = {
+        m_pDescriptor->getDescriptorLayout(S0),
+        m_pDescriptor->getDescriptorLayout(S1)
+    };
     
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.size = sizeof(SimulationDetails);
@@ -109,8 +112,8 @@ void FluidPipeline::createPipelineLayout() {
     
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts    = &descSetLayout;
+    pipelineLayoutInfo.setLayoutCount = UINT32(descSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts    = descSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges    = &pushConstantRange;
     
@@ -134,8 +137,9 @@ void FluidPipeline::createPipeline() {
 void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
     VkPipelineLayout  pipelineLayout = m_pipelineLayout;
     VkPipeline        pipeline = m_pPipeline->get();
-    VkDescriptorSet   descSet  = m_pDescriptor->getDescriptorSet(S0);
     SimulationDetails details  = m_details;
+    VkDescriptorSet   outputDescSet = m_pDescriptor->getDescriptorSet(S0);
+    VkDescriptorSet   interferenceDescSet = m_pDescriptor->getDescriptorSet(S1);
     
     m_pFluidImage->cmdTransitionToStorageW(cmdBuffer);
     m_pHeightImage->cmdTransitionToStorageW(cmdBuffer);
@@ -144,8 +148,11 @@ void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT,
                        0, sizeof(SimulationDetails), &details);
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+    
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                            pipelineLayout, 0, 1, &descSet, 0, nullptr);
+                            pipelineLayout, S0, 1, &outputDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                            pipelineLayout, S1, 1, &interferenceDescSet, 0, nullptr);
     
     vkCmdDispatch(cmdBuffer,
                   details.size.width  / WORKGROUP_SIZE_X,

@@ -28,6 +28,7 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     VkDescriptorSet lightsDescSet = m_pDescriptor->getDescriptorSet(S1);
     VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
     VkDescriptorSet heightmapDescSet = m_pDescriptor->getDescriptorSet(S3);
+    VkDescriptorSet interferenceDescSet = m_pDescriptor->getDescriptorSet(S4);
     
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = System::Settings()->ClearColor;
@@ -55,6 +56,8 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
                             pipelineLayout, S2, 1, &textureDescSet, 0, nullptr);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S3, 1, &heightmapDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S4, 1, &interferenceDescSet, 0, nullptr);
     
     vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, &offsets);
     vkCmdBindIndexBuffer  (cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
@@ -88,14 +91,8 @@ void MainPipeline::setupShader() {
 void MainPipeline::setupInput() {
     LOG("MainPipeline::setupInput");
     m_misc.opdSample = System::Settings()->OPDSample;
+    m_misc.rSample = System::Settings()->RSample;
     m_lights.total = System::Settings()->TotalLight;
-    
-    uint outputSize = m_misc.opdSample * CHANNEL * sizeof(float);
-    m_pInterferenceBuffer = new Buffer();
-    m_pInterferenceBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-    m_pInterferenceBuffer->create();
-    m_cleaner.push([=](){ m_pInterferenceBuffer->cleanup(); });
     
     m_pCameraBuffer = new Buffer();
     m_pCameraBuffer->setup(sizeof(UBCamera), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
@@ -118,8 +115,7 @@ void MainPipeline::setupInput() {
     }
     
     m_pDescriptor->setupPointerBuffer(S0, B0, m_pCameraBuffer->getDescriptorInfo());
-    m_pDescriptor->setupPointerBuffer(S1, B0, m_pInterferenceBuffer->getDescriptorInfo());
-    m_pDescriptor->setupPointerBuffer(S1, B1, m_pLightBuffer->getDescriptorInfo());
+    m_pDescriptor->setupPointerBuffer(S1, B0, m_pLightBuffer->getDescriptorInfo());
     for (uint i = 0; i < m_pTextures.size(); i++)
         m_pDescriptor->setupPointerImage(S2, i, m_pTextures[i]->getDescriptorInfo());
     
@@ -160,15 +156,18 @@ void MainPipeline::updateCameraInput(Camera* pCamera) {
     m_pCameraBuffer->fillBuffer(&m_cameraMatrix, sizeof(UBCamera));
 }
 
-void MainPipeline::updateInterferenceInput(Buffer* pInterferenceBuffer) {
-    m_pInterferenceBuffer->cmdCopyFromBuffer(pInterferenceBuffer->get(), pInterferenceBuffer->getBufferSize());
-}
-
 void MainPipeline::updateHeightmapInput(Image *pHeightmapImage) {
     m_pHeightmapImage = pHeightmapImage;
     m_pHeightmapImage->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S3, B0, m_pHeightmapImage->getDescriptorInfo());
     m_pDescriptor->update(S3);
+}
+
+void MainPipeline::updateInterferenceInput(Image* pInterferenceImage) {
+    m_pInterferenceImage = pInterferenceImage;
+    m_pInterferenceImage->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S4, B0, m_pInterferenceImage->getDescriptorInfo());
+    m_pDescriptor->update(S4);
 }
 
 void MainPipeline::createDescriptor() {
@@ -180,9 +179,7 @@ void MainPipeline::createDescriptor() {
     m_pDescriptor->createLayout(S0);
     
     m_pDescriptor->setupLayout(S1);
-    m_pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                     VK_SHADER_STAGE_FRAGMENT_BIT);
-    m_pDescriptor->addLayoutBindings(S1, B1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    m_pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                      VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S1);
     
@@ -198,11 +195,17 @@ void MainPipeline::createDescriptor() {
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S3);
     
+    m_pDescriptor->setupLayout(S4);
+    m_pDescriptor->addLayoutBindings(S4, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->createLayout(S4);
+    
     m_pDescriptor->createPool();
     m_pDescriptor->allocate(S0);
     m_pDescriptor->allocate(S1);
     m_pDescriptor->allocate(S2);
     m_pDescriptor->allocate(S3);
+    m_pDescriptor->allocate(S4);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
@@ -222,7 +225,8 @@ void MainPipeline::createPipelineLayout() {
         m_pDescriptor->getDescriptorLayout(S0),
         m_pDescriptor->getDescriptorLayout(S1),
         m_pDescriptor->getDescriptorLayout(S2),
-        m_pDescriptor->getDescriptorLayout(S3)
+        m_pDescriptor->getDescriptorLayout(S3),
+        m_pDescriptor->getDescriptorLayout(S4)
     };
     
     VkPushConstantRange pushConstantRange{};

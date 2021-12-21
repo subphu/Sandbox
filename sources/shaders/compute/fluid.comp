@@ -10,9 +10,8 @@ layout(set = 0, binding = 0) uniform sampler2D sampledImage;
 layout(set = 0, binding = 1, rgba8) uniform writeonly image2D fluidImage;
 layout(set = 0, binding = 2, rgba8) uniform writeonly image2D heightImage;
 layout(set = 0, binding = 3, rgba8) uniform writeonly image2D iridescentImage;
-layout(set = 0, binding = 9) buffer Interference {
-    vec4 color[];
-} interference;
+
+layout(set = 1, binding = 0) uniform sampler2D interferenceImage;
 
 layout(push_constant) uniform pushConstants {
     ivec2 size;
@@ -70,7 +69,7 @@ void main() {
     vec4 heightColor = vec4(h, h, h, 1.0);
     
     float opd = 1.5 * 2.0 * h * cos(0) * scaleD;
-    vec4 iridescenceColor = interference.color[int(opd * opdSample)];
+    vec4 iridescenceColor = texture(interferenceImage, vec2(opd, 0.5));
     
     imageStore(fluidImage , ivec2(xi, yi), fluidMovement);
     imageStore(heightImage, ivec2(xi, yi), heightColor);
