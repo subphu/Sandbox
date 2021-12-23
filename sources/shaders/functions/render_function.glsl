@@ -36,14 +36,3 @@ float getTheta1(vec3 N) {
     float theta1 = acos(dot(lightDir, normalize( N )));
     return theta1;
 }
-
-uint getIndex1D(float opd) {
-    float scale = opd / maxOpd;
-    return uint(scale * float(opdSample));
-}
-
-uint getIndex2D(float scaleRad) {
-    uint x   = uint(opdSample * scaleRad);
-    uint y   = uint(opdSample * scaleD);
-    return uint(y * opdSample + x);
-}

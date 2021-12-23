@@ -12,10 +12,9 @@
 
 class InterferencePipeline {
 
-    struct InterferenceDetails {
+    struct PCMisc {
         uint opdSample;
         uint rSample;
-        float n; // refractive index
     };
 
 public:
@@ -45,7 +44,7 @@ private:
     Image*  m_pOutputImage;
     Buffer* m_pOutputBuffer;
     
-    InterferenceDetails m_details;
+    PCMisc m_details;
     
     VkPipelineLayout m_pipelineLayout;
     

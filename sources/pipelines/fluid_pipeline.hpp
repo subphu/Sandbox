@@ -12,10 +12,9 @@
 
 class FluidPipeline {
 
-    struct SimulationDetails {
+    struct PCMisc {
         UInt2D size;
-        uint opdSample;
-        uint rSample;
+        float reflectance;
     };
 
 public:
@@ -52,7 +51,7 @@ private:
     
     Image* m_pInterferenceImage;
     
-    SimulationDetails m_details;
+    PCMisc m_details;
     
     VkPipelineLayout m_pipelineLayout;
     

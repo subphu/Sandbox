@@ -21,7 +21,6 @@ void InterferencePipeline::setupShader() {
 }
 
 void InterferencePipeline::setupInput() {
-    m_details.n = System::Settings()->RefractiveIndex;
     m_details.opdSample = System::Settings()->OPDSample;
     m_details.rSample   = System::Settings()->RSample;
 }
@@ -73,7 +72,7 @@ void InterferencePipeline::createPipelineLayout() {
     VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
     
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.size = sizeof(InterferenceDetails);
+    pushConstantRange.size = sizeof(PCMisc);
     pushConstantRange.offset = 0;
     pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     
@@ -106,10 +105,10 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline          pipeline = m_pPipeline->get();
     VkDescriptorSet     descSet  = m_pDescriptor->getDescriptorSet(S0);
-    InterferenceDetails details  = m_details;
+    PCMisc details  = m_details;
     
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT,
-                       0, sizeof(InterferenceDetails), &details);
+                       0, sizeof(PCMisc), &details);
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);

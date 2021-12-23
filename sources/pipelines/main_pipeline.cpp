@@ -90,8 +90,7 @@ void MainPipeline::setupShader() {
 
 void MainPipeline::setupInput() {
     LOG("MainPipeline::setupInput");
-    m_misc.opdSample = System::Settings()->OPDSample;
-    m_misc.rSample = System::Settings()->RSample;
+    m_misc.reflectance = System::Settings()->Reflectance;
     m_lights.total = System::Settings()->TotalLight;
     
     m_pCameraBuffer = new Buffer();

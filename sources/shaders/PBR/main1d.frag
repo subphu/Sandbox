@@ -8,15 +8,15 @@
 layout(push_constant) uniform Misc {
     mat4 model;
     vec3 viewPosition;
-    uint opdSample;
     uint isLight;
+    float reflectance;
 };
 
 layout(set = 1, binding = 0) uniform Lights {
     vec4 color;
     vec4 position[4];
-    float radiance;
     uint total;
+    float radiance;
 } lights;
 
 // Textures ==================================================
@@ -51,15 +51,10 @@ void main() {
     float theta2 = refractionAngle(n1, theta1, n2);
     float opd    = getOPD(d, theta2, n2);
 
-//    uint idx = getIndex1D(opd);
-//    outColor = interference.color[idx];
-    
     vec4 pbrColor = vec4(pbr(), 1.0);
     outColor = pbrColor;
     
-//    int idx = int(opd * opdSample);
-//    vec4 iridescence = interference.color[idx];
-    vec2 interferenceUV = vec2(opd, 0.5);
+    vec2 interferenceUV = vec2(opd, reflectance);
     vec4 iridescence = texture(interferenceImage, interferenceUV);
     outColor = iridescence;
 //

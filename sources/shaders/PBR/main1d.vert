@@ -1,11 +1,11 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(push_constant) uniform Details {
+layout(push_constant) uniform Misc {
     mat4 model;
     vec3 viewPosition;
-    uint opdSample;
     uint isLight;
+    float reflectance;
 };
 
 layout(set = 0, binding = 0) uniform Camera {

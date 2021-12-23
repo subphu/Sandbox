@@ -13,28 +13,27 @@
 #include "../resources/mesh.hpp"
 #include "../resources/camera.hpp"
 
-struct UBCamera {
-    glm::mat4 view;
-    glm::mat4 proj;
-};
-
-struct PCMisc {
-    glm::mat4 model;
-    glm::vec3 viewPosition;
-    uint opdSample;
-    uint rSample;
-    uint isLight;
-};
-
-struct UBLights {
-    glm::vec4 color;
-    glm::vec4 position[4];
-    float radiance;
-    uint total = 4;
-};
 
 class MainPipeline {
     
+    struct PCMisc {
+        glm::mat4 model;
+        glm::vec3 viewPosition;
+        uint isLight;
+        float reflectance;
+    };
+    
+    struct UBCamera {
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
+
+    struct UBLights {
+        glm::vec4 color;
+        glm::vec4 position[4];
+        uint total = 4;
+        float radiance;
+    };
     
 public:
     ~MainPipeline();

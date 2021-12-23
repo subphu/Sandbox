@@ -22,8 +22,7 @@ void FluidPipeline::setupShader() {
 }
 
 void FluidPipeline::setupInput() {
-    m_details.opdSample = System::Settings()->OPDSample;
-    m_details.rSample = System::Settings()->RSample;
+    m_details.reflectance = System::Settings()->Reflectance;
     m_details.size = System::Settings()->FluidSize;
 }
 
@@ -106,7 +105,7 @@ void FluidPipeline::createPipelineLayout() {
     };
     
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.size = sizeof(SimulationDetails);
+    pushConstantRange.size = sizeof(PCMisc);
     pushConstantRange.offset = 0;
     pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     
@@ -137,7 +136,7 @@ void FluidPipeline::createPipeline() {
 void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
     VkPipelineLayout  pipelineLayout = m_pipelineLayout;
     VkPipeline        pipeline = m_pPipeline->get();
-    SimulationDetails details  = m_details;
+    PCMisc            details  = m_details;
     VkDescriptorSet   outputDescSet = m_pDescriptor->getDescriptorSet(S0);
     VkDescriptorSet   interferenceDescSet = m_pDescriptor->getDescriptorSet(S1);
     
@@ -146,7 +145,7 @@ void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
     m_pIridescentImage->cmdTransitionToStorageW(cmdBuffer);
     
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT,
-                       0, sizeof(SimulationDetails), &details);
+                       0, sizeof(PCMisc), &details);
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
     
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,

@@ -25,6 +25,7 @@ struct Settings {
     uint   OPDSample       = 16384;
     uint   RSample         = 11;
     float  RefractiveIndex = 1.5f;
+    float  Reflectance     = 0.5f;
     
     // Lights
     int       TotalLight  = 4;
