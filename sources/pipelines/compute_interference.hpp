@@ -10,16 +10,16 @@
 #include "../resources/image.hpp"
 #include "../resources/buffer.hpp"
 
-class FluidPipeline {
+class ComputeInterference {
 
     struct PCMisc {
-        UInt2D size;
-        float reflectance;
+        uint opdSample;
+        uint rSample;
     };
 
 public:
-    ~FluidPipeline();
-    FluidPipeline();
+    ~ComputeInterference();
+    ComputeInterference();
     
     void cleanup();
     void dispatch(VkCommandBuffer cmdBuffer);
@@ -28,15 +28,12 @@ public:
     void setupInput();
     void setupOutput();
     
-    void updateInterferenceInput(Image* pInterferenceImage);
-    
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     
-    Image* getFluidImage();
-    Image* getHeightImage();
-    Image* getIridescentImage();
+    Image*  getOutputImage();
+    Buffer* getOutputBuffer();
     
 private:
     Cleaner m_cleaner;
@@ -44,12 +41,8 @@ private:
     Pipeline* m_pPipeline;
     Descriptor* m_pDescriptor;
     
-    Image* m_pSampledImage;
-    Image* m_pFluidImage;
-    Image* m_pHeightImage;
-    Image* m_pIridescentImage;
-    
-    Image* m_pInterferenceImage;
+    Image*  m_pOutputImage;
+    Buffer* m_pOutputBuffer;
     
     PCMisc m_details;
     

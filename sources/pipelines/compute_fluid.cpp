@@ -1,7 +1,7 @@
 //  Copyright © 2021 Subph. All rights reserved.
 //
 
-#include "fluid_pipeline.hpp"
+#include "compute_fluid.hpp"
 
 #include "../system.hpp"
 #include "../resources/shader.hpp"
@@ -9,31 +9,31 @@
 #define WORKGROUP_SIZE_X 16
 #define WORKGROUP_SIZE_Y 16
 
-FluidPipeline::~FluidPipeline() {}
-FluidPipeline::FluidPipeline() : m_pDevice(System::Device()) {}
+ComputeFluid::~ComputeFluid() {}
+ComputeFluid::ComputeFluid() : m_pDevice(System::Device()) {}
 
-void FluidPipeline::cleanup() { m_cleaner.flush("FluidPipeline"); }
+void ComputeFluid::cleanup() { m_cleaner.flush("ComputeFluid"); }
 
-void FluidPipeline::setupShader() {
-    LOG("FluidPipeline::setupShader");
+void ComputeFluid::setupShader() {
+    LOG("ComputeFluid::setupShader");
     Shader* compShader = new Shader(SPIRV_PATH + "fluid.spv", VK_SHADER_STAGE_COMPUTE_BIT);
     m_shaderStage = compShader->getShaderStageInfo();
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
 
-void FluidPipeline::setupInput() {
+void ComputeFluid::setupInput() {
     m_details.reflectance = System::Settings()->Reflectance;
     m_details.size = System::Settings()->FluidSize;
 }
 
-void FluidPipeline::updateInterferenceInput(Image* pInterferenceImage) {
+void ComputeFluid::updateInterferenceInput(Image* pInterferenceImage) {
     m_pInterferenceImage = pInterferenceImage;
     m_pInterferenceImage->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S1, B0, m_pInterferenceImage->getDescriptorInfo());
     m_pDescriptor->update(S1);
 }
 
-void FluidPipeline::setupOutput() {
+void ComputeFluid::setupOutput() {
     m_pSampledImage = new Image();
     m_pSampledImage->setupForStorage(m_details.size);
     m_pSampledImage->createWithSampler();
@@ -70,8 +70,8 @@ void FluidPipeline::setupOutput() {
     m_cleaner.push([=](){ m_pIridescentImage->cleanup(); });
 }
 
-void FluidPipeline::createDescriptor() {
-    LOG("FluidPipeline::createDescriptor");
+void ComputeFluid::createDescriptor() {
+    LOG("ComputeFluid::createDescriptor");
     m_pDescriptor = new Descriptor();
     
     m_pDescriptor->setupLayout(S0);
@@ -96,8 +96,8 @@ void FluidPipeline::createDescriptor() {
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
-void FluidPipeline::createPipelineLayout() {
-    LOG("FluidPipeline::createPipelineLayout");
+void ComputeFluid::createPipelineLayout() {
+    LOG("ComputeFluid::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
     VECTOR<VkDescriptorSetLayout> descSetLayouts = {
         m_pDescriptor->getDescriptorLayout(S0),
@@ -121,8 +121,8 @@ void FluidPipeline::createPipelineLayout() {
     m_cleaner.push([=](){ vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr); });
 }
 
-void FluidPipeline::createPipeline() {
-    LOG("FluidPipeline::createPipeline");
+void ComputeFluid::createPipeline() {
+    LOG("ComputeFluid::createPipeline");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipelineShaderStageCreateInfo shaderStage = m_shaderStage;
     
@@ -133,7 +133,7 @@ void FluidPipeline::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
-void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
+void ComputeFluid::dispatch(VkCommandBuffer cmdBuffer) {
     VkPipelineLayout  pipelineLayout = m_pipelineLayout;
     VkPipeline        pipeline = m_pPipeline->get();
     PCMisc            details  = m_details;
@@ -168,6 +168,6 @@ void FluidPipeline::dispatch(VkCommandBuffer cmdBuffer) {
     m_pIridescentImage->cmdTransitionToShaderR(cmdBuffer);
 }
 
-Image * FluidPipeline::getFluidImage     () { return m_pFluidImage;  }
-Image * FluidPipeline::getHeightImage    () { return m_pHeightImage; }
-Image * FluidPipeline::getIridescentImage() { return m_pIridescentImage; }
+Image * ComputeFluid::getFluidImage     () { return m_pFluidImage;  }
+Image * ComputeFluid::getHeightImage    () { return m_pHeightImage; }
+Image * ComputeFluid::getIridescentImage() { return m_pIridescentImage; }

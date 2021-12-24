@@ -1,17 +1,17 @@
 //  Copyright © 2021 Subph. All rights reserved.
 //
 
-#include "main_pipeline.hpp"
+#include "graphics_scene.hpp"
 
 #include "../system.hpp"
 #include "../resources/shader.hpp"
 
-MainPipeline::~MainPipeline() {}
-MainPipeline::MainPipeline() : m_pDevice(System::Device()) {}
+GraphicsScene::~GraphicsScene() {}
+GraphicsScene::GraphicsScene() : m_pDevice(System::Device()) {}
 
-void MainPipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
+void GraphicsScene::cleanup() { m_cleaner.flush("ComputeInterference"); }
 
-void MainPipeline::render(VkCommandBuffer cmdBuffer) {
+void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
     VkRenderPass     renderpass     = m_pRenderpass->get();
@@ -80,16 +80,16 @@ void MainPipeline::render(VkCommandBuffer cmdBuffer) {
     vkCmdEndRenderPass(cmdBuffer);
 }
 
-void MainPipeline::setupShader() {
-    LOG("MainPipeline::setupShader");
+void GraphicsScene::setupShader() {
+    LOG("GraphicsScene::setupShader");
     Shader* vertShader = new Shader(SPIRV_PATH + "main1d.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
     Shader* fragShader = new Shader(SPIRV_PATH + "main1d.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
     m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void MainPipeline::setupInput() {
-    LOG("MainPipeline::setupInput");
+void GraphicsScene::setupInput() {
+    LOG("GraphicsScene::setupInput");
     m_misc.reflectance = System::Settings()->Reflectance;
     m_lights.total = System::Settings()->TotalLight;
     
@@ -130,7 +130,7 @@ void MainPipeline::setupInput() {
     m_cleaner.push([=](){ m_pSphere->cleanup(); });
 }
 
-void MainPipeline::updateLightInput() {
+void GraphicsScene::updateLightInput() {
     Settings* settings = System::Settings();
     m_lights.radiance = settings->Radiance;
     m_lights.total = settings->TotalLight;
@@ -146,7 +146,7 @@ void MainPipeline::updateLightInput() {
     m_pLightBuffer->fillBuffer(&m_lights, sizeof(UBLights));
 }
 
-void MainPipeline::updateCameraInput(Camera* pCamera) {
+void GraphicsScene::updateCameraInput(Camera* pCamera) {
     UInt2D size = m_pFrame->getExtent2D();
     m_misc.viewPosition = pCamera->getPosition();
     m_cameraMatrix.view = pCamera->getViewMatrix();
@@ -155,22 +155,22 @@ void MainPipeline::updateCameraInput(Camera* pCamera) {
     m_pCameraBuffer->fillBuffer(&m_cameraMatrix, sizeof(UBCamera));
 }
 
-void MainPipeline::updateHeightmapInput(Image *pHeightmapImage) {
+void GraphicsScene::updateHeightmapInput(Image *pHeightmapImage) {
     m_pHeightmapImage = pHeightmapImage;
     m_pHeightmapImage->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S3, B0, m_pHeightmapImage->getDescriptorInfo());
     m_pDescriptor->update(S3);
 }
 
-void MainPipeline::updateInterferenceInput(Image* pInterferenceImage) {
+void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
     m_pInterferenceImage = pInterferenceImage;
     m_pInterferenceImage->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S4, B0, m_pInterferenceImage->getDescriptorInfo());
     m_pDescriptor->update(S4);
 }
 
-void MainPipeline::createDescriptor() {
-    LOG("MainPipeline::createDescriptor");
+void GraphicsScene::createDescriptor() {
+    LOG("GraphicsScene::createDescriptor");
     m_pDescriptor = new Descriptor();
     m_pDescriptor->setupLayout(S0);
     m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -208,7 +208,7 @@ void MainPipeline::createDescriptor() {
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
-void MainPipeline::createRenderpass() {
+void GraphicsScene::createRenderpass() {
     m_pRenderpass = new Renderpass();
     m_pRenderpass->setupColorAttachment();
     m_pRenderpass->setupDepthAttachment();
@@ -217,8 +217,8 @@ void MainPipeline::createRenderpass() {
     m_cleaner.push([=](){ m_pRenderpass->cleanup(); });
 }
 
-void MainPipeline::createPipelineLayout() {
-    LOG("MainPipeline::createPipelineLayout");
+void GraphicsScene::createPipelineLayout() {
+    LOG("GraphicsScene::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
     VECTOR<VkDescriptorSetLayout> descSetLayouts = {
         m_pDescriptor->getDescriptorLayout(S0),
@@ -245,8 +245,8 @@ void MainPipeline::createPipelineLayout() {
     m_cleaner.push([=](){ vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr); });
 }
 
-void MainPipeline::createPipeline() {
-    LOG("MainPipeline::createPipeline");
+void GraphicsScene::createPipeline() {
+    LOG("GraphicsScene::createPipeline");
     VkRenderPass renderpass = m_pRenderpass->get();
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VECTOR<VkPipelineShaderStageCreateInfo> shaderStages = m_shaderStages;
@@ -273,8 +273,8 @@ void MainPipeline::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
-void MainPipeline::createFrame(UInt2D size) {
-    LOG("MainPipeline::createFrame");
+void GraphicsScene::createFrame(UInt2D size) {
+    LOG("GraphicsScene::createFrame");
     m_pFrame = new Frame(size);
     m_pFrame->createImageResource();
     m_pFrame->createDepthResource();
@@ -283,8 +283,8 @@ void MainPipeline::createFrame(UInt2D size) {
     updateViewportScissor();
 }
 
-void MainPipeline::recreateFrame(UInt2D size) {
-    LOG("MainPipeline::recreateFrame");
+void GraphicsScene::recreateFrame(UInt2D size) {
+    LOG("GraphicsScene::recreateFrame");
     m_pFrame->cleanup();
     m_pFrame->setSize(size);
     m_pFrame->createImageResource();
@@ -293,7 +293,7 @@ void MainPipeline::recreateFrame(UInt2D size) {
     updateViewportScissor();
 }
 
-void MainPipeline::updateViewportScissor() {
+void GraphicsScene::updateViewportScissor() {
     UInt2D extent = m_pFrame->getExtent2D();
     m_viewport.x = 0.f;
     m_viewport.y = 0.f;
@@ -305,12 +305,12 @@ void MainPipeline::updateViewportScissor() {
     m_scissor.extent = extent;
 }
 
-Frame* MainPipeline::getFrame() { return m_pFrame; }
+Frame* GraphicsScene::getFrame() { return m_pFrame; }
 
-std::string MainPipeline::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }
-std::string MainPipeline::getAlbedoTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
-std::string MainPipeline::getAOTexturePath()        { return PBR_PATH + getTextureName() + TEXTURE_AO_PATH; }
-std::string MainPipeline::getMetallicTexturePath()  { return PBR_PATH + getTextureName() + TEXTURE_METALLIC_PATH; }
-std::string MainPipeline::getNormalTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_NORMAL_PATH; }
-std::string MainPipeline::getRoughnessTexturePath() { return PBR_PATH + getTextureName() + TEXTURE_ROUGHNESS_PATH; }
-VECTOR<std::string> MainPipeline::getPBRTexturePaths(){ return { getAlbedoTexturePath(), getAOTexturePath(), getMetallicTexturePath(), getNormalTexturePath(), getRoughnessTexturePath() }; }
+std::string GraphicsScene::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }
+std::string GraphicsScene::getAlbedoTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
+std::string GraphicsScene::getAOTexturePath()        { return PBR_PATH + getTextureName() + TEXTURE_AO_PATH; }
+std::string GraphicsScene::getMetallicTexturePath()  { return PBR_PATH + getTextureName() + TEXTURE_METALLIC_PATH; }
+std::string GraphicsScene::getNormalTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_NORMAL_PATH; }
+std::string GraphicsScene::getRoughnessTexturePath() { return PBR_PATH + getTextureName() + TEXTURE_ROUGHNESS_PATH; }
+VECTOR<std::string> GraphicsScene::getPBRTexturePaths(){ return { getAlbedoTexturePath(), getAOTexturePath(), getMetallicTexturePath(), getNormalTexturePath(), getRoughnessTexturePath() }; }

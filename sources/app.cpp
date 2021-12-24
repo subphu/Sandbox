@@ -45,20 +45,20 @@ void App::initCommander() {
     m_cleaner.push([=](){ m_pCommander->cleanup(); });
 }
 
-void App::createScreenSpacePipeline() {
-    LOG("App::createScreenSpacePipeline");
-    m_pScreenSpacePipeline = new ScreenSpacePipeline();
-    m_pScreenSpacePipeline->setupShader();
-    m_pScreenSpacePipeline->createDescriptor();
-    m_pScreenSpacePipeline->createRenderpass();
-    m_pScreenSpacePipeline->createPipelineLayout();
-    m_pScreenSpacePipeline->createPipeline();
-    m_cleaner.push([=](){ m_pScreenSpacePipeline->cleanup(); });
+void App::createGraphicsScreen() {
+    LOG("App::createGraphicsScreen");
+    m_pGraphicsScreen = new GraphicsScreen();
+    m_pGraphicsScreen->setupShader();
+    m_pGraphicsScreen->createDescriptor();
+    m_pGraphicsScreen->createRenderpass();
+    m_pGraphicsScreen->createPipelineLayout();
+    m_pGraphicsScreen->createPipeline();
+    m_cleaner.push([=](){ m_pGraphicsScreen->cleanup(); });
 }
 
 void App::createSwapchain() {
     LOG("App::createSwapchain");
-    Renderpass* pRenderpass = m_pScreenSpacePipeline->getRenderpass();
+    Renderpass* pRenderpass = m_pGraphicsScreen->getRenderpass();
     m_pSwapchain = new Swapchain();
     m_pSwapchain->setup();
     m_pSwapchain->create();
@@ -66,65 +66,65 @@ void App::createSwapchain() {
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
 }
 
-void App::createMainPipeline() {
-    LOG("App::createMainPipeline");
+void App::createGraphicsScene() {
+    LOG("App::createGraphicsScene");
     UInt2D size = m_pWindow->getFrameSize();
-    m_pMainPipeline = new MainPipeline();
-    m_pMainPipeline->setupShader();
-    m_pMainPipeline->createDescriptor();
-    m_pMainPipeline->setupInput();
-    m_pMainPipeline->createRenderpass();
-    m_pMainPipeline->createPipelineLayout();
-    m_pMainPipeline->createPipeline();
-    m_pMainPipeline->createFrame(size);
-    m_cleaner.push([=](){ m_pMainPipeline->cleanup(); });
+    m_pGraphicsScene = new GraphicsScene();
+    m_pGraphicsScene->setupShader();
+    m_pGraphicsScene->createDescriptor();
+    m_pGraphicsScene->setupInput();
+    m_pGraphicsScene->createRenderpass();
+    m_pGraphicsScene->createPipelineLayout();
+    m_pGraphicsScene->createPipeline();
+    m_pGraphicsScene->createFrame(size);
+    m_cleaner.push([=](){ m_pGraphicsScene->cleanup(); });
     
-    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame());
+    m_pGraphicsScreen->setupInput(m_pGraphicsScene->getFrame());
 }
 
-void App::createFluidPipeline() {
-    LOG("App::createFluidPipeline");
-    m_pFluidPipeline = new FluidPipeline();
-    m_pFluidPipeline->setupShader();
-    m_pFluidPipeline->createDescriptor();
-    m_pFluidPipeline->setupInput();
-    m_pFluidPipeline->setupOutput();
-    m_pFluidPipeline->createPipelineLayout();
-    m_pFluidPipeline->createPipeline();
-    m_cleaner.push([=](){ m_pFluidPipeline->cleanup(); });
+void App::createComputeFluid() {
+    LOG("App::createComputeFluid");
+    m_pComputeFluid = new ComputeFluid();
+    m_pComputeFluid->setupShader();
+    m_pComputeFluid->createDescriptor();
+    m_pComputeFluid->setupInput();
+    m_pComputeFluid->setupOutput();
+    m_pComputeFluid->createPipelineLayout();
+    m_pComputeFluid->createPipeline();
+    m_cleaner.push([=](){ m_pComputeFluid->cleanup(); });
     
-    m_pMainPipeline->updateHeightmapInput(m_pFluidPipeline->getHeightImage());
+    m_pGraphicsScene->updateHeightmapInput(m_pComputeFluid->getHeightImage());
 }
 
-void App::createInterferencePipeline() {
+void App::createComputeInterference() {
     LOG("App::renderInterference");
-    m_pInterferencePipeline = new InterferencePipeline();
-    m_pInterferencePipeline->setupShader();
-    m_pInterferencePipeline->createDescriptor();
-    m_pInterferencePipeline->setupInput();
-    m_pInterferencePipeline->setupOutput();
-    m_pInterferencePipeline->createPipelineLayout();
-    m_pInterferencePipeline->createPipeline();
-    m_cleaner.push([=](){ m_pInterferencePipeline->cleanup(); });
+    m_pComputeInterference = new ComputeInterference();
+    m_pComputeInterference->setupShader();
+    m_pComputeInterference->createDescriptor();
+    m_pComputeInterference->setupInput();
+    m_pComputeInterference->setupOutput();
+    m_pComputeInterference->createPipelineLayout();
+    m_pComputeInterference->createPipeline();
+    m_cleaner.push([=](){ m_pComputeInterference->cleanup(); });
 }
 
 void App::dispatchInterference() {
     VkCommandBuffer cmdBuffer = m_pCommander->createCommandBuffer();
     m_pCommander->beginSingleTimeCommands(cmdBuffer);
-    m_pInterferencePipeline->dispatch(cmdBuffer);
+    m_pComputeInterference->dispatch(cmdBuffer);
     m_pCommander->endSingleTimeCommands(cmdBuffer);
     
-    m_pFluidPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputImage());
-    m_pMainPipeline->updateInterferenceInput(m_pInterferencePipeline->getOutputImage());
+    m_pComputeFluid->updateInterferenceInput(m_pComputeInterference->getOutputImage());
+    m_pGraphicsScene->updateInterferenceInput(m_pComputeInterference->getOutputImage());
 }
 
 void App::createGUI() {
     LOG("App::createGUI");
     Window*     pWindow      = m_pWindow;
-    Renderpass* pRenderpass  = m_pScreenSpacePipeline->getRenderpass();
-    Image* heightMapImage    = m_pFluidPipeline->getHeightImage();
-    Image* iridescentImage   = m_pFluidPipeline->getIridescentImage();
-    Image* InterferenceImage = m_pInterferencePipeline->getOutputImage();
+    Renderpass* pRenderpass  = m_pGraphicsScreen->getRenderpass();
+    Image* heightMapImage    = m_pComputeFluid->getHeightImage();
+    Image* iridescentImage   = m_pComputeFluid->getIridescentImage();
+    Image* InterferenceImage = m_pComputeInterference->getOutputImage();
     
     m_pGUI = new GUI();
     m_pGUI->initGUI(pWindow, pRenderpass);
@@ -139,12 +139,12 @@ void App::setup() {
     initWindow();
     initDevice();
     initCommander();
-    createScreenSpacePipeline();
+    createGraphicsScreen();
     createSwapchain();
-    createMainPipeline();
+    createGraphicsScene();
     
-    createFluidPipeline();
-    createInterferencePipeline();
+    createComputeFluid();
+    createComputeInterference();
     dispatchInterference();
     
     createGUI();
@@ -152,9 +152,9 @@ void App::setup() {
 
 void App::draw() {
     Swapchain* pSwapchain = m_pSwapchain;
-    MainPipeline* pMainPipeline = m_pMainPipeline;
-    FluidPipeline* pFluidPipeline = m_pFluidPipeline;
-    ScreenSpacePipeline* pScreenSpacePipeline = m_pScreenSpacePipeline;
+    GraphicsScene* pGraphicsScene = m_pGraphicsScene;
+    ComputeFluid* pComputeFluid = m_pComputeFluid;
+    GraphicsScreen* pGraphicsScreen = m_pGraphicsScreen;
     GUI* pGUI = m_pGUI;
     
     pSwapchain->prepareFrame();
@@ -166,13 +166,13 @@ void App::draw() {
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
     
     if (System::Settings()->RunFluid) {
-        pFluidPipeline->dispatch(cmdBuffer);
+        pComputeFluid->dispatch(cmdBuffer);
     }
     
-    pMainPipeline->render(cmdBuffer);
+    pGraphicsScene->render(cmdBuffer);
     
-    pScreenSpacePipeline->setFrame(pCurrentFrame);
-    pScreenSpacePipeline->render(cmdBuffer, pGUI);
+    pGraphicsScreen->setFrame(pCurrentFrame);
+    pGraphicsScreen->render(cmdBuffer, pGUI);
     
     vkEndCommandBuffer(cmdBuffer);
     
@@ -185,8 +185,8 @@ void App::update() {
     if (settings->LockFocus) moveViewLock(m_pWindow);
     else                     moveView(m_pWindow);
     
-    m_pMainPipeline->updateLightInput();
-    m_pMainPipeline->updateCameraInput(m_pCamera);
+    m_pGraphicsScene->updateLightInput();
+    m_pGraphicsScene->updateCameraInput(m_pCamera);
     System::Settings()->CameraPos = m_pCamera->getPosition();
 }
 
@@ -252,6 +252,6 @@ void App::checkResized() {
     UInt2D size = m_pWindow->getFrameSize();
     
     m_pSwapchain->recreate();
-    m_pMainPipeline->recreateFrame(size);
-    m_pScreenSpacePipeline->setupInput(m_pMainPipeline->getFrame());
+    m_pGraphicsScene->recreateFrame(size);
+    m_pGraphicsScreen->setupInput(m_pGraphicsScene->getFrame());
 }

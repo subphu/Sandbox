@@ -1,18 +1,18 @@
 //  Copyright © 2021 Subph. All rights reserved.
 //
 
-#include "screenspace_pipeline.hpp"
+#include "graphics_screen.hpp"
 
 #include "../system.hpp"
 #include "../resources/shader.hpp"
 
 
-ScreenSpacePipeline::~ScreenSpacePipeline() {}
-ScreenSpacePipeline::ScreenSpacePipeline() : m_pDevice(System::Device()) {}
+GraphicsScreen::~GraphicsScreen() {}
+GraphicsScreen::GraphicsScreen() : m_pDevice(System::Device()) {}
 
-void ScreenSpacePipeline::cleanup() { m_cleaner.flush("ScreenSpacePipeline"); }
+void GraphicsScreen::cleanup() { m_cleaner.flush("GraphicsScreen"); }
 
-void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer, GUI* pGUI) {
+void GraphicsScreen::render(VkCommandBuffer cmdBuffer, GUI* pGUI) {
     Image*           pInputImage    = m_pInputFrame->getColorImage();;
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline       pipeline       = m_pPipeline->get();
@@ -55,16 +55,16 @@ void ScreenSpacePipeline::render(VkCommandBuffer cmdBuffer, GUI* pGUI) {
     pInputImage->cmdTransitionToPresent(cmdBuffer);
 }
 
-void ScreenSpacePipeline::setupShader() {
-    LOG("ScreenSpacePipeline::setupShader");
+void GraphicsScreen::setupShader() {
+    LOG("GraphicsScreen::setupShader");
     Shader* vertShader = new Shader(SPIRV_PATH + "swapchain.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
     Shader* fragShader = new Shader(SPIRV_PATH + "swapchain.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
     m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
 
-void ScreenSpacePipeline::setupInput(Frame* pFrame) {
-    LOG("ScreenSpacePipeline::setupInput");
+void GraphicsScreen::setupInput(Frame* pFrame) {
+    LOG("GraphicsScreen::setupInput");
     Image* pImage = pFrame->getColorImage();
     pImage->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S0, B0, pImage->getDescriptorInfo());
@@ -73,8 +73,8 @@ void ScreenSpacePipeline::setupInput(Frame* pFrame) {
     m_pInputFrame = pFrame;
 }
 
-void ScreenSpacePipeline::createDescriptor() {
-    LOG("ScreenSpacePipeline::createDescriptor");
+void GraphicsScreen::createDescriptor() {
+    LOG("GraphicsScreen::createDescriptor");
     m_pDescriptor = new Descriptor();
     m_pDescriptor->setupLayout(S0);
     m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -86,8 +86,8 @@ void ScreenSpacePipeline::createDescriptor() {
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
-void ScreenSpacePipeline::createRenderpass() {
-    LOG("ScreenSpacePipeline::createRenderpass");
+void GraphicsScreen::createRenderpass() {
+    LOG("GraphicsScreen::createRenderpass");
     VkSurfaceFormatKHR surfaceFormat = m_pDevice->getSurfaceFormat();
     m_pRenderpass = new Renderpass();
     m_pRenderpass->setupColorAttachment(surfaceFormat.format);
@@ -96,8 +96,8 @@ void ScreenSpacePipeline::createRenderpass() {
     m_cleaner.push([=](){ m_pRenderpass->cleanup(); });
 }
 
-void ScreenSpacePipeline::createPipelineLayout() {
-    LOG("ScreenSpacePipeline::createPipelineLayout");
+void GraphicsScreen::createPipelineLayout() {
+    LOG("GraphicsScreen::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
     VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
     
@@ -111,8 +111,8 @@ void ScreenSpacePipeline::createPipelineLayout() {
     m_cleaner.push([=](){ vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr); });
 }
 
-void ScreenSpacePipeline::createPipeline() {
-    LOG("ScreenSpacePipeline::createPipeline");
+void GraphicsScreen::createPipeline() {
+    LOG("GraphicsScreen::createPipeline");
     VkRenderPass renderpass = m_pRenderpass->get();
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VECTOR<VkPipelineShaderStageCreateInfo> shaderStages = m_shaderStages;
@@ -138,7 +138,7 @@ void ScreenSpacePipeline::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
-void ScreenSpacePipeline::updateViewportScissor() {
+void GraphicsScreen::updateViewportScissor() {
     UInt2D extent = m_pFrame->getExtent2D();
     m_viewport.x = 0.f;
     m_viewport.y = 0.f;
@@ -150,8 +150,8 @@ void ScreenSpacePipeline::updateViewportScissor() {
     m_scissor.extent = extent;
 }
 
-void ScreenSpacePipeline::setFrame(Frame *pFrame) { m_pFrame = pFrame;  updateViewportScissor(); }
+void GraphicsScreen::setFrame(Frame *pFrame) { m_pFrame = pFrame;  updateViewportScissor(); }
 
-Renderpass* ScreenSpacePipeline::getRenderpass() { return m_pRenderpass; }
+Renderpass* GraphicsScreen::getRenderpass() { return m_pRenderpass; }
 
 

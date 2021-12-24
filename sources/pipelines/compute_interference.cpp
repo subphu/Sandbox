@@ -1,32 +1,32 @@
 //  Copyright © 2021 Subph. All rights reserved.
 //
 
-#include "interference_pipeline.hpp"
+#include "compute_interference.hpp"
 
 #include "../system.hpp"
 #include "../resources/shader.hpp"
 
 #define WORKGROUP_SIZE_X 128
 
-InterferencePipeline::~InterferencePipeline() {}
-InterferencePipeline::InterferencePipeline() : m_pDevice(System::Device()) {}
+ComputeInterference::~ComputeInterference() {}
+ComputeInterference::ComputeInterference() : m_pDevice(System::Device()) {}
 
-void InterferencePipeline::cleanup() { m_cleaner.flush("InterferencePipeline"); }
+void ComputeInterference::cleanup() { m_cleaner.flush("ComputeInterference"); }
 
-void InterferencePipeline::setupShader() {
-    LOG("InterferencePipeline::setupShader");
+void ComputeInterference::setupShader() {
+    LOG("ComputeInterference::setupShader");
     Shader* compShader = new Shader(SPIRV_PATH + "interference1d.spv", VK_SHADER_STAGE_COMPUTE_BIT);
     m_shaderStage = compShader->getShaderStageInfo();
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
 
-void InterferencePipeline::setupInput() {
+void ComputeInterference::setupInput() {
     m_details.opdSample = System::Settings()->OPDSample;
     m_details.rSample   = System::Settings()->RSample;
 }
 
-void InterferencePipeline::setupOutput() {
-    LOG("InterferencePipeline::setupOutput");
+void ComputeInterference::setupOutput() {
+    LOG("ComputeInterference::setupOutput");
     uint floatCount = m_details.opdSample * CHANNEL;
     uint outputSize = floatCount * sizeof(float);
     std::vector<float> outputData(floatCount, 0.0f);
@@ -50,8 +50,8 @@ void InterferencePipeline::setupOutput() {
     m_cleaner.push([=](){ m_pOutputBuffer->cleanup(); });
 }
 
-void InterferencePipeline::createDescriptor() {
-    LOG("InterferencePipeline::createDescriptor");
+void ComputeInterference::createDescriptor() {
+    LOG("ComputeInterference::createDescriptor");
     m_pDescriptor = new Descriptor();
     
     m_pDescriptor->setupLayout(S0);
@@ -66,8 +66,8 @@ void InterferencePipeline::createDescriptor() {
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
-void InterferencePipeline::createPipelineLayout() {
-    LOG("InterferencePipeline::createPipelineLayout");
+void ComputeInterference::createPipelineLayout() {
+    LOG("ComputeInterference::createPipelineLayout");
     VkDevice device = m_pDevice->getDevice();
     VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
     
@@ -88,8 +88,8 @@ void InterferencePipeline::createPipelineLayout() {
     m_cleaner.push([=](){ vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr); });
 }
 
-void InterferencePipeline::createPipeline() {
-    LOG("InterferencePipeline::createPipeline");
+void ComputeInterference::createPipeline() {
+    LOG("ComputeInterference::createPipeline");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipelineShaderStageCreateInfo shaderStage = m_shaderStage;
     
@@ -100,8 +100,8 @@ void InterferencePipeline::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
-void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
-    LOG("InterferencePipeline::dispatch");
+void ComputeInterference::dispatch(VkCommandBuffer cmdBuffer) {
+    LOG("ComputeInterference::dispatch");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VkPipeline          pipeline = m_pPipeline->get();
     VkDescriptorSet     descSet  = m_pDescriptor->getDescriptorSet(S0);
@@ -118,5 +118,5 @@ void InterferencePipeline::dispatch(VkCommandBuffer cmdBuffer) {
     m_pOutputImage->cmdTransitionToShaderR(cmdBuffer);
 }
 
-Image * InterferencePipeline::getOutputImage () { return m_pOutputImage; }
-Buffer* InterferencePipeline::getOutputBuffer() { return m_pOutputBuffer; }
+Image * ComputeInterference::getOutputImage () { return m_pOutputImage; }
+Buffer* ComputeInterference::getOutputBuffer() { return m_pOutputBuffer; }

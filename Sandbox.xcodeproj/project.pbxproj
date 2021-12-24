@@ -21,7 +21,7 @@
 		26B8767426A8804500BFDA27 /* libglfw.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26B8767526A8804500BFDA27 /* libvulkan.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		26C502D327329BF80010F43F /* renderpass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26C502D127329BF80010F43F /* renderpass.cpp */; };
-		26CA4E19273C1F5C00AC3D64 /* interference_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */; };
+		26CA4E19273C1F5C00AC3D64 /* compute_interference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E17273C1F5C00AC3D64 /* compute_interference.cpp */; };
 		26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */; };
 		26E701F9274B9E900097A974 /* gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E701F7274B9E900097A974 /* gui.cpp */; };
 		26E70206274BA6670097A974 /* imgui_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E701FC274BA6650097A974 /* imgui_tables.cpp */; };
@@ -31,12 +31,12 @@
 		26E7020A274BA6670097A974 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70203274BA6660097A974 /* imgui_draw.cpp */; };
 		26E70214274BA6850097A974 /* imgui_impl_vulkan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70211274BA6850097A974 /* imgui_impl_vulkan.cpp */; };
 		26E70215274BA6850097A974 /* imgui_impl_glfw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70213274BA6850097A974 /* imgui_impl_glfw.cpp */; };
-		26E70218274CA1BA0097A974 /* main_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70216274CA1BA0097A974 /* main_pipeline.cpp */; };
+		26E70218274CA1BA0097A974 /* graphics_scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70216274CA1BA0097A974 /* graphics_scene.cpp */; };
 		26E7021B274CC9D40097A974 /* mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E70219274CC9D40097A974 /* mesh.cpp */; };
 		26E7021C274CD3B00097A974 /* tiny_obj_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E34FFF271C391D00D3A61C /* tiny_obj_loader.cpp */; };
 		26EA7F0E273831D500B860CC /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26EA7F0D273831D500B860CC /* resources */; };
-		26EC979F275DFE4200D13B41 /* fluid_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26EC979D275DFE4200D13B41 /* fluid_pipeline.cpp */; };
-		26F973262719672400DFEC48 /* screenspace_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* screenspace_pipeline.cpp */; };
+		26EC979F275DFE4200D13B41 /* compute_fluid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26EC979D275DFE4200D13B41 /* compute_fluid.cpp */; };
+		26F973262719672400DFEC48 /* graphics_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973242719672400DFEC48 /* graphics_screen.cpp */; };
 		26F9732A2719686000DFEC48 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F973282719686000DFEC48 /* image.cpp */; };
 		26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732B2719686C00DFEC48 /* buffer.cpp */; };
 		26F973302719687800DFEC48 /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9732E2719687800DFEC48 /* shader.cpp */; };
@@ -106,8 +106,8 @@
 		26C9250B274015E8009EC2B3 /* manual.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = manual.vert; sourceTree = "<group>"; };
 		26C9250C274015E8009EC2B3 /* main1d.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main1d.vert; sourceTree = "<group>"; };
 		26C9250D274015E8009EC2B3 /* main2d.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = main2d.vert; sourceTree = "<group>"; };
-		26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = interference_pipeline.cpp; sourceTree = "<group>"; };
-		26CA4E18273C1F5C00AC3D64 /* interference_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = interference_pipeline.hpp; sourceTree = "<group>"; };
+		26CA4E17273C1F5C00AC3D64 /* compute_interference.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compute_interference.cpp; sourceTree = "<group>"; };
+		26CA4E18273C1F5C00AC3D64 /* compute_interference.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compute_interference.hpp; sourceTree = "<group>"; };
 		26CA4E1A273C1FF400AC3D64 /* descriptor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = descriptor.cpp; sourceTree = "<group>"; };
 		26CA4E1B273C1FF400AC3D64 /* descriptor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = descriptor.hpp; sourceTree = "<group>"; };
 		26E34FF9271C37DE00D3A61C /* ext_stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ext_stb_image.h; sourceTree = "<group>"; };
@@ -137,16 +137,16 @@
 		26E70211274BA6850097A974 /* imgui_impl_vulkan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_vulkan.cpp; sourceTree = "<group>"; };
 		26E70212274BA6850097A974 /* imgui_impl_vulkan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_vulkan.h; sourceTree = "<group>"; };
 		26E70213274BA6850097A974 /* imgui_impl_glfw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_glfw.cpp; sourceTree = "<group>"; };
-		26E70216274CA1BA0097A974 /* main_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main_pipeline.cpp; sourceTree = "<group>"; };
-		26E70217274CA1BA0097A974 /* main_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = main_pipeline.hpp; sourceTree = "<group>"; };
+		26E70216274CA1BA0097A974 /* graphics_scene.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_scene.cpp; sourceTree = "<group>"; };
+		26E70217274CA1BA0097A974 /* graphics_scene.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_scene.hpp; sourceTree = "<group>"; };
 		26E70219274CC9D40097A974 /* mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mesh.cpp; sourceTree = "<group>"; };
 		26E7021A274CC9D40097A974 /* mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mesh.hpp; sourceTree = "<group>"; };
 		26EA7F0D273831D500B860CC /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
 		26EC979C275DFE1700D13B41 /* fluid.comp */ = {isa = PBXFileReference; lastKnownFileType = text; path = fluid.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		26EC979D275DFE4200D13B41 /* fluid_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fluid_pipeline.cpp; sourceTree = "<group>"; };
-		26EC979E275DFE4200D13B41 /* fluid_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fluid_pipeline.hpp; sourceTree = "<group>"; };
-		26F973242719672400DFEC48 /* screenspace_pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = screenspace_pipeline.cpp; sourceTree = "<group>"; };
-		26F973252719672400DFEC48 /* screenspace_pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = screenspace_pipeline.hpp; sourceTree = "<group>"; };
+		26EC979D275DFE4200D13B41 /* compute_fluid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compute_fluid.cpp; sourceTree = "<group>"; };
+		26EC979E275DFE4200D13B41 /* compute_fluid.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compute_fluid.hpp; sourceTree = "<group>"; };
+		26F973242719672400DFEC48 /* graphics_screen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_screen.cpp; sourceTree = "<group>"; };
+		26F973252719672400DFEC48 /* graphics_screen.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_screen.hpp; sourceTree = "<group>"; };
 		26F973282719686000DFEC48 /* image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
 		26F973292719686000DFEC48 /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		26F9732B2719686C00DFEC48 /* buffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = buffer.cpp; sourceTree = "<group>"; };
@@ -385,14 +385,14 @@
 		26F97323271966D000DFEC48 /* pipelines */ = {
 			isa = PBXGroup;
 			children = (
-				26CA4E17273C1F5C00AC3D64 /* interference_pipeline.cpp */,
-				26CA4E18273C1F5C00AC3D64 /* interference_pipeline.hpp */,
-				26EC979D275DFE4200D13B41 /* fluid_pipeline.cpp */,
-				26EC979E275DFE4200D13B41 /* fluid_pipeline.hpp */,
-				26F973242719672400DFEC48 /* screenspace_pipeline.cpp */,
-				26F973252719672400DFEC48 /* screenspace_pipeline.hpp */,
-				26E70216274CA1BA0097A974 /* main_pipeline.cpp */,
-				26E70217274CA1BA0097A974 /* main_pipeline.hpp */,
+				26CA4E17273C1F5C00AC3D64 /* compute_interference.cpp */,
+				26CA4E18273C1F5C00AC3D64 /* compute_interference.hpp */,
+				26EC979D275DFE4200D13B41 /* compute_fluid.cpp */,
+				26EC979E275DFE4200D13B41 /* compute_fluid.hpp */,
+				26F973242719672400DFEC48 /* graphics_screen.cpp */,
+				26F973252719672400DFEC48 /* graphics_screen.hpp */,
+				26E70216274CA1BA0097A974 /* graphics_scene.cpp */,
+				26E70217274CA1BA0097A974 /* graphics_scene.hpp */,
 			);
 			path = pipelines;
 			sourceTree = "<group>";
@@ -493,7 +493,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26CA4E19273C1F5C00AC3D64 /* interference_pipeline.cpp in Sources */,
+				26CA4E19273C1F5C00AC3D64 /* compute_interference.cpp in Sources */,
 				26F973302719687800DFEC48 /* shader.cpp in Sources */,
 				26F9732D2719686C00DFEC48 /* buffer.cpp in Sources */,
 				26E70209274BA6670097A974 /* imgui_widgets.cpp in Sources */,
@@ -509,16 +509,16 @@
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,
 				26B6BF9226A873CE00223ED8 /* main.cpp in Sources */,
 				2613475D26F88D3900B3E6A7 /* app.cpp in Sources */,
-				26F973262719672400DFEC48 /* screenspace_pipeline.cpp in Sources */,
+				26F973262719672400DFEC48 /* graphics_screen.cpp in Sources */,
 				26E7021C274CD3B00097A974 /* tiny_obj_loader.cpp in Sources */,
-				26EC979F275DFE4200D13B41 /* fluid_pipeline.cpp in Sources */,
+				26EC979F275DFE4200D13B41 /* compute_fluid.cpp in Sources */,
 				26E70208274BA6670097A974 /* imgui.cpp in Sources */,
 				26E7020A274BA6670097A974 /* imgui_draw.cpp in Sources */,
 				26E7021B274CC9D40097A974 /* mesh.cpp in Sources */,
 				26F9732A2719686000DFEC48 /* image.cpp in Sources */,
 				26B313C82715DA8C00DD0339 /* system.cpp in Sources */,
 				265A2C862750B8AE004D1025 /* camera.cpp in Sources */,
-				26E70218274CA1BA0097A974 /* main_pipeline.cpp in Sources */,
+				26E70218274CA1BA0097A974 /* graphics_scene.cpp in Sources */,
 				26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */,
 				26E701F9274B9E900097A974 /* gui.cpp in Sources */,
 				2615790F26FB8E7D0093D4AF /* window.cpp in Sources */,

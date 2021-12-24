@@ -14,7 +14,7 @@
 #include "../resources/camera.hpp"
 
 
-class MainPipeline {
+class GraphicsScene {
     
     struct PCMisc {
         glm::mat4 model;
@@ -36,8 +36,8 @@ class MainPipeline {
     };
     
 public:
-    ~MainPipeline();
-    MainPipeline();
+    ~GraphicsScene();
+    GraphicsScene();
     
     void cleanup();
     void render(VkCommandBuffer cmdBuffer);

@@ -13,11 +13,11 @@
 #include "../window/gui.hpp"
 #include "../window/window.hpp"
 
-class ScreenSpacePipeline {
+class GraphicsScreen {
     
 public:
-    ~ScreenSpacePipeline();
-    ScreenSpacePipeline();
+    ~GraphicsScreen();
+    GraphicsScreen();
     
     void cleanup();
     void render(VkCommandBuffer cmdBuffer, GUI* pGUI);

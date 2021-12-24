@@ -8,10 +8,10 @@
 #include "renderer/device.hpp"
 #include "renderer/commander.hpp"
 #include "renderer/swapchain.hpp"
-#include "pipelines/screenspace_pipeline.hpp"
-#include "pipelines/interference_pipeline.hpp"
-#include "pipelines/fluid_pipeline.hpp"
-#include "pipelines/main_pipeline.hpp"
+#include "pipelines/graphics_screen.hpp"
+#include "pipelines/compute_interference.hpp"
+#include "pipelines/compute_fluid.hpp"
+#include "pipelines/graphics_scene.hpp"
 #include "resources/camera.hpp"
 #include "resources/buffer.hpp"
 
@@ -30,11 +30,11 @@ private:
     GUI*    m_pGUI;
     
     Swapchain* m_pSwapchain;
-    ScreenSpacePipeline* m_pScreenSpacePipeline;
-    InterferencePipeline* m_pInterferencePipeline;
-    MainPipeline* m_pMainPipeline;
+    GraphicsScreen* m_pGraphicsScreen;
+    ComputeInterference* m_pComputeInterference;
+    GraphicsScene* m_pGraphicsScene;
     
-    FluidPipeline* m_pFluidPipeline;
+    ComputeFluid* m_pComputeFluid;
     
     void cleanup();
     void setup();
@@ -47,11 +47,11 @@ private:
     void initCommander();
     
     void createSwapchain();
-    void createScreenSpacePipeline();
-    void createInterferencePipeline();
-    void createFluidPipeline();
+    void createGraphicsScreen();
+    void createComputeInterference();
+    void createComputeFluid();
     void dispatchInterference();
-    void createMainPipeline();
+    void createGraphicsScene();
     
     void createGUI();
     
