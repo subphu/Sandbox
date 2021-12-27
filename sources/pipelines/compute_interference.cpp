@@ -9,7 +9,7 @@
 #define WORKGROUP_SIZE_X 128
 
 ComputeInterference::~ComputeInterference() {}
-ComputeInterference::ComputeInterference() : m_pDevice(System::Device()) {}
+ComputeInterference::ComputeInterference() {}
 
 void ComputeInterference::cleanup() { m_cleaner.flush("ComputeInterference"); }
 
@@ -21,33 +21,20 @@ void ComputeInterference::setupShader() {
 }
 
 void ComputeInterference::setupInput() {
-    m_details.opdSample = System::Settings()->OPDSample;
-    m_details.rSample   = System::Settings()->RSample;
+    m_misc.opdSample = System::Settings()->OPDSample;
+    m_misc.rSample   = System::Settings()->RSample;
 }
 
 void ComputeInterference::setupOutput() {
     LOG("ComputeInterference::setupOutput");
-    uint floatCount = m_details.opdSample * CHANNEL;
-    uint outputSize = floatCount * sizeof(float);
-    std::vector<float> outputData(floatCount, 0.0f);
-    
     m_pOutputImage = new Image();
-    m_pOutputImage->setupForStorage({m_details.opdSample, m_details.rSample});
+    m_pOutputImage->setupForStorage({m_misc.opdSample, m_misc.rSample});
     m_pOutputImage->createWithSampler();
     m_pOutputImage->cmdTransitionToStorageW();
-    
-    m_pOutputBuffer = new Buffer();
-    m_pOutputBuffer->setup(outputSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                                       VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-    m_pOutputBuffer->create();
-    m_pOutputBuffer->fillBufferFull(outputData.data());
-    
-    m_pDescriptor->setupPointerBuffer(S0, B0, m_pOutputBuffer->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S0, B1, m_pOutputImage->getDescriptorInfo());
-    m_pDescriptor->update(S0);
-    
     m_cleaner.push([=](){ m_pOutputImage->cleanup(); });
-    m_cleaner.push([=](){ m_pOutputBuffer->cleanup(); });
+    
+    m_pDescriptor->setupPointerImage(S0, B0, m_pOutputImage->getDescriptorInfo());
+    m_pDescriptor->update(S0);
 }
 
 void ComputeInterference::createDescriptor() {
@@ -55,9 +42,7 @@ void ComputeInterference::createDescriptor() {
     m_pDescriptor = new Descriptor();
     
     m_pDescriptor->setupLayout(S0);
-    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                     VK_SHADER_STAGE_COMPUTE_BIT);
-    m_pDescriptor->addLayoutBindings(S0, B1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    m_pDescriptor->addLayoutBindings(S0, B0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
                                      VK_SHADER_STAGE_COMPUTE_BIT);
     m_pDescriptor->createLayout(S0);
     m_pDescriptor->createPool();
@@ -68,7 +53,7 @@ void ComputeInterference::createDescriptor() {
 
 void ComputeInterference::createPipelineLayout() {
     LOG("ComputeInterference::createPipelineLayout");
-    VkDevice device = m_pDevice->getDevice();
+    VkDevice device = System::Device()->getDevice();
     VkDescriptorSetLayout descSetLayout = m_pDescriptor->getDescriptorLayout(S0);
     
     VkPushConstantRange pushConstantRange{};
@@ -100,23 +85,32 @@ void ComputeInterference::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
+void ComputeInterference::dispatch() {
+    Commander* pCommander = System::Commander();
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    dispatch(cmdBuffer);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
 void ComputeInterference::dispatch(VkCommandBuffer cmdBuffer) {
     LOG("ComputeInterference::dispatch");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
-    VkPipeline          pipeline = m_pPipeline->get();
-    VkDescriptorSet     descSet  = m_pDescriptor->getDescriptorSet(S0);
-    PCMisc details  = m_details;
+    VkPipeline       pipeline = m_pPipeline->get();
+    VkDescriptorSet  descSet  = m_pDescriptor->getDescriptorSet(S0);
+    PCMisc           misc     = m_misc;
     
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT,
-                       0, sizeof(PCMisc), &details);
+                       0, sizeof(PCMisc), &misc);
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
     vkCmdDispatch(cmdBuffer, misc.opdSample / WORKGROUP_SIZE_X + 1, misc.rSample, 1);
     
-    m_pOutputImage->cmdTransitionToShaderR(cmdBuffer);
+    m_pOutputImage->cmdTransitionToTransferSrc(cmdBuffer);
+}
+
 }
 
 Image * ComputeInterference::getOutputImage () { return m_pOutputImage; }
-Buffer* ComputeInterference::getOutputBuffer() { return m_pOutputBuffer; }

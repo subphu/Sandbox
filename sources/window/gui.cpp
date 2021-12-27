@@ -121,12 +121,12 @@ void GUI::addInterferenceImage(Image* pImage) {
     m_interferenceTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
 
-void GUI::addHeightMapImage(Image* pImage) {
+void GUI::updateHeightMapImage(Image* pImage) {
     pImage->cmdTransitionToShaderR();
     m_heightMapTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
 
-void GUI::addIridescentImage(Image* pImage) {
+void GUI::updateIridescentImage(Image* pImage) {
     pImage->cmdTransitionToShaderR();
     m_iridescentTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }

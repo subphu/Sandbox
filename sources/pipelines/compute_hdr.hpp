@@ -20,16 +20,22 @@ public:
     ComputeHDR();
     
     void cleanup();
+    void dispatch();
     void dispatch(VkCommandBuffer cmdBuffer);
     
     void setupShader();
-    void setupInputOutput();
+    void setupInputOutput(std::string hdrPath);
+    void cleanInputOutput();
     
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     
     Image* copyOutputImage();
+    
+    std::string getTextureName();
+    std::string getHDRTexturePath();
+    std::string getEnvTexturePath();
     
 private:
     Cleaner m_cleaner;
@@ -41,7 +47,7 @@ private:
     
     PCMisc m_misc;
     
-    uint textureIdx = 0;
+    uint m_textureIdx = 0;
     
     VkPipelineLayout m_pipelineLayout;
     
@@ -52,8 +58,4 @@ private:
     const std::vector<std::string> TEXTURE_NAMES = {"Arches_E_PineTree", "GravelPlaza",  "Tokyo_BigSight", "Ueno-Shrine"};
     const std::string TEXTURE_HDR_PATH = ".hdr";
     const std::string TEXTURE_ENV_PATH = "_Env.hdr";
-    
-    std::string getTextureName();
-    std::string getHDRTexturePath();
-    std::string getEnvTexturePath();
 };

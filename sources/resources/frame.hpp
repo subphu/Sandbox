@@ -23,7 +23,7 @@ public:
     void createFramebuffer(Renderpass* renderpass);
     
     VkFramebuffer getFramebuffer();
-    UInt2D        getExtent2D();
+    UInt2D        getSize();
     Image*        getColorImage();
     Image*        getDepthImage();
     

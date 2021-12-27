@@ -139,7 +139,7 @@ void GraphicsScreen::createPipeline() {
 }
 
 void GraphicsScreen::updateViewportScissor() {
-    UInt2D extent = m_pFrame->getExtent2D();
+    UInt2D extent = m_pFrame->getSize();
     m_viewport.x = 0.f;
     m_viewport.y = 0.f;
     m_viewport.width  = extent.width;

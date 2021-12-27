@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../include.h"
-#include "../renderer/device.hpp"
 #include "../renderer/pipeline.hpp"
 #include "../renderer/descriptor.hpp"
 #include "../resources/image.hpp"
@@ -22,6 +21,7 @@ public:
     ComputeInterference();
     
     void cleanup();
+    void dispatch();
     void dispatch(VkCommandBuffer cmdBuffer);
     
     void setupShader();
@@ -33,18 +33,15 @@ public:
     void createPipeline();
     
     Image*  getOutputImage();
-    Buffer* getOutputBuffer();
     
 private:
     Cleaner m_cleaner;
-    Device* m_pDevice;
     Pipeline* m_pPipeline;
     Descriptor* m_pDescriptor;
     
     Image*  m_pOutputImage;
-    Buffer* m_pOutputBuffer;
     
-    PCMisc m_details;
+    PCMisc m_misc;
     
     VkPipelineLayout m_pipelineLayout;
     

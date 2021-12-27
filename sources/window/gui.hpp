@@ -22,8 +22,8 @@ public:
     void renderGUI(VkCommandBuffer cmdBuffer);
     
     void addInterferenceImage(Image* pImage);
-    void addHeightMapImage(Image* pImage);
-    void addIridescentImage(Image* pImage);
+    void updateHeightMapImage(Image* pImage);
+    void updateIridescentImage(Image* pImage);
     
 private:
     Cleaner m_cleaner;

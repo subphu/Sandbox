@@ -5,7 +5,7 @@
 
 #include "../include.h"
 
-enum key {
+enum Key {
     key_esc = GLFW_KEY_ESCAPE,
     key_w = GLFW_KEY_W,
     key_a = GLFW_KEY_A,

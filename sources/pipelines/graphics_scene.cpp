@@ -130,6 +130,11 @@ void GraphicsScene::setupInput() {
     m_cleaner.push([=](){ m_pSphere->cleanup(); });
 }
 
+void GraphicsScene::setupCubemap(Image* cubemap, Image* env) {
+    m_cleaner.push([=](){ cubemap->cleanup(); });
+    m_cleaner.push([=](){ env->cleanup(); });
+}
+
 void GraphicsScene::updateLightInput() {
     Settings* settings = System::Settings();
     m_lights.radiance = settings->Radiance;
@@ -147,7 +152,7 @@ void GraphicsScene::updateLightInput() {
 }
 
 void GraphicsScene::updateCameraInput(Camera* pCamera) {
-    UInt2D size = m_pFrame->getExtent2D();
+    UInt2D size = m_pFrame->getSize();
     m_misc.viewPosition = pCamera->getPosition();
     m_cameraMatrix.view = pCamera->getViewMatrix();
     m_cameraMatrix.proj = pCamera->getProjection((float) size.width / size.height);
@@ -294,7 +299,7 @@ void GraphicsScene::recreateFrame(UInt2D size) {
 }
 
 void GraphicsScene::updateViewportScissor() {
-    UInt2D extent = m_pFrame->getExtent2D();
+    UInt2D extent = m_pFrame->getSize();
     m_viewport.x = 0.f;
     m_viewport.y = 0.f;
     m_viewport.width  = extent.width;
@@ -307,7 +312,7 @@ void GraphicsScene::updateViewportScissor() {
 
 Frame* GraphicsScene::getFrame() { return m_pFrame; }
 
-std::string GraphicsScene::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }
+std::string GraphicsScene::getTextureName() { return TEXTURE_NAMES[m_textureIdx] + "/" + TEXTURE_NAMES[m_textureIdx]; }
 std::string GraphicsScene::getAlbedoTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
 std::string GraphicsScene::getAOTexturePath()        { return PBR_PATH + getTextureName() + TEXTURE_AO_PATH; }
 std::string GraphicsScene::getMetallicTexturePath()  { return PBR_PATH + getTextureName() + TEXTURE_METALLIC_PATH; }

@@ -44,6 +44,7 @@ public:
     
     void setupShader();
     void setupInput();
+    void setupCubemap(Image* cubemap, Image* env);
     void updateLightInput();
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Image* pInterferenceImage);
@@ -81,7 +82,7 @@ private:
     VkViewport m_viewport{};
     VkRect2D   m_scissor{};
     
-    uint textureIdx = 6; // 3,4,
+    uint m_textureIdx = 6; // 3,4,
     
     VkPipelineLayout m_pipelineLayout;
     

@@ -21,10 +21,9 @@ void ComputeHDR::setupShader() {
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
 
-void ComputeHDR::setupInputOutput() {
+void ComputeHDR::cleanInputOutput() { m_pOutputImage->cleanup(); m_pInputBuffer->cleanup(); }
+void ComputeHDR::setupInputOutput(std::string hdrPath) {
     LOG("ComputeHDR::setupInputOutput");
-    std::string hdrPath = getHDRTexturePath();
-    
     m_pOutputImage = new Image();
     m_pOutputImage->setupForHDRTexture(hdrPath);
     m_pOutputImage->createWithSampler();
@@ -34,10 +33,10 @@ void ComputeHDR::setupInputOutput() {
     float* imageData = m_pOutputImage->getRawHDR();
     UInt2D imageSize = m_pOutputImage->getImageSize();
     uint channelSize = m_pOutputImage->getRawChannel() * sizeof(float);
-    VkDeviceSize deviceSize = imageSize.width * imageSize.height * channelSize;
+    VkDeviceSize bufferSize = imageSize.width * imageSize.height * channelSize;
     
     m_pInputBuffer = new Buffer();
-    m_pInputBuffer->setup(deviceSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    m_pInputBuffer->setup(bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     m_pInputBuffer->create();
     m_pInputBuffer->fillBufferFull(imageData);
     m_cleaner.push([=](){ m_pInputBuffer->cleanup(); });
@@ -98,6 +97,14 @@ void ComputeHDR::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
+void ComputeHDR::dispatch() {
+    Commander* pCommander = System::Commander();
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    dispatch(cmdBuffer);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+}
+
 void ComputeHDR::dispatch(VkCommandBuffer cmdBuffer) {
     LOG("ComputeHDR::dispatch");
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
@@ -137,6 +144,6 @@ Image* ComputeHDR::copyOutputImage () {
     return imageCopy;
 }
 
-std::string ComputeHDR::getTextureName() { return TEXTURE_NAMES[textureIdx] + "/" + TEXTURE_NAMES[textureIdx]; }
+std::string ComputeHDR::getTextureName() { return TEXTURE_NAMES[m_textureIdx] + "/" + TEXTURE_NAMES[m_textureIdx]; }
 std::string ComputeHDR::getHDRTexturePath() { return CUBE_PATH + getTextureName() + TEXTURE_HDR_PATH; }
 std::string ComputeHDR::getEnvTexturePath() { return CUBE_PATH + getTextureName() + TEXTURE_ENV_PATH; }

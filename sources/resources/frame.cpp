@@ -61,7 +61,7 @@ void Frame::createFramebuffer(Renderpass* renderpass) {
 }
 
 VkFramebuffer Frame::getFramebuffer() { return m_framebuffer; }
-UInt2D Frame::getExtent2D() { return m_size; }
+UInt2D Frame::getSize      () { return m_size; }
 Image* Frame::getColorImage() { return m_pColorImage;}
 Image* Frame::getDepthImage() { return m_pDepthImage;}
 
