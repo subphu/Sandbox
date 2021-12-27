@@ -9,9 +9,11 @@
 #include "renderer/commander.hpp"
 #include "renderer/swapchain.hpp"
 #include "pipelines/graphics_screen.hpp"
+#include "pipelines/compute_hdr.hpp"
 #include "pipelines/compute_interference.hpp"
 #include "pipelines/compute_fluid.hpp"
 #include "pipelines/graphics_scene.hpp"
+#include "pipelines/graphics_equirect.hpp"
 #include "resources/camera.hpp"
 #include "resources/buffer.hpp"
 
@@ -31,7 +33,6 @@ private:
     
     Swapchain* m_pSwapchain;
     GraphicsScreen* m_pGraphicsScreen;
-    ComputeInterference* m_pComputeInterference;
     GraphicsScene* m_pGraphicsScene;
     
     ComputeFluid* m_pComputeFluid;
@@ -48,10 +49,12 @@ private:
     
     void createSwapchain();
     void createGraphicsScreen();
-    void createComputeInterference();
+    void createInterference();
     void createComputeFluid();
     void dispatchInterference();
     void createGraphicsScene();
+    
+    void createCubemap();
     
     void createGUI();
     

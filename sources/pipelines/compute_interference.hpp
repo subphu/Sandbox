@@ -32,7 +32,7 @@ public:
     void createPipelineLayout();
     void createPipeline();
     
-    Image*  getOutputImage();
+    Image* copyOutputImage();
     
 private:
     Cleaner m_cleaner;

@@ -66,6 +66,14 @@ void App::createSwapchain() {
     m_cleaner.push([=](){ m_pSwapchain->cleanup(); });
 }
 
+void App::createGUI() {
+    LOG("App::createGUI");
+    Renderpass* pRenderpass  = m_pGraphicsScreen->getRenderpass();
+    m_pGUI = new GUI();
+    m_pGUI->initGUI(m_pWindow, pRenderpass);
+    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
+}
+
 void App::createGraphicsScene() {
     LOG("App::createGraphicsScene");
     UInt2D size = m_pWindow->getFrameSize();
@@ -94,44 +102,77 @@ void App::createComputeFluid() {
     m_cleaner.push([=](){ m_pComputeFluid->cleanup(); });
     
     m_pGraphicsScene->updateHeightmapInput(m_pComputeFluid->getHeightImage());
+    m_pGUI->updateHeightMapImage(m_pComputeFluid->getHeightImage());
+    m_pGUI->updateIridescentImage(m_pComputeFluid->getIridescentImage());
 }
 
-void App::createComputeInterference() {
-    LOG("App::renderInterference");
-    m_pComputeInterference = new ComputeInterference();
-    m_pComputeInterference->setupShader();
-    m_pComputeInterference->createDescriptor();
-    m_pComputeInterference->setupInput();
-    m_pComputeInterference->setupOutput();
-    m_pComputeInterference->createPipelineLayout();
-    m_pComputeInterference->createPipeline();
-    m_cleaner.push([=](){ m_pComputeInterference->cleanup(); });
-}
-
-void App::dispatchInterference() {
-    VkCommandBuffer cmdBuffer = m_pCommander->createCommandBuffer();
-    m_pCommander->beginSingleTimeCommands(cmdBuffer);
-    m_pComputeInterference->dispatch(cmdBuffer);
-    m_pCommander->endSingleTimeCommands(cmdBuffer);
+void App::createInterference() {
+    LOG("App::createInterference");
+    ComputeInterference*  pComputeInterference = new ComputeInterference();
+    pComputeInterference->setupShader();
+    pComputeInterference->createDescriptor();
+    pComputeInterference->setupInput();
+    pComputeInterference->setupOutput();
+    pComputeInterference->createPipelineLayout();
+    pComputeInterference->createPipeline();
+    pComputeInterference->dispatch();
     
-    m_pComputeFluid->updateInterferenceInput(m_pComputeInterference->getOutputImage());
-    m_pGraphicsScene->updateInterferenceInput(m_pComputeInterference->getOutputImage());
+    Image* interferenceImage = pComputeInterference->copyOutputImage();
+    m_cleaner.push([=](){ interferenceImage->cleanup(); });
+    pComputeInterference->cleanup();
+    
+    m_pComputeFluid->updateInterferenceInput(interferenceImage);
+    m_pGraphicsScene->updateInterferenceInput(interferenceImage);
+    m_pGUI->addInterferenceImage(interferenceImage);
 }
 
-void App::createGUI() {
-    LOG("App::createGUI");
-    Window*     pWindow      = m_pWindow;
-    Renderpass* pRenderpass  = m_pGraphicsScreen->getRenderpass();
-    Image* heightMapImage    = m_pComputeFluid->getHeightImage();
-    Image* iridescentImage   = m_pComputeFluid->getIridescentImage();
-    Image* InterferenceImage = m_pComputeInterference->getOutputImage();
+void App::createCubemap() {
+    LOG("App::createGraphicsEquirect");
+    Image *hdrImg, *hdrEnv, *cubemapImg, *cubemapEnv;
+    ComputeHDR* pComputeHDR = new ComputeHDR();
+    pComputeHDR->setupShader();
+    pComputeHDR->createDescriptor();
+    pComputeHDR->createPipelineLayout();
+    pComputeHDR->createPipeline();
     
-    m_pGUI = new GUI();
-    m_pGUI->initGUI(pWindow, pRenderpass);
-    m_pGUI->addHeightMapImage(heightMapImage);
-    m_pGUI->addIridescentImage(iridescentImage);
-    m_pGUI->addInterferenceImage(InterferenceImage);
-    m_cleaner.push([=](){ m_pGUI->cleanupGUI(); });
+    pComputeHDR->setupInputOutput(pComputeHDR->getHDRTexturePath());
+    pComputeHDR->dispatch();
+    hdrImg = pComputeHDR->copyOutputImage();
+    
+    pComputeHDR->cleanInputOutput();
+    pComputeHDR->setupInputOutput(pComputeHDR->getEnvTexturePath());
+    pComputeHDR->dispatch();
+    hdrEnv = pComputeHDR->copyOutputImage();
+    pComputeHDR->cleanup();
+    
+    UInt2D size = m_pWindow->getFrameSize();
+    uint length = fmax(size.width, size.height);
+    GraphicsEquirect* pGraphicsEquirect = new GraphicsEquirect();
+    pGraphicsEquirect->setupShader();
+    pGraphicsEquirect->createDescriptor();
+    pGraphicsEquirect->setupMesh();
+    pGraphicsEquirect->createRenderpass();
+    pGraphicsEquirect->createPipelineLayout();
+    pGraphicsEquirect->createPipeline();
+    
+    pGraphicsEquirect->setupInput(hdrImg);
+    pGraphicsEquirect->createFrame(length);
+    pGraphicsEquirect->render();
+    cubemapImg = pGraphicsEquirect->copyFrameImage();
+    m_cleaner.push([=](){ cubemapImg->cleanup(); });
+    
+    pGraphicsEquirect->cleanFrame();
+    pGraphicsEquirect->setupInput(hdrEnv);
+    pGraphicsEquirect->createFrame(length / 10);
+    pGraphicsEquirect->render();
+    cubemapEnv = pGraphicsEquirect->copyFrameImage();
+    m_cleaner.push([=](){ cubemapEnv->cleanup(); });
+    
+    pGraphicsEquirect->cleanup();
+    hdrImg->cleanup();
+    hdrEnv->cleanup();
+    
+    m_pGraphicsScene->setupCubemap(cubemapImg, cubemapEnv);
 }
 
 void App::setup() {
@@ -141,13 +182,14 @@ void App::setup() {
     initCommander();
     createGraphicsScreen();
     createSwapchain();
-    createGraphicsScene();
-    
-    createComputeFluid();
-    createComputeInterference();
-    dispatchInterference();
-    
     createGUI();
+    
+    createGraphicsScene();
+    createComputeFluid();
+    
+    createInterference();
+    createCubemap();
+    
 }
 
 void App::draw() {

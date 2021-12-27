@@ -111,6 +111,19 @@ void ComputeInterference::dispatch(VkCommandBuffer cmdBuffer) {
     m_pOutputImage->cmdTransitionToTransferSrc(cmdBuffer);
 }
 
+Image* ComputeInterference::copyOutputImage() {
+    UInt2D imageSize = m_pOutputImage->getImageSize();
+    Image* imageCopy = new Image();
+    imageCopy->setupForStorage(imageSize);
+    imageCopy->createWithSampler();
+    
+    Commander* pCommander = System::Commander();
+    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
+    pCommander->beginSingleTimeCommands(cmdBuffer);
+    imageCopy->cmdTransitionToTransferDst(cmdBuffer);
+    imageCopy->cmdCopyImageToImage(cmdBuffer, m_pOutputImage);
+    pCommander->endSingleTimeCommands(cmdBuffer);
+    
+    return imageCopy;
 }
 
-Image * ComputeInterference::getOutputImage () { return m_pOutputImage; }
