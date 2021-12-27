@@ -113,7 +113,7 @@ void ComputeInterference::dispatch(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
-    vkCmdDispatch(cmdBuffer, details.opdSample / WORKGROUP_SIZE_X, details.rSample, 1);
+    vkCmdDispatch(cmdBuffer, misc.opdSample / WORKGROUP_SIZE_X + 1, misc.rSample, 1);
     
     m_pOutputImage->cmdTransitionToShaderR(cmdBuffer);
 }

@@ -154,8 +154,8 @@ void ComputeFluid::dispatch(VkCommandBuffer cmdBuffer) {
                             pipelineLayout, S1, 1, &interferenceDescSet, 0, nullptr);
     
     vkCmdDispatch(cmdBuffer,
-                  details.size.width  / WORKGROUP_SIZE_X,
-                  details.size.height / WORKGROUP_SIZE_Y, 1);
+                  details.size.width  / WORKGROUP_SIZE_X + 1,
+                  details.size.height / WORKGROUP_SIZE_Y + 1, 1);
     
     m_pFluidImage->cmdTransitionToTransferSrc(cmdBuffer);
     m_pSampledImage->cmdTransitionToTransferDst(cmdBuffer);

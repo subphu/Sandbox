@@ -114,8 +114,8 @@ void ComputeHDR::dispatch(VkCommandBuffer cmdBuffer) {
                             pipelineLayout, 0, 1, &descSet, 0, nullptr);
     
     vkCmdDispatch(cmdBuffer,
-                  misc.size.width  / WORKGROUP_SIZE_X,
-                  misc.size.height / WORKGROUP_SIZE_Y, 1);
+                  misc.size.width  / WORKGROUP_SIZE_X + 1,
+                  misc.size.height / WORKGROUP_SIZE_Y + 1, 1);
     
     m_pOutputImage->cmdTransitionToTransferSrc(cmdBuffer);
 }
