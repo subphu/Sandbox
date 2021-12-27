@@ -41,10 +41,10 @@ void Image::setupForColor(UInt2D size) {
 void Image::setupForStorage(UInt2D size) {
     m_imageInfo.extent = {size.width, size.height, 1};
     m_imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-    m_imageInfo.usage  = VK_IMAGE_USAGE_STORAGE_BIT |
-                         VK_IMAGE_USAGE_SAMPLED_BIT |
-                         VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                         VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    m_imageInfo.usage  = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                         VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                         VK_IMAGE_USAGE_STORAGE_BIT |
+                         VK_IMAGE_USAGE_SAMPLED_BIT;
 
     m_imageViewInfo.format = m_imageInfo.format;
 }
@@ -52,7 +52,7 @@ void Image::setupForStorage(UInt2D size) {
 void Image::setupForSwapchain(VkImage image, VkFormat imageFormat) {
     LOG("Image::setupForSwapchain");
     m_image = image;
-    m_imageInfo.format     = imageFormat;
+    m_imageInfo.format = imageFormat;
     m_imageViewInfo.format = imageFormat;
 }
 
@@ -60,20 +60,20 @@ void Image::setupForTexture(const std::string filepath) {
     LOG("Image::setupForTexture");
     int width, height, channels;
     m_rawData = STBI::LoadImage(filepath, &width, &height, &channels);
+    m_rawChannel = channels;
     UInt2D size = { (uint)width, (uint)height };
     setupForTexture(size);
 }
 
 void Image::setupForTexture(UInt2D size) {
-    m_imageInfo.extent.width  = size.width;
-    m_imageInfo.extent.height = size.height;
-    m_imageInfo.mipLevels     = MaxMipLevel(size.width, size.height);
-    m_imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
-    m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                VK_IMAGE_USAGE_SAMPLED_BIT;
+    m_imageInfo.extent    = {size.width, size.height, 1};
+    m_imageInfo.mipLevels = MaxMipLevel(size.width, size.height);
+    m_imageInfo.format    = VK_FORMAT_R8G8B8A8_SRGB;
+    m_imageInfo.usage     = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                            VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                            VK_IMAGE_USAGE_SAMPLED_BIT;
     
-    m_imageViewInfo.format    = m_imageInfo.format;
+    m_imageViewInfo.format = m_imageInfo.format;
     m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
 }
 
@@ -81,41 +81,35 @@ void Image::setupForHDRTexture(const std::string filepath) {
     LOG("Image::setupForHDRTexture");
     int width, height, channels;
     m_rawHDR = STBI::LoadHDR(filepath, &width, &height, &channels);
-    
-    m_imageInfo.extent.width  = width;
-    m_imageInfo.extent.height = height;
-    m_imageInfo.mipLevels     = MaxMipLevel(width, height);
-    m_imageInfo.format        = VK_FORMAT_R32G32B32_SFLOAT;
-    m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                VK_IMAGE_USAGE_SAMPLED_BIT;
+    m_rawChannel = channels;
+    UInt2D size = { (uint)width, (uint)height };
+    setupForHDRTexture(size);
+}
+
+void Image::setupForHDRTexture(UInt2D size) {
+    m_imageInfo.extent    = {size.width, size.height, 1};
+    m_imageInfo.mipLevels = MaxMipLevel(size.width, size.height);
+    m_imageInfo.format    = VK_FORMAT_R32G32B32A32_SFLOAT;
+    m_imageInfo.usage     = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                            VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                            VK_IMAGE_USAGE_STORAGE_BIT |
+                            VK_IMAGE_USAGE_SAMPLED_BIT;
         
-    m_imageViewInfo.format    = m_imageInfo.format;
+    m_imageViewInfo.format = m_imageInfo.format;
     m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
 }
 
-void Image::setupForCubemap(const std::string *filepaths) {
-    LOG("Image::setupForCubemap");
-    int width = 0, height = 0, channels = 0;
-    for (int i = 0; i < 6; ++i) {
-        m_rawCubemap.push_back(STBI::LoadImage(filepaths[i], &width, &height, &channels));
-    }
-    setupForCubemap({ (uint)width, (uint)height });
-}
-
 void Image::setupForCubemap(UInt2D size) {
-    m_imageInfo.arrayLayers   = 6;
-    m_imageInfo.extent.width  = size.width;
-    m_imageInfo.extent.height = size.height;
-    m_imageInfo.mipLevels     = MaxMipLevel(size.width, size.height);
-    m_imageInfo.format        = VK_FORMAT_R8G8B8A8_SRGB;
-    m_imageInfo.flags         = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-    m_imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                VK_IMAGE_USAGE_SAMPLED_BIT;
+    m_imageInfo.extent       = {size.width, size.height, 1};
+    m_imageInfo.mipLevels    = 1;
+    m_imageInfo.arrayLayers  = 6;
+    m_imageInfo.format       = VK_FORMAT_R32G32B32A32_SFLOAT;
+    m_imageInfo.flags        = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    m_imageInfo.usage        = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                               VK_IMAGE_USAGE_SAMPLED_BIT;
       
-    m_imageViewInfo.viewType  = VK_IMAGE_VIEW_TYPE_CUBE;
-    m_imageViewInfo.format    = m_imageInfo.format;
+    m_imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+    m_imageViewInfo.format   = m_imageInfo.format;
     m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
     m_imageViewInfo.subresourceRange.layerCount = 6;
 }
@@ -207,7 +201,7 @@ void Image::createSampler() {
 void Image::cmdCopyRawDataToImage() {
     LOG("Image::copyRawDataToImage");
     Buffer *tempBuffer = new Buffer();
-    tempBuffer->setup(getImageSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    tempBuffer->setup(getDeviceSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     tempBuffer->create();
     tempBuffer->fillBufferFull(m_rawData);
     
@@ -217,45 +211,6 @@ void Image::cmdCopyRawDataToImage() {
     cmdTransitionToTransferDst(cmdBuffer);
     cmdCopyBufferToImage(cmdBuffer, tempBuffer->get());
     cmdGenerateMipmaps(cmdBuffer);
-    pCommander->endSingleTimeCommands(cmdBuffer);
-    tempBuffer->cleanup();
-}
-
-void Image::cmdCopyRawHDRToImage() {
-    LOG("Image::copyRawHDRToImage");
-    Buffer *tempBuffer = new Buffer();
-    tempBuffer->setup(getImageSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-    tempBuffer->create();
-    tempBuffer->fillBufferFull(m_rawHDR);
-    
-    Commander* pCommander = System::Commander();
-    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(cmdBuffer);
-    cmdTransitionToTransferDst(cmdBuffer);
-    cmdCopyBufferToImage(cmdBuffer, tempBuffer->get());
-    cmdGenerateMipmaps(cmdBuffer);
-    pCommander->endSingleTimeCommands(cmdBuffer);
-    tempBuffer->cleanup();
-}
-
-void Image::cmdCopyCubemapToImage() {
-    LOG("Image::copyCubemapToImage");
-    VECTOR<unsigned char*> rawData = m_rawCubemap;
-    VkDeviceSize imageSize = getImageSize();
-    uint32_t     layerSize = imageSize / 6.0;
-    
-    Buffer *tempBuffer = new Buffer();
-    tempBuffer->setup(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-    tempBuffer->create();
-    for (int i = 0; i < 6; ++i) {
-        tempBuffer->fillBuffer(rawData[i], layerSize, layerSize * i);
-    }
-    
-    Commander* pCommander = System::Commander();
-    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(cmdBuffer);
-    cmdTransitionToTransferDst(cmdBuffer);
-    cmdCopyBufferToImage(cmdBuffer, tempBuffer->get());
     pCommander->endSingleTimeCommands(cmdBuffer);
     tempBuffer->cleanup();
 }
@@ -470,13 +425,6 @@ void Image::cmdTransitionToStorageRW  () { cmdCall(&Image::cmdTransitionToStorag
 void Image::cmdTransitionToTransferDst() { cmdCall(&Image::cmdTransitionToTransferDst); }
 void Image::cmdTransitionToTransferSrc() { cmdCall(&Image::cmdTransitionToTransferSrc); }
 
-VkImage         Image::getImage      () { return m_image;       }
-VkImageView     Image::getImageView  () { return m_imageView;   }
-VkDeviceMemory  Image::getImageMemory() { return m_imageMemory; }
-VkSampler       Image::getSampler    () { return m_sampler;     }
-unsigned int    Image::getChannelSize() { return GetChannelSize(m_imageInfo.format); }
-VkDeviceSize    Image::getImageSize  () { return m_imageInfo.extent.width * m_imageInfo.extent.height * getChannelSize() * m_imageInfo.arrayLayers; }
-
 VkDescriptorImageInfo* Image::getDescriptorInfo() {
     m_descriptorInfo.imageLayout = m_imageLayout;
     m_descriptorInfo.imageView   = m_imageView;
@@ -484,9 +432,21 @@ VkDescriptorImageInfo* Image::getDescriptorInfo() {
     return &m_descriptorInfo;
 }
 
+VkImage         Image::getImage      () { return m_image;       }
+VkImageView     Image::getImageView  () { return m_imageView;   }
+VkDeviceMemory  Image::getImageMemory() { return m_imageMemory; }
+VkSampler       Image::getSampler    () { return m_sampler;     }
+uint            Image::getRawChannel () { return m_rawChannel;  }
+uint            Image::getChannelSize() { return GetChannelSize(m_imageInfo.format); }
+UInt2D          Image::getImageSize  () { return {m_imageInfo.extent.width, m_imageInfo.extent.height}; }
+VkDeviceSize    Image::getDeviceSize () { return m_imageInfo.extent.width * m_imageInfo.extent.height * getChannelSize() * m_imageInfo.arrayLayers; }
+
 VkImageLayout         Image::getImageLayout()   { return m_imageLayout; }
 VkImageCreateInfo     Image::getImageInfo()     { return m_imageInfo; }
 VkImageViewCreateInfo Image::getImageViewInfo() { return m_imageViewInfo; }
+
+unsigned char* Image::getRawData() { return m_rawData; }
+float        * Image::getRawHDR()  { return m_rawHDR;  }
 
 void Image::setImageLayout(VkImageLayout imageLayout) { m_imageLayout = imageLayout;}
 
@@ -508,6 +468,8 @@ unsigned int Image::GetChannelSize(VkFormat format) {
     switch (format) {
         case VK_FORMAT_R8G8B8_SRGB  : return 3; break;
         case VK_FORMAT_R8G8B8A8_SRGB: return 4; break;
+        case VK_FORMAT_R32G32B32_SFLOAT: return 12; break;
+        case VK_FORMAT_R32G32B32A32_SFLOAT: return 16; break;
         default: return 0; break;
     }
 }

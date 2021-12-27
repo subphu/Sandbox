@@ -22,7 +22,7 @@ public:
     void setupForTexture    (const std::string filepath);
     void setupForTexture    (UInt2D size);
     void setupForHDRTexture (const std::string filepath);
-    void setupForCubemap    (const std::string *filepaths);
+    void setupForHDRTexture (UInt2D size);
     void setupForCubemap    (UInt2D size);
     
     void create             ();
@@ -34,9 +34,7 @@ public:
     void allocateImageMemory();
     void createSampler      ();
     
-    void cmdCopyRawHDRToImage ();
     void cmdCopyRawDataToImage();
-    void cmdCopyCubemapToImage();
     void cmdClearColorImage   (VkClearColorValue clearColor = {0., 0., 0., 1.});
     
     void cmdTransitionToShaderR();
@@ -62,17 +60,22 @@ public:
     void cmdCopyBufferToImage(VkCommandBuffer cmdBuffer, VkBuffer buffer);
     void cmdGenerateMipmaps  (VkCommandBuffer cmdBuffer);
     
-    VkImage          getImage      ();
-    VkImageView      getImageView  ();
-    VkDeviceMemory   getImageMemory();
-    VkDeviceSize     getImageSize  ();
-    VkSampler        getSampler    ();
-    unsigned int     getChannelSize();
+    VkImage          getImage          ();
+    VkImageView      getImageView      ();
+    VkDeviceMemory   getImageMemory    ();
+    UInt2D           getImageSize      ();
+    VkDeviceSize     getDeviceSize     ();
+    VkSampler        getSampler        ();
+    uint             getRawChannel     ();
+    uint             getChannelSize    ();
     VkDescriptorImageInfo* getDescriptorInfo();
     
     VkImageLayout         getImageLayout();
     VkImageCreateInfo     getImageInfo();
     VkImageViewCreateInfo getImageViewInfo();
+    
+    unsigned char* getRawData();
+    float        * getRawHDR();
     
     void setImageLayout(VkImageLayout imageLayout);
     
@@ -80,10 +83,9 @@ private:
     Cleaner m_cleaner;
     Device* m_pDevice;
     
-    unsigned char* m_desc;
+    uint m_rawChannel;
     unsigned char* m_rawData;
     float        * m_rawHDR;
-    VECTOR<unsigned char*> m_rawCubemap;
 
     VkImage          m_image          = VK_NULL_HANDLE;
     VkImageView      m_imageView      = VK_NULL_HANDLE;
