@@ -18,7 +18,7 @@ void Device::setup() {
     appInfo.applicationVersion  = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName         = "No Engine";
     appInfo.engineVersion       = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion          = VK_API_VERSION_1_2;
+    appInfo.apiVersion          = VK_API_VERSION_1_1;
     
     VkDebugUtilsMessengerCreateInfoEXT debugInfo{};
     debugInfo.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -37,7 +37,7 @@ void Device::setup() {
     VECTOR<const char*> instanceExtensions = GetGLFWInstanceExtensions();
     instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-    VECTOR<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME };
+    VECTOR<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME };
     VECTOR<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
     bool result = CheckLayerSupport(validationLayers);
     CHECK_BOOL(result, "validation layers requested, but not available!");

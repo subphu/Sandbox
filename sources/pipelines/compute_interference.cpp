@@ -15,7 +15,7 @@ void ComputeInterference::cleanup() { m_cleaner.flush("ComputeInterference"); }
 
 void ComputeInterference::setupShader() {
     LOG("ComputeInterference::setupShader");
-    Shader* compShader = new Shader(SPIRV_PATH + "interference1d.spv", VK_SHADER_STAGE_COMPUTE_BIT);
+    Shader* compShader = new Shader(SPIRV_PATH + "interference1d.comp.spv", VK_SHADER_STAGE_COMPUTE_BIT);
     m_shaderStage = compShader->getShaderStageInfo();
     m_cleaner.push([=](){ compShader->cleanup(); });
 }

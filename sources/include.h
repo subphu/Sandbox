@@ -71,10 +71,13 @@
 #define PI 3.14159265358979323846
 
 #define CHANNEL 4
+#define VEC4_BLACK { 0.f, 0.f, 0.f, 0.f }
+#define VEC4_WHITE { 1.f, 1.f, 1.f, 1.f }
 
 const std::string SPIRV_PATH = "resources/spirv/";
 const std::string MODEL_PATH = "resources/models/";
-const std::string PBR_PATH   = "resources/textures/PBR/";
+const std::string PBR_PATH   = "resources/textures/pbr/";
+const std::string CUBE_PATH  = "resources/textures/cubemap/";
 
 template<typename T> struct Size { T width, height, depth; };
 

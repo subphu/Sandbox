@@ -5,26 +5,54 @@ glslc_dir="$SRCROOT/libraries/vulkansdk-mac/bin"
 
 shader_dir="$SRCROOT/sources/shaders"
 compute_dir="$shader_dir/compute"
-pbr_dir="$shader_dir/PBR"
+pbr_dir="$shader_dir/pbr"
+cubemap_dir="$shader_dir/cubemap"
 
 echo "shader dir: $shader_dir"
 echo "spirv dir: $spirv_dir"
 echo "glslc dir: $glslc_dir"
 
-$glslc_dir/glslc $shader_dir/shader.vert -o $spirv_dir/vert.spv
-$glslc_dir/glslc $shader_dir/shader.frag -o $spirv_dir/frag.spv
-$glslc_dir/glslc $shader_dir/shader.comp -o $spirv_dir/comp.spv
+#interference2d.comp
+#main2d.vert
+#main2d.frag
+#manual.vert
+#manual.frag
 
-$glslc_dir/glslc $shader_dir/swapchain.vert -o $spirv_dir/swapchain.vert.spv
-$glslc_dir/glslc $shader_dir/swapchain.frag -o $spirv_dir/swapchain.frag.spv
+shader_folder=(
+    $shader_dir/
+    $shader_dir/
+                
+    $compute_dir/
+    $compute_dir/
+    $compute_dir/
+        
+    $pbr_dir/
+    $pbr_dir/
+        
+    $cubemap_dir/
+    $cubemap_dir/
+    $cubemap_dir/
+    $cubemap_dir/
+)
 
-$glslc_dir/glslc $compute_dir/fluid.comp          -o $spirv_dir/fluid.spv
-$glslc_dir/glslc $compute_dir/interference1d.comp -o $spirv_dir/interference1d.spv
-#$glslc_dir/glslc $compute_dir/interference2d.comp -o $spirv_dir/interference2d.spv
+shader_names=(
+    swapchain.vert
+    swapchain.frag
+        
+    hdr.comp
+    fluid.comp
+    interference1d.comp
+    
+    main1d.vert
+    main1d.frag
+    
+    equirect.vert
+    equirect.frag
+    prefilter.frag
+    environment.frag
+)
 
-$glslc_dir/glslc $pbr_dir/main1d.vert -o $spirv_dir/main1d.vert.spv
-$glslc_dir/glslc $pbr_dir/main1d.frag -o $spirv_dir/main1d.frag.spv
-#$glslc_dir/glslc $pbr_dir/main2d.vert -o $spirv_dir/main2d.vert.spv
-#$glslc_dir/glslc $pbr_dir/main2d.frag -o $spirv_dir/main2d.frag.spv
-#$glslc_dir/glslc $pbr_dir/manual.vert -o $spirv_dir/manual.vert.spv
-#$glslc_dir/glslc $pbr_dir/manual.frag -o $spirv_dir/manual.frag.spv
+for i in ${!shader_folder[@]}; do
+    $glslc_dir/glslc --target-env=vulkan1.1 ${shader_folder[$i]}${shader_names[$i]} -o $spirv_dir/${shader_names[$i]}.spv
+done
+

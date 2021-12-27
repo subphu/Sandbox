@@ -80,6 +80,11 @@
 		265A2C852750B8AE004D1025 /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		265A2C872751BA8A004D1025 /* pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline.cpp; sourceTree = "<group>"; };
 		265A2C882751BA8A004D1025 /* pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pipeline.hpp; sourceTree = "<group>"; };
+		266FF3932775A81700610B18 /* equirect.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = equirect.vert; sourceTree = "<group>"; };
+		266FF3962775AEF200610B18 /* prefilter.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = prefilter.frag; sourceTree = "<group>"; };
+		266FF3972775AEF200610B18 /* environment.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = environment.frag; sourceTree = "<group>"; };
+		266FF3982775AEF200610B18 /* equirect.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = equirect.frag; sourceTree = "<group>"; };
+		266FF39C2778D09000610B18 /* hdr.comp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hdr.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
 		26B313C32715C60F00DD0339 /* commander.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commander.cpp; sourceTree = "<group>"; };
 		26B313C42715C60F00DD0339 /* commander.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = commander.hpp; sourceTree = "<group>"; };
@@ -173,8 +178,9 @@
 		2613475026F869F200B3E6A7 /* shaders */ = {
 			isa = PBXGroup;
 			children = (
+				266FF3922775A7D400610B18 /* cubemap */,
 				26C92500274015E8009EC2B3 /* functions */,
-				26C92507274015E8009EC2B3 /* PBR */,
+				26C92507274015E8009EC2B3 /* pbr */,
 				26C924FD273FD536009EC2B3 /* compute */,
 				2613475726F86E7E00B3E6A7 /* shader.comp */,
 				2613475826F86E7E00B3E6A7 /* shader.frag */,
@@ -215,6 +221,17 @@
 				26E701F8274B9E900097A974 /* gui.hpp */,
 			);
 			path = window;
+			sourceTree = "<group>";
+		};
+		266FF3922775A7D400610B18 /* cubemap */ = {
+			isa = PBXGroup;
+			children = (
+				266FF3972775AEF200610B18 /* environment.frag */,
+				266FF3962775AEF200610B18 /* prefilter.frag */,
+				266FF3982775AEF200610B18 /* equirect.frag */,
+				266FF3932775A81700610B18 /* equirect.vert */,
+			);
+			path = cubemap;
 			sourceTree = "<group>";
 		};
 		26B6BF8526A873CE00223ED8 = {
@@ -270,6 +287,7 @@
 		26C924FD273FD536009EC2B3 /* compute */ = {
 			isa = PBXGroup;
 			children = (
+				266FF39C2778D09000610B18 /* hdr.comp */,
 				26EC979C275DFE1700D13B41 /* fluid.comp */,
 				26C924FE273FD536009EC2B3 /* interference1d.comp */,
 				26C924FF273FD536009EC2B3 /* interference2d.comp */,
@@ -290,7 +308,7 @@
 			path = functions;
 			sourceTree = "<group>";
 		};
-		26C92507274015E8009EC2B3 /* PBR */ = {
+		26C92507274015E8009EC2B3 /* pbr */ = {
 			isa = PBXGroup;
 			children = (
 				26C92509274015E8009EC2B3 /* main1d.frag */,
@@ -300,7 +318,7 @@
 				26C92508274015E8009EC2B3 /* manual.frag */,
 				26C9250B274015E8009EC2B3 /* manual.vert */,
 			);
-			path = PBR;
+			path = pbr;
 			sourceTree = "<group>";
 		};
 		26E34FF8271C377800D3A61C /* extensions */ = {

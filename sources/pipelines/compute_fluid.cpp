@@ -16,7 +16,7 @@ void ComputeFluid::cleanup() { m_cleaner.flush("ComputeFluid"); }
 
 void ComputeFluid::setupShader() {
     LOG("ComputeFluid::setupShader");
-    Shader* compShader = new Shader(SPIRV_PATH + "fluid.spv", VK_SHADER_STAGE_COMPUTE_BIT);
+    Shader* compShader = new Shader(SPIRV_PATH + "fluid.comp.spv", VK_SHADER_STAGE_COMPUTE_BIT);
     m_shaderStage = compShader->getShaderStageInfo();
     m_cleaner.push([=](){ compShader->cleanup(); });
 }
