@@ -37,20 +37,28 @@ void Frame::createImageResource(VkImage image, VkFormat format) {
     m_cleaner.push([=](){ m_attachments.pop_back(); });
 }
 
+void Frame::createCubeResource() {
+    m_layer = 6;
+    m_pColorImage = new Image();
+    m_pColorImage->setupForCubemap(m_size);
+    m_pColorImage->createWithSampler();
+    m_attachments.push_back(m_pColorImage->getImageView());
+    m_cleaner.push([=](){ m_pColorImage->cleanup(); });
+    m_cleaner.push([=](){ m_attachments.pop_back(); });
+}
+
 void Frame::createFramebuffer(Renderpass* renderpass) {
     LOG("createFramebuffer");
     VkDevice device = m_pDevice->getDevice();
-    UInt2D   size   = m_size;
-    VECTOR<VkImageView> attachments = m_attachments;
     
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass      = renderpass->get();
-    framebufferInfo.attachmentCount = UINT32(attachments.size());
-    framebufferInfo.pAttachments    = attachments.data();
-    framebufferInfo.width           = size.width;
-    framebufferInfo.height          = size.height;
-    framebufferInfo.layers          = 1;
+    framebufferInfo.attachmentCount = UINT32(m_attachments.size());
+    framebufferInfo.pAttachments    = m_attachments.data();
+    framebufferInfo.width           = m_size.width;
+    framebufferInfo.height          = m_size.height;
+    framebufferInfo.layers          = m_layer;
     
     VkFramebuffer framebuffer;
     VkResult result = vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer);

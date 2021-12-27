@@ -13,6 +13,8 @@
 		2615790F26FB8E7D0093D4AF /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790D26FB8E7D0093D4AF /* window.cpp */; };
 		265A2C862750B8AE004D1025 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C842750B8AE004D1025 /* camera.cpp */; };
 		265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C872751BA8A004D1025 /* pipeline.cpp */; };
+		266FF39127757BBA00610B18 /* graphics_equirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 266FF38F27757BBA00610B18 /* graphics_equirect.cpp */; };
+		266FF39B2778B41200610B18 /* compute_hdr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 266FF3992778B41100610B18 /* compute_hdr.cpp */; };
 		26B313C52715C60F00DD0339 /* commander.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C32715C60F00DD0339 /* commander.cpp */; };
 		26B313C82715DA8C00DD0339 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C62715DA8C00DD0339 /* system.cpp */; };
 		26B6BF9226A873CE00223ED8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B6BF9126A873CE00223ED8 /* main.cpp */; };
@@ -80,10 +82,14 @@
 		265A2C852750B8AE004D1025 /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		265A2C872751BA8A004D1025 /* pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline.cpp; sourceTree = "<group>"; };
 		265A2C882751BA8A004D1025 /* pipeline.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pipeline.hpp; sourceTree = "<group>"; };
+		266FF38F27757BBA00610B18 /* graphics_equirect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_equirect.cpp; sourceTree = "<group>"; };
+		266FF39027757BBA00610B18 /* graphics_equirect.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_equirect.hpp; sourceTree = "<group>"; };
 		266FF3932775A81700610B18 /* equirect.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = equirect.vert; sourceTree = "<group>"; };
 		266FF3962775AEF200610B18 /* prefilter.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = prefilter.frag; sourceTree = "<group>"; };
 		266FF3972775AEF200610B18 /* environment.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = environment.frag; sourceTree = "<group>"; };
 		266FF3982775AEF200610B18 /* equirect.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = equirect.frag; sourceTree = "<group>"; };
+		266FF3992778B41100610B18 /* compute_hdr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compute_hdr.cpp; sourceTree = "<group>"; };
+		266FF39A2778B41100610B18 /* compute_hdr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compute_hdr.hpp; sourceTree = "<group>"; };
 		266FF39C2778D09000610B18 /* hdr.comp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hdr.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
 		26B313C32715C60F00DD0339 /* commander.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commander.cpp; sourceTree = "<group>"; };
@@ -403,6 +409,8 @@
 		26F97323271966D000DFEC48 /* pipelines */ = {
 			isa = PBXGroup;
 			children = (
+				266FF3992778B41100610B18 /* compute_hdr.cpp */,
+				266FF39A2778B41100610B18 /* compute_hdr.hpp */,
 				26CA4E17273C1F5C00AC3D64 /* compute_interference.cpp */,
 				26CA4E18273C1F5C00AC3D64 /* compute_interference.hpp */,
 				26EC979D275DFE4200D13B41 /* compute_fluid.cpp */,
@@ -411,6 +419,8 @@
 				26F973252719672400DFEC48 /* graphics_screen.hpp */,
 				26E70216274CA1BA0097A974 /* graphics_scene.cpp */,
 				26E70217274CA1BA0097A974 /* graphics_scene.hpp */,
+				266FF38F27757BBA00610B18 /* graphics_equirect.cpp */,
+				266FF39027757BBA00610B18 /* graphics_equirect.hpp */,
 			);
 			path = pipelines;
 			sourceTree = "<group>";
@@ -520,6 +530,7 @@
 				26F973332719688000DFEC48 /* frame.cpp in Sources */,
 				260AC0722725609500983661 /* swapchain.cpp in Sources */,
 				26C502D327329BF80010F43F /* renderpass.cpp in Sources */,
+				266FF39B2778B41200610B18 /* compute_hdr.cpp in Sources */,
 				26E70215274BA6850097A974 /* imgui_impl_glfw.cpp in Sources */,
 				26E70206274BA6670097A974 /* imgui_tables.cpp in Sources */,
 				265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */,
@@ -536,6 +547,7 @@
 				26F9732A2719686000DFEC48 /* image.cpp in Sources */,
 				26B313C82715DA8C00DD0339 /* system.cpp in Sources */,
 				265A2C862750B8AE004D1025 /* camera.cpp in Sources */,
+				266FF39127757BBA00610B18 /* graphics_equirect.cpp in Sources */,
 				26E70218274CA1BA0097A974 /* graphics_scene.cpp in Sources */,
 				26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */,
 				26E701F9274B9E900097A974 /* gui.cpp in Sources */,

@@ -20,6 +20,7 @@ public:
     void createDepthResource();
     void createImageResource();
     void createImageResource(VkImage image, VkFormat format);
+    void createCubeResource();
     void createFramebuffer(Renderpass* renderpass);
     
     VkFramebuffer getFramebuffer();
@@ -35,6 +36,7 @@ private:
     Image*  m_pColorImage;
     Image*  m_pDepthImage;
     
+    int     m_layer = 1;
     UInt2D  m_size{};
     VECTOR<VkImageView> m_attachments;
     
