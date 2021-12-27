@@ -21,6 +21,7 @@ void Image::setupForDepth(UInt2D size) {
     m_imageInfo.extent = {size.width, size.height, 1};
     m_imageInfo.format = VK_FORMAT_D24_UNORM_S8_UINT;
     m_imageInfo.usage  = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+                         VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                          VK_IMAGE_USAGE_SAMPLED_BIT;
     
     m_imageViewInfo.format = m_imageInfo.format;
@@ -32,6 +33,7 @@ void Image::setupForColor(UInt2D size) {
     m_imageInfo.extent = {size.width, size.height, 1};
     m_imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
     m_imageInfo.usage  = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                         VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                          VK_IMAGE_USAGE_SAMPLED_BIT;
     
     m_imageViewInfo.format = m_imageInfo.format;
@@ -106,6 +108,8 @@ void Image::setupForCubemap(UInt2D size) {
     m_imageInfo.format       = VK_FORMAT_R32G32B32A32_SFLOAT;
     m_imageInfo.flags        = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
     m_imageInfo.usage        = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                               VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                               VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                                VK_IMAGE_USAGE_SAMPLED_BIT;
       
     m_imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
@@ -461,7 +465,7 @@ void Image::cmdCall(void (Image::*cmdFunc)(VkCommandBuffer)) {
 }
 
 uint32_t Image::MaxMipLevel(int width, int height) {
-    return UINT32(std::floor(std::log2(std::max(width, height)))) + 1;
+    return fmin(UINT32(std::floor(std::log2(std::max(width, height)))) + 1, 7);
 }
 
 unsigned int Image::GetChannelSize(VkFormat format) {
