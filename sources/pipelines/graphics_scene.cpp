@@ -268,8 +268,8 @@ void GraphicsScene::createPipeline() {
     m_pPipeline->setupRasterizationInfo();
     m_pPipeline->setupMultisampleInfo();
     
-    m_pPipeline->enableBlendAttachment();
     m_pPipeline->setupColorBlendInfo();
+    m_pPipeline->setupBlendAttachment();
     
     m_pPipeline->setupDynamicInfo();
     m_pPipeline->setupDepthStencilInfo();

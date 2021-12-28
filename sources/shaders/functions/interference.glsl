@@ -46,7 +46,6 @@ float interferences(float wavelength, float delta, float opd) {
 
 vec3 deltaInterferences(float opd) {
     vec3 outColor = vec3(0.0);
-    float tot = 0.0;
     float waveRange = 750. - 380.;
     float sensitivity = 4.0 / 10.;
     for (float i=380. ; i<=750. ; i+=37) {
@@ -54,14 +53,12 @@ vec3 deltaInterferences(float opd) {
         float interference = calcInterference(lambda, opd, 0.5);
         float waveScale = (i - 380.) / waveRange;
         outColor += sensitivity * interference * getColor(waveScale) * vec3(7./7.,7./5.8,7./4.6);
-//        tot += sensitivity * interference;
     }
-    return outColor;//vec3(tot);
+    return outColor;
 }
 
 vec3 fullInterferences(float opd, float ur) {
     vec3 outColor = vec3(0.0);
-    float tot = 0.0;
     float waveRange = 750. - 380.;
     float sensitivity = 4.0 / waveRange;
     for (float i=380. ; i<=750. ; i++) {
@@ -69,7 +66,6 @@ vec3 fullInterferences(float opd, float ur) {
         float interference = calcInterference(lambda, opd, ur);
         float waveScale = (i - 380.) / waveRange;
         outColor += sensitivity * interference * getColor(waveScale) * vec3(7./7.,7./5.8,7./4.6);
-//        tot += sensitivity * interference;
     }
-    return outColor;//vec3(tot);
+    return outColor;
 }

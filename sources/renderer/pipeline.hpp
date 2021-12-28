@@ -38,13 +38,12 @@ public:
     void setupRasterizationInfo();
     void setupMultisampleInfo();
     
-    void disableBlendAttachment();
-    void enableBlendAttachment();
+    void setupBlendAttachment(VkBool32 enable = VK_TRUE);
     void setupColorBlendInfo();
     
     // Optional
     void setupDynamicInfo();
-    void setupDepthStencilInfo();
+    void setupDepthStencilInfo(VkBool32 enable = VK_TRUE);
 
     void createComputePipeline();
     void createGraphicsPipeline();

@@ -152,7 +152,7 @@ void GraphicsEquirect::createPipeline() {
     m_pPipeline->setupRasterizationInfo();
     m_pPipeline->setupMultisampleInfo();
     
-    m_pPipeline->disableBlendAttachment();
+    m_pPipeline->setupBlendAttachment(VK_FALSE);
     m_pPipeline->setupColorBlendInfo();
     
     m_pPipeline->setupDynamicInfo();

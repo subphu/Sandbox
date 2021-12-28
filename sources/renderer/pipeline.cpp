@@ -40,14 +40,9 @@ void Pipeline::setupMultisampleInfo() {
     m_multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 }
 
-void Pipeline::disableBlendAttachment() {
+void Pipeline::setupBlendAttachment(VkBool32 enable) {
     m_colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    m_colorBlendAttachment.blendEnable = VK_FALSE;
-}
-
-void Pipeline::enableBlendAttachment() {
-    m_colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    m_colorBlendAttachment.blendEnable         = VK_TRUE;
+    m_colorBlendAttachment.blendEnable         = enable;
     m_colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
     m_colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     m_colorBlendAttachment.colorBlendOp        = VK_BLEND_OP_ADD;
@@ -69,10 +64,10 @@ void Pipeline::setupDynamicInfo() {
     m_dynamicInfo.pDynamicStates    = m_dynamicStates.data();
 }
 
-void Pipeline::setupDepthStencilInfo() {
+void Pipeline::setupDepthStencilInfo(VkBool32 enable) {
     m_depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    m_depthStencilInfo.depthTestEnable       = VK_TRUE;
-    m_depthStencilInfo.depthWriteEnable      = VK_TRUE;
+    m_depthStencilInfo.depthTestEnable       = enable;
+    m_depthStencilInfo.depthWriteEnable      = enable;
     m_depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
     m_depthStencilInfo.stencilTestEnable     = VK_FALSE;
     m_depthStencilInfo.depthCompareOp        = VK_COMPARE_OP_LESS;
