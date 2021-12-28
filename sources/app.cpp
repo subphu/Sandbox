@@ -172,7 +172,7 @@ void App::createCubemap() {
     hdrImg->cleanup();
     hdrEnv->cleanup();
     
-    m_pGraphicsScene->setupCubemap(cubemapImg, cubemapEnv);
+    m_pGraphicsScene->updateCubemap(cubemapImg, cubemapEnv);
 }
 
 void App::setup() {

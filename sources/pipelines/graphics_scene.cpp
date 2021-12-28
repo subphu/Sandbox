@@ -12,23 +12,28 @@ GraphicsScene::GraphicsScene() : m_pDevice(System::Device()) {}
 void GraphicsScene::cleanup() { m_cleaner.flush("ComputeInterference"); }
 
 void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
-    VkPipelineLayout pipelineLayout = m_pipelineLayout;
-    VkPipeline       pipeline       = m_pPipeline->get();
-    VkRenderPass     renderpass     = m_pRenderpass->get();
-    VkFramebuffer    framebuffer    = m_pFrame->getFramebuffer();
-    VkRect2D         scissor        = m_scissor;
-    VkViewport       viewport       = m_viewport;
+    VkPipelineLayout pipelineLayout  = m_pipelineLayout;
+    VkPipeline       meshPipeline    = m_pMeshPipeline->get();
+    VkPipeline       cubemapPipeline = m_pCubemapPipeline->get();
+    VkRenderPass     renderpass      = m_pRenderpass->get();
+    VkFramebuffer    framebuffer     = m_pFrame->getFramebuffer();
+    VkRect2D         scissor         = m_scissor;
+    VkViewport       viewport        = m_viewport;
     
     VkDeviceSize offsets  = 0;
-    VkBuffer vertexBuffer = m_pSphere->getVertexBuffer()->get();
-    VkBuffer indexBuffer  = m_pSphere->getIndexBuffer()->get();
-    uint32_t indexSize    = m_pSphere->getIndexSize();
+    VkBuffer meshVertexBuffer = m_pMesh->getVertexBuffer()->get();
+    VkBuffer meshIndexBuffer  = m_pMesh->getIndexBuffer()->get();
+    uint32_t meshIndexSize    = m_pMesh->getIndexSize();
+    VkBuffer cubeVertexBuffer = m_pCube->getVertexBuffer()->get();
+    VkBuffer cubeIndexBuffer  = m_pCube->getIndexBuffer()->get();
+    uint32_t cubeIndexSize    = m_pCube->getIndexSize();
     
     VkDescriptorSet cameraDescSet  = m_pDescriptor->getDescriptorSet(S0);
     VkDescriptorSet lightsDescSet = m_pDescriptor->getDescriptorSet(S1);
     VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
     VkDescriptorSet heightmapDescSet = m_pDescriptor->getDescriptorSet(S3);
     VkDescriptorSet interferenceDescSet = m_pDescriptor->getDescriptorSet(S4);
+    VkDescriptorSet cubemapDescSet = m_pDescriptor->getDescriptorSet(S5);
     
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = System::Settings()->ClearColor;
@@ -46,7 +51,20 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
     
     vkCmdBeginRenderPass(cmdBuffer, &renderBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    
+    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, cubemapPipeline);
+    
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S0, 1, &cameraDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S5, 1, &cubemapDescSet, 0, nullptr);
+    
+    vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &cubeVertexBuffer, &offsets);
+    vkCmdBindIndexBuffer  (cmdBuffer, cubeIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    
+    vkCmdDrawIndexed(cmdBuffer, cubeIndexSize, 1, 0, 0, 0);
+    
+    vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline);
     
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S0, 1, &cameraDescSet, 0, nullptr);
@@ -59,14 +77,15 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S4, 1, &interferenceDescSet, 0, nullptr);
     
-    vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, &offsets);
-    vkCmdBindIndexBuffer  (cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &meshVertexBuffer, &offsets);
+    vkCmdBindIndexBuffer  (cmdBuffer, meshIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
     
-    m_misc.model = m_pSphere->getMatrix();
+    m_misc.model = m_pMesh->getMatrix();
+    
     m_misc.isLight = 0;
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PCMisc), &m_misc);
     
-    vkCmdDrawIndexed(cmdBuffer, indexSize, 1, 0, 0, 0);
+    vkCmdDrawIndexed(cmdBuffer, meshIndexSize, 1, 0, 0, 0);
     
     m_misc.isLight = 1;
     for (int i = 0; i < m_lights.total; i++) {
@@ -74,7 +93,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
         m_misc.model = glm::scale(m_misc.model, glm::vec3(0.2));
         vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PCMisc), &m_misc);
         
-        vkCmdDrawIndexed(cmdBuffer, indexSize, 1, 0, 0, 0);
+        vkCmdDrawIndexed(cmdBuffer, meshIndexSize, 1, 0, 0, 0);
     }
     
     vkCmdEndRenderPass(cmdBuffer);
@@ -84,8 +103,10 @@ void GraphicsScene::setupShader() {
     LOG("GraphicsScene::setupShader");
     Shader* vertShader = new Shader(SPIRV_PATH + "main1d.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
     Shader* fragShader = new Shader(SPIRV_PATH + "main1d.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
-    m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
-    m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
+    Shader* cubeVertShader = new Shader(SPIRV_PATH + "cubemap.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
+    Shader* cubeFratShader = new Shader(SPIRV_PATH + "cubemap.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo(), cubeVertShader->getShaderStageInfo(), cubeFratShader->getShaderStageInfo() };
+    m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); cubeVertShader->cleanup(); cubeFratShader->cleanup(); });
 }
 
 void GraphicsScene::setupInput() {
@@ -122,17 +143,19 @@ void GraphicsScene::setupInput() {
     m_pDescriptor->update(S1);
     m_pDescriptor->update(S2);
     
-    m_pSphere = new Mesh();
-    m_pSphere->createSphere();
-    m_pSphere->createVertexBuffer();
-    m_pSphere->createIndexBuffer();
-    m_pSphere->createVertexStateInfo();
-    m_cleaner.push([=](){ m_pSphere->cleanup(); });
-}
-
-void GraphicsScene::setupCubemap(Image* cubemap, Image* env) {
-    m_cleaner.push([=](){ cubemap->cleanup(); });
-    m_cleaner.push([=](){ env->cleanup(); });
+    m_pMesh = new Mesh();
+    m_pMesh->createSphere();
+    m_pMesh->createVertexBuffer();
+    m_pMesh->createIndexBuffer();
+    m_pMesh->createVertexStateInfo();
+    m_cleaner.push([=](){ m_pMesh->cleanup(); });
+    
+    m_pCube = new Mesh();
+    m_pCube->createCube();
+    m_pCube->createVertexBuffer();
+    m_pCube->createIndexBuffer();
+    m_pCube->createVertexStateInfo();
+    m_cleaner.push([=](){ m_pCube->cleanup(); });
 }
 
 void GraphicsScene::updateLightInput() {
@@ -161,17 +184,29 @@ void GraphicsScene::updateCameraInput(Camera* pCamera) {
 }
 
 void GraphicsScene::updateHeightmapInput(Image *pHeightmapImage) {
-    m_pHeightmapImage = pHeightmapImage;
-    m_pHeightmapImage->cmdTransitionToShaderR();
-    m_pDescriptor->setupPointerImage(S3, B0, m_pHeightmapImage->getDescriptorInfo());
+    m_pHeightmap = pHeightmapImage;
+    m_pHeightmap->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S3, B0, m_pHeightmap->getDescriptorInfo());
     m_pDescriptor->update(S3);
 }
 
 void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
-    m_pInterferenceImage = pInterferenceImage;
-    m_pInterferenceImage->cmdTransitionToShaderR();
-    m_pDescriptor->setupPointerImage(S4, B0, m_pInterferenceImage->getDescriptorInfo());
+    m_pInterference = pInterferenceImage;
+    m_pInterference->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S4, B0, m_pInterference->getDescriptorInfo());
     m_pDescriptor->update(S4);
+}
+
+void GraphicsScene::updateCubemap(Image* cubemap, Image* cubeEnv) {
+    m_pCubemap = cubemap;
+    m_pCubeEnv = cubeEnv;
+    m_pCubemap->cmdTransitionToShaderR();
+    m_pCubeEnv->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S5, B0, m_pCubemap->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B1, m_pCubeEnv->getDescriptorInfo());
+    m_pDescriptor->update(S5);
+    m_cleaner.push([=](){ m_pCubemap->cleanup(); });
+    m_cleaner.push([=](){ m_pCubeEnv->cleanup(); });
 }
 
 void GraphicsScene::createDescriptor() {
@@ -204,12 +239,20 @@ void GraphicsScene::createDescriptor() {
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S4);
     
+    m_pDescriptor->setupLayout(S5);
+    m_pDescriptor->addLayoutBindings(S5, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S5, B1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->createLayout(S5);
+    
     m_pDescriptor->createPool();
     m_pDescriptor->allocate(S0);
     m_pDescriptor->allocate(S1);
     m_pDescriptor->allocate(S2);
     m_pDescriptor->allocate(S3);
     m_pDescriptor->allocate(S4);
+    m_pDescriptor->allocate(S5);
     m_cleaner.push([=](){ m_pDescriptor->cleanup(); });
 }
 
@@ -230,7 +273,8 @@ void GraphicsScene::createPipelineLayout() {
         m_pDescriptor->getDescriptorLayout(S1),
         m_pDescriptor->getDescriptorLayout(S2),
         m_pDescriptor->getDescriptorLayout(S3),
-        m_pDescriptor->getDescriptorLayout(S4)
+        m_pDescriptor->getDescriptorLayout(S4),
+        m_pDescriptor->getDescriptorLayout(S5)
     };
     
     VkPushConstantRange pushConstantRange{};
@@ -255,27 +299,48 @@ void GraphicsScene::createPipeline() {
     VkRenderPass renderpass = m_pRenderpass->get();
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VECTOR<VkPipelineShaderStageCreateInfo> shaderStages = m_shaderStages;
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo = m_pSphere->getVertexStateInfo();
+    VkPipelineVertexInputStateCreateInfo cubeVertexInfo = m_pCube->getVertexStateInfo();
+    VkPipelineVertexInputStateCreateInfo meshVertexInfo = m_pMesh->getVertexStateInfo();
     
-    m_pPipeline = new Pipeline();
-    m_pPipeline->setRenderpass(renderpass);
-    m_pPipeline->setPipelineLayout(pipelineLayout);
-    m_pPipeline->setShaderStages(shaderStages);
-    m_pPipeline->setVertexInputInfo(vertexInputInfo);
+    m_pMeshPipeline = new Pipeline();
+    m_pMeshPipeline->setRenderpass(renderpass);
+    m_pMeshPipeline->setPipelineLayout(pipelineLayout);
+    m_pMeshPipeline->setShaderStages({shaderStages[0], shaderStages[1]});
+    m_pMeshPipeline->setVertexInputInfo(meshVertexInfo);
     
-    m_pPipeline->setupViewportInfo();
-    m_pPipeline->setupInputAssemblyInfo();
-    m_pPipeline->setupRasterizationInfo();
-    m_pPipeline->setupMultisampleInfo();
+    m_pMeshPipeline->setupViewportInfo();
+    m_pMeshPipeline->setupInputAssemblyInfo();
+    m_pMeshPipeline->setupRasterizationInfo();
+    m_pMeshPipeline->setupMultisampleInfo();
     
-    m_pPipeline->setupColorBlendInfo();
-    m_pPipeline->setupBlendAttachment();
+    m_pMeshPipeline->setupBlendAttachment();
+    m_pMeshPipeline->setupColorBlendInfo();
     
-    m_pPipeline->setupDynamicInfo();
-    m_pPipeline->setupDepthStencilInfo();
+    m_pMeshPipeline->setupDynamicInfo();
+    m_pMeshPipeline->setupDepthStencilInfo();
 
-    m_pPipeline->createGraphicsPipeline();
-    m_cleaner.push([=](){ m_pPipeline->cleanup(); });
+    m_pMeshPipeline->createGraphicsPipeline();
+    m_cleaner.push([=](){ m_pMeshPipeline->cleanup(); });
+    
+    m_pCubemapPipeline = new Pipeline();
+    m_pCubemapPipeline->setRenderpass(renderpass);
+    m_pCubemapPipeline->setPipelineLayout(pipelineLayout);
+    m_pCubemapPipeline->setShaderStages({shaderStages[2], shaderStages[3]});
+    m_pCubemapPipeline->setVertexInputInfo(cubeVertexInfo);
+    
+    m_pCubemapPipeline->setupViewportInfo();
+    m_pCubemapPipeline->setupInputAssemblyInfo();
+    m_pCubemapPipeline->setupRasterizationInfo();
+    m_pCubemapPipeline->setupMultisampleInfo();
+    
+    m_pCubemapPipeline->setupBlendAttachment(VK_FALSE);
+    m_pCubemapPipeline->setupColorBlendInfo();
+    
+    m_pCubemapPipeline->setupDynamicInfo();
+    m_pCubemapPipeline->setupDepthStencilInfo(VK_FALSE);
+
+    m_pCubemapPipeline->createGraphicsPipeline();
+    m_cleaner.push([=](){ m_pCubemapPipeline->cleanup(); });
 }
 
 void GraphicsScene::createFrame(UInt2D size) {

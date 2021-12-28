@@ -91,6 +91,8 @@
 		266FF3992778B41100610B18 /* compute_hdr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compute_hdr.cpp; sourceTree = "<group>"; };
 		266FF39A2778B41100610B18 /* compute_hdr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compute_hdr.hpp; sourceTree = "<group>"; };
 		266FF39C2778D09000610B18 /* hdr.comp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hdr.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		2679DF14277B15EA00D9C5A7 /* cubemap.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = cubemap.frag; sourceTree = "<group>"; };
+		2679DF15277B3D1100D9C5A7 /* cubemap.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = cubemap.vert; sourceTree = "<group>"; };
 		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
 		26B313C32715C60F00DD0339 /* commander.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commander.cpp; sourceTree = "<group>"; };
 		26B313C42715C60F00DD0339 /* commander.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = commander.hpp; sourceTree = "<group>"; };
@@ -317,6 +319,8 @@
 		26C92507274015E8009EC2B3 /* pbr */ = {
 			isa = PBXGroup;
 			children = (
+				2679DF14277B15EA00D9C5A7 /* cubemap.frag */,
+				2679DF15277B3D1100D9C5A7 /* cubemap.vert */,
 				26C92509274015E8009EC2B3 /* main1d.frag */,
 				26C9250C274015E8009EC2B3 /* main1d.vert */,
 				26C9250A274015E8009EC2B3 /* main2d.frag */,

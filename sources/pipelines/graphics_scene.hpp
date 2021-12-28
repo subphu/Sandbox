@@ -44,7 +44,7 @@ public:
     
     void setupShader();
     void setupInput();
-    void setupCubemap(Image* cubemap, Image* env);
+    void updateCubemap(Image* cubemap, Image* cubeEnv);
     void updateLightInput();
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Image* pInterferenceImage);
@@ -62,7 +62,8 @@ public:
 private:
     Cleaner m_cleaner;
     Device* m_pDevice;
-    Pipeline* m_pPipeline;
+    Pipeline* m_pMeshPipeline;
+    Pipeline* m_pCubemapPipeline;
     Renderpass* m_pRenderpass;
     Descriptor* m_pDescriptor;
     
@@ -70,9 +71,12 @@ private:
     Buffer* m_pCameraBuffer;
     Frame*  m_pFrame;
     
-    Mesh*   m_pSphere;
-    Image*  m_pHeightmapImage;
-    Image*  m_pInterferenceImage;
+    Mesh*   m_pCube;
+    Mesh*   m_pMesh;
+    Image*  m_pCubemap;
+    Image*  m_pCubeEnv;
+    Image*  m_pHeightmap;
+    Image*  m_pInterference;
     VECTOR<Image*> m_pTextures;
     
     PCMisc   m_misc{};
