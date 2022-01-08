@@ -33,6 +33,7 @@ public:
     void createImageView    ();
     void allocateImageMemory();
     void createSampler      ();
+    void createMipViews     ();
     
     void cmdCopyRawDataToImage();
     void cmdClearColorImage   (VkClearColorValue clearColor = {0., 0., 0., 1.});
@@ -56,7 +57,8 @@ public:
                          VkPipelineStageFlags srcStage,
                          VkPipelineStageFlags dstStage);
     
-    void cmdCopyImageToImage (VkCommandBuffer cmdBuffer, Image* srcImage);
+    void cmdCopyImageToImage (VkCommandBuffer cmdBuffer, Image* pSrcImage, VkExtent3D extent, uint srcMipLevel = 0, uint dstMipLevel = 0);
+    void cmdCopyImageToImage (VkCommandBuffer cmdBuffer, Image* pSrcImage);
     void cmdCopyBufferToImage(VkCommandBuffer cmdBuffer, VkBuffer buffer);
     void cmdGenerateMipmaps  (VkCommandBuffer cmdBuffer);
     
@@ -68,6 +70,7 @@ public:
     VkSampler        getSampler        ();
     uint             getRawChannel     ();
     uint             getChannelSize    ();
+    uint             getMipLevels      ();
     VkDescriptorImageInfo* getDescriptorInfo();
     
     VkImageLayout         getImageLayout();
@@ -77,6 +80,8 @@ public:
     unsigned char* getRawData();
     float        * getRawHDR();
     
+    void setMipViews(uint baseLevel);
+    void setMipLevels(uint mipLevels);
     void setImageLayout(VkImageLayout imageLayout);
     
 private:
@@ -90,6 +95,7 @@ private:
     VkImage          m_image          = VK_NULL_HANDLE;
     VkImageView      m_imageView      = VK_NULL_HANDLE;
     VkDeviceMemory   m_imageMemory    = VK_NULL_HANDLE;
+    VECTOR<VkImageView> m_mipViews;
     
     VkImageLayout         m_imageLayout;
     VkImageCreateInfo     m_imageInfo{};

@@ -110,11 +110,12 @@ void Image::setupForCubemap(UInt2D size) {
     m_imageInfo.usage        = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                                VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                               VK_IMAGE_USAGE_STORAGE_BIT |
                                VK_IMAGE_USAGE_SAMPLED_BIT;
       
     m_imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
     m_imageViewInfo.format   = m_imageInfo.format;
-    m_imageViewInfo.subresourceRange.levelCount = m_imageInfo.mipLevels;
+    m_imageViewInfo.subresourceRange.levelCount = 1;
     m_imageViewInfo.subresourceRange.layerCount = 6;
 }
 
@@ -135,6 +136,16 @@ void Image::createForSwapchain() {
     createImageView();
 }
 
+void Image::createMipViews() {
+    LOG("Image::createMipViews");
+    uint  mipLevels = m_imageInfo.mipLevels;
+    for (int i = 1; i < mipLevels; i++) {
+        m_imageViewInfo.subresourceRange.baseMipLevel = i;
+        createImageView();
+    }
+    m_imageView = m_mipViews[0];
+}
+
 void Image::createImage() {
     LOG("Image::createImage");
     VkDevice device = m_pDevice->getDevice();
@@ -149,7 +160,8 @@ void Image::createImageView() {
     VkDevice device = m_pDevice->getDevice();
     VkResult result = vkCreateImageView(device, &m_imageViewInfo, nullptr, &m_imageView);
     CHECK_VKRESULT(result, "failed to create image views!");
-    m_cleaner.push([=](){ vkDestroyImageView(device, m_imageView, nullptr); });
+    m_mipViews.push_back(m_imageView);
+    m_cleaner.push([=](){ vkDestroyImageView(device, m_mipViews.back(), nullptr); m_mipViews.pop_back(); });
 }
 
 void Image::allocateImageMemory() {
@@ -231,26 +243,29 @@ void Image::cmdClearColorImage(VkClearColorValue clearColor) {
 }
 
 void Image::cmdCopyImageToImage(VkCommandBuffer cmdBuffer, Image* pSrcImage) {
+    cmdCopyImageToImage(cmdBuffer, pSrcImage, m_imageInfo.extent);
+}
+
+void Image::cmdCopyImageToImage(VkCommandBuffer cmdBuffer, Image* pSrcImage, VkExtent3D extent, uint srcMipLevel, uint dstMipLevel) {
     VkImage               srcImage         = pSrcImage->getImage();
     VkImageLayout         srcImageLayout   = pSrcImage->getImageLayout();
     VkImageViewCreateInfo srcImageViewInfo = pSrcImage->getImageViewInfo();
     VkImage               dstImage         = m_image;
     VkImageLayout         dstImageLayout   = m_imageLayout;
     VkImageViewCreateInfo dstImageViewInfo = m_imageViewInfo;
-    VkExtent3D            extent           = m_imageInfo.extent;
     
     VkImageCopy region{};
     region.srcOffset = {0, 0, 0};
     region.srcSubresource.aspectMask     = srcImageViewInfo.subresourceRange.aspectMask;
     region.srcSubresource.baseArrayLayer = srcImageViewInfo.subresourceRange.baseArrayLayer;
     region.srcSubresource.layerCount     = srcImageViewInfo.subresourceRange.layerCount;
-    region.srcSubresource.mipLevel       = srcImageViewInfo.subresourceRange.baseMipLevel;
+    region.srcSubresource.mipLevel       = srcMipLevel;
     
     region.dstOffset = {0, 0, 0};
     region.dstSubresource.aspectMask     = dstImageViewInfo.subresourceRange.aspectMask;
     region.dstSubresource.baseArrayLayer = dstImageViewInfo.subresourceRange.baseArrayLayer;
     region.dstSubresource.layerCount     = dstImageViewInfo.subresourceRange.layerCount;
-    region.dstSubresource.mipLevel       = dstImageViewInfo.subresourceRange.baseMipLevel;
+    region.dstSubresource.mipLevel       = dstMipLevel;
     region.extent = extent;
     
     vkCmdCopyImage(cmdBuffer,
@@ -442,6 +457,7 @@ VkDeviceMemory  Image::getImageMemory() { return m_imageMemory; }
 VkSampler       Image::getSampler    () { return m_sampler;     }
 uint            Image::getRawChannel () { return m_rawChannel;  }
 uint            Image::getChannelSize() { return GetChannelSize(m_imageInfo.format); }
+uint            Image::getMipLevels  () { return m_imageInfo.mipLevels; }
 UInt2D          Image::getImageSize  () { return {m_imageInfo.extent.width, m_imageInfo.extent.height}; }
 VkDeviceSize    Image::getDeviceSize () { return m_imageInfo.extent.width * m_imageInfo.extent.height * getChannelSize() * m_imageInfo.arrayLayers; }
 
@@ -452,7 +468,12 @@ VkImageViewCreateInfo Image::getImageViewInfo() { return m_imageViewInfo; }
 unsigned char* Image::getRawData() { return m_rawData; }
 float        * Image::getRawHDR()  { return m_rawHDR;  }
 
-void Image::setImageLayout(VkImageLayout imageLayout) { m_imageLayout = imageLayout;}
+void Image::setImageLayout(VkImageLayout imageLayout) { m_imageLayout = imageLayout; }
+void Image::setMipViews(uint baseLevel) {
+    m_imageViewInfo.subresourceRange.baseMipLevel = baseLevel;
+    m_imageView = m_mipViews[baseLevel];
+}
+void Image::setMipLevels(uint mipLevels) { m_imageInfo.mipLevels = mipLevels; }
 
 // Private ==================================================
 
