@@ -59,12 +59,24 @@ void GraphicsEquirect::render(VkCommandBuffer cmdBuffer) {
     vkCmdEndRenderPass(cmdBuffer);
 }
 
-void GraphicsEquirect::render() {
+Image* GraphicsEquirect::render() {
+    UInt2D imageSize = m_pFrame->getSize();
+    Image* imageFrame = m_pFrame->getColorImage();
+    Image* imageOutput = new Image();
+    imageOutput->setupForCubemap(imageSize);
+    imageOutput->createWithSampler();
+    
     Commander* pCommander = System::Commander();
     VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
     pCommander->beginSingleTimeCommands(cmdBuffer);
     render(cmdBuffer);
+    imageFrame->cmdTransitionToTransferSrc(cmdBuffer);
+    imageOutput->cmdTransitionToTransferDst(cmdBuffer);
+    imageOutput->cmdCopyImageToImage(cmdBuffer, imageFrame);
+    imageOutput->cmdGenerateMipmaps(cmdBuffer);
     pCommander->endSingleTimeCommands(cmdBuffer);
+    
+    return imageOutput;
 }
 
 void GraphicsEquirect::setupShader() {
@@ -169,25 +181,6 @@ void GraphicsEquirect::createFrame(uint32_t size) {
     m_pFrame->createFramebuffer(m_pRenderpass);
     m_cleaner.push([=](){ m_pFrame->cleanup(); });
     updateViewportScissor();
-}
-
-Image* GraphicsEquirect::copyFrameImage() {
-    UInt2D imageSize = m_pFrame->getSize();
-    Image* imageFrame = m_pFrame->getColorImage();
-    Image* imageCopy = new Image();
-    imageCopy->setupForCubemap(imageSize);
-    imageCopy->createWithSampler();
-    
-    Commander* pCommander = System::Commander();
-    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(cmdBuffer);
-    imageFrame->cmdTransitionToTransferSrc(cmdBuffer);
-    imageCopy->cmdTransitionToTransferDst(cmdBuffer);
-    imageCopy->cmdCopyImageToImage(cmdBuffer, imageFrame);
-    imageCopy->cmdGenerateMipmaps(cmdBuffer);
-    pCommander->endSingleTimeCommands(cmdBuffer);
-    
-    return imageCopy;
 }
 
 void GraphicsEquirect::updateViewportScissor() {

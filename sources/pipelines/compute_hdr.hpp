@@ -20,8 +20,8 @@ public:
     ComputeHDR();
     
     void cleanup();
-    void dispatch();
     void dispatch(VkCommandBuffer cmdBuffer);
+    Image* dispatch();
     
     void setupShader();
     void setupInputOutput(std::string hdrPath);
@@ -30,8 +30,6 @@ public:
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
-    
-    Image* copyOutputImage();
     
     std::string getTextureName();
     std::string getHDRTexturePath();

@@ -97,12 +97,22 @@ void ComputeHDR::createPipeline() {
     m_cleaner.push([=](){ m_pPipeline->cleanup(); });
 }
 
-void ComputeHDR::dispatch() {
+Image* ComputeHDR::dispatch() {
+    UInt2D imageSize = m_pOutputImage->getImageSize();
+    Image* imageOutput = new Image();
+    imageOutput->setupForHDRTexture(imageSize);
+    imageOutput->createWithSampler();
+    
     Commander* pCommander = System::Commander();
     VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
     pCommander->beginSingleTimeCommands(cmdBuffer);
     dispatch(cmdBuffer);
+    imageOutput->cmdTransitionToTransferDst(cmdBuffer);
+    imageOutput->cmdCopyImageToImage(cmdBuffer, m_pOutputImage);
+    imageOutput->cmdGenerateMipmaps(cmdBuffer);
     pCommander->endSingleTimeCommands(cmdBuffer);
+    
+    return imageOutput;
 }
 
 void ComputeHDR::dispatch(VkCommandBuffer cmdBuffer) {
@@ -125,23 +135,6 @@ void ComputeHDR::dispatch(VkCommandBuffer cmdBuffer) {
                   misc.size.height / WORKGROUP_SIZE_Y + 1, 1);
     
     m_pOutputImage->cmdTransitionToTransferSrc(cmdBuffer);
-}
-
-Image* ComputeHDR::copyOutputImage () {
-    UInt2D imageSize = m_pOutputImage->getImageSize();
-    Image* imageCopy = new Image();
-    imageCopy->setupForHDRTexture(imageSize);
-    imageCopy->createWithSampler();
-    
-    Commander* pCommander = System::Commander();
-    VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
-    pCommander->beginSingleTimeCommands(cmdBuffer);
-    imageCopy->cmdTransitionToTransferDst(cmdBuffer);
-    imageCopy->cmdCopyImageToImage(cmdBuffer, m_pOutputImage);
-    imageCopy->cmdGenerateMipmaps(cmdBuffer);
-    pCommander->endSingleTimeCommands(cmdBuffer);
-    
-    return imageCopy;
 }
 
 std::string ComputeHDR::getTextureName() { return TEXTURE_NAMES[m_textureIdx] + "/" + TEXTURE_NAMES[m_textureIdx]; }

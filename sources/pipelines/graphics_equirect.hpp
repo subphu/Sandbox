@@ -10,8 +10,6 @@
 #include "../resources/buffer.hpp"
 #include "../resources/frame.hpp"
 #include "../resources/mesh.hpp"
-#include "../resources/camera.hpp"
-
 
 class GraphicsEquirect {
     
@@ -26,21 +24,19 @@ public:
     GraphicsEquirect();
     
     void cleanup();
-    void render();
     void render(VkCommandBuffer cmdBuffer);
+    Image* render();
     
     void setupShader();
     void setupMesh();
     void setupInput(Image* image);
-    void cleanFrame();
     
     void createDescriptor();
     void createPipelineLayout();
     void createPipeline();
     void createRenderpass();
     void createFrame(uint32_t size);
-    
-    Image* copyFrameImage();
+    void cleanFrame();
     
 private:
     Cleaner m_cleaner;
