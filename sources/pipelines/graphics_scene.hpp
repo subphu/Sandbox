@@ -44,7 +44,7 @@ public:
     
     void setupShader();
     void setupInput();
-    void updateCubemap(Image* cubemap, Image* cubeEnv);
+    void updateCubemap(Image* cubemap, Image* cubeEnv, Image* cubeReflect);
     void updateLightInput();
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Image* pInterferenceImage);
@@ -75,6 +75,7 @@ private:
     Mesh*   m_pMesh;
     Image*  m_pCubemap;
     Image*  m_pCubeEnv;
+    Image*  m_pCubeReflect;
     Image*  m_pHeightmap;
     Image*  m_pInterference;
     VECTOR<Image*> m_pTextures;

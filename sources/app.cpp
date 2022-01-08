@@ -167,7 +167,21 @@ void App::createCubemap() {
     hdrImg->cleanup();
     hdrEnv->cleanup();
     
-    m_pGraphicsScene->updateCubemap(cubemapImg, cubemapEnv);
+    GraphicsReflection* pGraphicsReflection = new GraphicsReflection();
+    pGraphicsReflection->setupShader();
+    pGraphicsReflection->createDescriptor();
+    pGraphicsReflection->setupMesh();
+    pGraphicsReflection->createRenderpass();
+    pGraphicsReflection->createPipelineLayout();
+    pGraphicsReflection->createPipeline();
+    
+    pGraphicsReflection->setupInput(cubemap);
+    pGraphicsReflection->createFrame();
+    cubeReflect = pGraphicsReflection->render();
+    m_cleaner.push([=](){ cubeReflect->cleanup(); });
+    pGraphicsReflection->cleanup();
+    
+    m_pGraphicsScene->updateCubemap(cubemap, cubeEnv, cubeReflect);
 }
 
 void App::setup() {

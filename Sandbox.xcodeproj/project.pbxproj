@@ -11,6 +11,7 @@
 		2613475D26F88D3900B3E6A7 /* app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2613475B26F88D3900B3E6A7 /* app.cpp */; };
 		2615790526F8C6BF0093D4AF /* device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790326F8C6BF0093D4AF /* device.cpp */; };
 		2615790F26FB8E7D0093D4AF /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2615790D26FB8E7D0093D4AF /* window.cpp */; };
+		26569A0F278884F40013D0FC /* graphics_reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26569A0D278884F40013D0FC /* graphics_reflection.cpp */; };
 		265A2C862750B8AE004D1025 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C842750B8AE004D1025 /* camera.cpp */; };
 		265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C872751BA8A004D1025 /* pipeline.cpp */; };
 		266FF39127757BBA00610B18 /* graphics_equirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 266FF38F27757BBA00610B18 /* graphics_equirect.cpp */; };
@@ -78,6 +79,8 @@
 		2615790426F8C6BF0093D4AF /* device.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = device.hpp; sourceTree = "<group>"; };
 		2615790D26FB8E7D0093D4AF /* window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = window.cpp; sourceTree = "<group>"; };
 		2615790E26FB8E7D0093D4AF /* window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = window.hpp; sourceTree = "<group>"; };
+		26569A0D278884F40013D0FC /* graphics_reflection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_reflection.cpp; sourceTree = "<group>"; };
+		26569A0E278884F40013D0FC /* graphics_reflection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_reflection.hpp; sourceTree = "<group>"; };
 		26569A10278895440013D0FC /* reflection.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflection.frag; sourceTree = "<group>"; };
 		26569A112788963A0013D0FC /* reflection.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflection.vert; sourceTree = "<group>"; };
 		265A2C842750B8AE004D1025 /* camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
@@ -423,6 +426,8 @@
 				26EC979E275DFE4200D13B41 /* compute_fluid.hpp */,
 				266FF38F27757BBA00610B18 /* graphics_equirect.cpp */,
 				266FF39027757BBA00610B18 /* graphics_equirect.hpp */,
+				26569A0D278884F40013D0FC /* graphics_reflection.cpp */,
+				26569A0E278884F40013D0FC /* graphics_reflection.hpp */,
 				26F973242719672400DFEC48 /* graphics_screen.cpp */,
 				26F973252719672400DFEC48 /* graphics_screen.hpp */,
 				26E70216274CA1BA0097A974 /* graphics_scene.cpp */,
@@ -536,6 +541,7 @@
 				26F973332719688000DFEC48 /* frame.cpp in Sources */,
 				260AC0722725609500983661 /* swapchain.cpp in Sources */,
 				26C502D327329BF80010F43F /* renderpass.cpp in Sources */,
+				26569A0F278884F40013D0FC /* graphics_reflection.cpp in Sources */,
 				266FF39B2778B41200610B18 /* compute_hdr.cpp in Sources */,
 				26E70215274BA6850097A974 /* imgui_impl_glfw.cpp in Sources */,
 				26E70206274BA6670097A974 /* imgui_tables.cpp in Sources */,

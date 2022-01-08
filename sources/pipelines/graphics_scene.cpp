@@ -197,16 +197,20 @@ void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
     m_pDescriptor->update(S4);
 }
 
-void GraphicsScene::updateCubemap(Image* cubemap, Image* cubeEnv) {
+void GraphicsScene::updateCubemap(Image* cubemap, Image* cubeEnv, Image* cubeReflect) {
     m_pCubemap = cubemap;
     m_pCubeEnv = cubeEnv;
+    m_pCubeReflect = cubeReflect;
     m_pCubemap->cmdTransitionToShaderR();
     m_pCubeEnv->cmdTransitionToShaderR();
+    m_pCubeReflect->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S5, B0, m_pCubemap->getDescriptorInfo());
     m_pDescriptor->setupPointerImage(S5, B1, m_pCubeEnv->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B2, m_pCubeReflect->getDescriptorInfo());
     m_pDescriptor->update(S5);
     m_cleaner.push([=](){ m_pCubemap->cleanup(); });
     m_cleaner.push([=](){ m_pCubeEnv->cleanup(); });
+    m_cleaner.push([=](){ m_pCubeReflect->cleanup(); });
 }
 
 void GraphicsScene::createDescriptor() {
@@ -243,6 +247,8 @@ void GraphicsScene::createDescriptor() {
     m_pDescriptor->addLayoutBindings(S5, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->addLayoutBindings(S5, B1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S5, B2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S5);
     

@@ -12,6 +12,7 @@
 #include "pipelines/compute_hdr.hpp"
 #include "pipelines/compute_interference.hpp"
 #include "pipelines/compute_fluid.hpp"
+#include "pipelines/graphics_reflection.hpp"
 #include "pipelines/graphics_scene.hpp"
 #include "pipelines/graphics_equirect.hpp"
 #include "resources/camera.hpp"
