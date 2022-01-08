@@ -78,6 +78,8 @@
 		2615790426F8C6BF0093D4AF /* device.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = device.hpp; sourceTree = "<group>"; };
 		2615790D26FB8E7D0093D4AF /* window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = window.cpp; sourceTree = "<group>"; };
 		2615790E26FB8E7D0093D4AF /* window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = window.hpp; sourceTree = "<group>"; };
+		26569A10278895440013D0FC /* reflection.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflection.frag; sourceTree = "<group>"; };
+		26569A112788963A0013D0FC /* reflection.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflection.vert; sourceTree = "<group>"; };
 		265A2C842750B8AE004D1025 /* camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
 		265A2C852750B8AE004D1025 /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		265A2C872751BA8A004D1025 /* pipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline.cpp; sourceTree = "<group>"; };
@@ -85,8 +87,7 @@
 		266FF38F27757BBA00610B18 /* graphics_equirect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_equirect.cpp; sourceTree = "<group>"; };
 		266FF39027757BBA00610B18 /* graphics_equirect.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_equirect.hpp; sourceTree = "<group>"; };
 		266FF3932775A81700610B18 /* equirect.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = equirect.vert; sourceTree = "<group>"; };
-		266FF3962775AEF200610B18 /* prefilter.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = prefilter.frag; sourceTree = "<group>"; };
-		266FF3972775AEF200610B18 /* environment.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = environment.frag; sourceTree = "<group>"; };
+		266FF3962775AEF200610B18 /* specular.comp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = specular.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		266FF3982775AEF200610B18 /* equirect.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = equirect.frag; sourceTree = "<group>"; };
 		266FF3992778B41100610B18 /* compute_hdr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compute_hdr.cpp; sourceTree = "<group>"; };
 		266FF39A2778B41100610B18 /* compute_hdr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compute_hdr.hpp; sourceTree = "<group>"; };
@@ -234,8 +235,8 @@
 		266FF3922775A7D400610B18 /* cubemap */ = {
 			isa = PBXGroup;
 			children = (
-				266FF3972775AEF200610B18 /* environment.frag */,
-				266FF3962775AEF200610B18 /* prefilter.frag */,
+				26569A10278895440013D0FC /* reflection.frag */,
+				26569A112788963A0013D0FC /* reflection.vert */,
 				266FF3982775AEF200610B18 /* equirect.frag */,
 				266FF3932775A81700610B18 /* equirect.vert */,
 			);
@@ -295,6 +296,7 @@
 		26C924FD273FD536009EC2B3 /* compute */ = {
 			isa = PBXGroup;
 			children = (
+				266FF3962775AEF200610B18 /* specular.comp */,
 				266FF39C2778D09000610B18 /* hdr.comp */,
 				26EC979C275DFE1700D13B41 /* fluid.comp */,
 				26C924FE273FD536009EC2B3 /* interference1d.comp */,
@@ -419,12 +421,12 @@
 				26CA4E18273C1F5C00AC3D64 /* compute_interference.hpp */,
 				26EC979D275DFE4200D13B41 /* compute_fluid.cpp */,
 				26EC979E275DFE4200D13B41 /* compute_fluid.hpp */,
+				266FF38F27757BBA00610B18 /* graphics_equirect.cpp */,
+				266FF39027757BBA00610B18 /* graphics_equirect.hpp */,
 				26F973242719672400DFEC48 /* graphics_screen.cpp */,
 				26F973252719672400DFEC48 /* graphics_screen.hpp */,
 				26E70216274CA1BA0097A974 /* graphics_scene.cpp */,
 				26E70217274CA1BA0097A974 /* graphics_scene.hpp */,
-				266FF38F27757BBA00610B18 /* graphics_equirect.cpp */,
-				266FF39027757BBA00610B18 /* graphics_equirect.hpp */,
 			);
 			path = pipelines;
 			sourceTree = "<group>";

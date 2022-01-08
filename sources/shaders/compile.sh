@@ -25,12 +25,13 @@ shader_folder=(
     $compute_dir/
     $compute_dir/
     $compute_dir/
+    $compute_dir/
                 
     $pbr_dir/
     $pbr_dir/
     $pbr_dir/
     $pbr_dir/
-        
+                
     $cubemap_dir/
     $cubemap_dir/
     $cubemap_dir/
@@ -40,7 +41,8 @@ shader_folder=(
 shader_names=(
     swapchain.vert
     swapchain.frag
-        
+            
+    specular.comp
     hdr.comp
     fluid.comp
     interference1d.comp
@@ -49,11 +51,11 @@ shader_names=(
     cubemap.frag
     main1d.vert
     main1d.frag
-    
+        
     equirect.vert
     equirect.frag
-    prefilter.frag
-    environment.frag
+    reflection.vert
+    reflection.frag
 )
 
 for i in ${!shader_folder[@]}; do
