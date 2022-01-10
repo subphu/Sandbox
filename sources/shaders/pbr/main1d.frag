@@ -28,6 +28,10 @@ layout(set = 2, binding = 4) uniform sampler2D roughnessMap;
 
 layout(set = 3, binding = 0) uniform sampler2D heightMap;
 layout(set = 4, binding = 0) uniform sampler2D interferenceImage;
+layout(set = 5, binding = 0) uniform samplerCube cubemap;
+layout(set = 5, binding = 1) uniform samplerCube envMap;
+layout(set = 5, binding = 2) uniform samplerCube reflMap;
+layout(set = 5, binding = 3) uniform sampler2D brdfMap;
 
 // Inputs ==================================================
 layout(location = 0) in vec3 fragNormal;
@@ -54,9 +58,9 @@ void main() {
     vec4 pbrColor = vec4(pbr(), 1.0);
     outColor = pbrColor;
     
-    vec2 interferenceUV = vec2(opd, reflectance);
-    vec4 iridescence = texture(interferenceImage, interferenceUV);
-    outColor = iridescence;
+//    vec2 interferenceUV = vec2(opd, reflectance);
+//    vec4 iridescence = texture(interferenceImage, interferenceUV);
+//    outColor = iridescence;
 //
 //    float metallic  = texture(metallicMap, fragTexCoord).r;
 //    if (metallic > 0.5) {

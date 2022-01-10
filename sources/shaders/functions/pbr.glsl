@@ -37,6 +37,10 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 vec3 pbr() {
     vec3  albedo    = pow(texture(albedoMap, fragTexCoord).rgb, vec3(2.2));
     float metallic  = texture(metallicMap, fragTexCoord).r;
@@ -45,6 +49,7 @@ vec3 pbr() {
 
     vec3 N = getNormalFromMap();
     vec3 V = normalize(viewPosition - fragPosition);
+    vec3 R = reflect(-V, N);
 
     vec3 F0 = mix(vec3(0.04), albedo, metallic);
     vec3 Lo = vec3(0.0);
@@ -75,7 +80,21 @@ vec3 pbr() {
 
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
-    vec3 ambient = vec3(0.01) * albedo * ao;
+    
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    
+    vec3 kS = F;
+    vec3 kD = (1.0 - kS) * (1.0 - metallic);
+    vec3 irradiance = texture(envMap, N).rgb;
+    vec3 diffuse = irradiance * albedo;
+    
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(reflMap, R,  roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf  = texture(brdfMap, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F + brdf.y);
+//    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    
+    vec3 ambient = (kD * diffuse + specular) * ao;
     
     vec3 color = ambient + Lo;
 
