@@ -30,10 +30,9 @@ public:
     void createForSwapchain ();
      
     void createImage        ();
-    void createImageView    ();
+    void createImageViews   ();
     void allocateImageMemory();
     void createSampler      ();
-    void createMipViews     ();
     
     void cmdCopyRawDataToImage();
     void cmdClearColorImage   (VkClearColorValue clearColor = {0., 0., 0., 1.});
@@ -62,15 +61,15 @@ public:
     void cmdCopyBufferToImage(VkCommandBuffer cmdBuffer, VkBuffer buffer);
     void cmdGenerateMipmaps  (VkCommandBuffer cmdBuffer);
     
-    VkImage          getImage          ();
-    VkImageView      getImageView      ();
-    VkDeviceMemory   getImageMemory    ();
-    UInt2D           getImageSize      ();
-    VkDeviceSize     getDeviceSize     ();
-    VkSampler        getSampler        ();
-    uint             getRawChannel     ();
-    uint             getChannelSize    ();
-    uint             getMipLevels      ();
+    VkImageView      getImageView  (uint idx = 0);
+    VkImage          getImage      ();
+    VkDeviceMemory   getImageMemory();
+    UInt2D           getImageSize  ();
+    VkDeviceSize     getDeviceSize ();
+    VkSampler        getSampler    ();
+    uint             getRawChannel ();
+    uint             getChannelSize();
+    uint             getMipLevels  ();
     VkDescriptorImageInfo* getDescriptorInfo();
     
     VkImageLayout         getImageLayout();
@@ -80,9 +79,9 @@ public:
     unsigned char* getRawData();
     float        * getRawHDR();
     
-    void setMipViews(uint baseLevel);
     void setMipLevels(uint mipLevels);
     void setImageLayout(VkImageLayout imageLayout);
+    void setImageFormat(VkFormat format);
     
 private:
     Cleaner m_cleaner;
@@ -93,14 +92,13 @@ private:
     float        * m_rawHDR;
 
     VkImage          m_image          = VK_NULL_HANDLE;
-    VkImageView      m_imageView      = VK_NULL_HANDLE;
     VkDeviceMemory   m_imageMemory    = VK_NULL_HANDLE;
-    VECTOR<VkImageView> m_mipViews;
+    VECTOR<VkImageView> m_imageViews;
     
     VkImageLayout         m_imageLayout;
     VkImageCreateInfo     m_imageInfo{};
     VkImageViewCreateInfo m_imageViewInfo{};
-    VkDescriptorImageInfo m_descriptorInfo{};
+    VECTOR<VkDescriptorImageInfo> m_descriptorInfos;
 
     // For Texture
     VkSampler m_sampler = VK_NULL_HANDLE;

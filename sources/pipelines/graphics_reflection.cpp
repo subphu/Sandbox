@@ -67,23 +67,20 @@ Image* GraphicsReflection::render() {
     imageOutput->setupForCubemap(imageSize);
     imageOutput->setMipLevels(MIPLEVELS);
     imageOutput->createWithSampler();
-    imageOutput->createMipViews();
     
     Commander* pCommander = System::Commander();
     VkCommandBuffer cmdBuffer = pCommander->createCommandBuffer();
     pCommander->beginSingleTimeCommands(cmdBuffer);
+    imageOutput->cmdTransitionToTransferDst(cmdBuffer);
     for (int l = 0; l < MIPLEVELS; l++) {
         UInt2D size{};
         size.width  = ceil(imageSize.width  / pow(2, l));
         size.height = ceil(imageSize.height / pow(2, l));
         VkExtent3D extent = {size.width, size.height, 1};
-        m_misc.roughness = float(l) / float(MIPLEVELS);
+        m_misc.roughness = float(l) / float(MIPLEVELS - 1);
         updateViewportScissor(size);
         render(cmdBuffer);
         imageFrame->cmdTransitionToTransferSrc(cmdBuffer);
-        imageOutput->setMipViews(l);
-        imageOutput->setImageLayout(VK_IMAGE_LAYOUT_UNDEFINED);
-        imageOutput->cmdTransitionToTransferDst(cmdBuffer);
         imageOutput->cmdCopyImageToImage(cmdBuffer, imageFrame, extent, 0, l);
         imageFrame->cmdTransitionToPresent(cmdBuffer);
     }

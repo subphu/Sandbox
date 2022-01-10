@@ -122,28 +122,18 @@ void Image::setupForCubemap(UInt2D size) {
 void Image::create() {
     createImage();
     allocateImageMemory();
-    createImageView();
+    createImageViews();
 }
 
 void Image::createWithSampler() {
     createImage();
     allocateImageMemory();
-    createImageView();
+    createImageViews();
     createSampler();
 }
 
 void Image::createForSwapchain() {
-    createImageView();
-}
-
-void Image::createMipViews() {
-    LOG("Image::createMipViews");
-    uint  mipLevels = m_imageInfo.mipLevels;
-    for (int i = 1; i < mipLevels; i++) {
-        m_imageViewInfo.subresourceRange.baseMipLevel = i;
-        createImageView();
-    }
-    m_imageView = m_mipViews[0];
+    createImageViews();
 }
 
 void Image::createImage() {
@@ -154,14 +144,21 @@ void Image::createImage() {
     m_cleaner.push([=](){ vkDestroyImage(device, m_image, nullptr); });
 }
 
-void Image::createImageView() {
-    LOG("Image::createImageView");
-    m_imageViewInfo.image = m_image;
+void Image::createImageViews() {
+    LOG("Image::createImageViews");
     VkDevice device = m_pDevice->getDevice();
-    VkResult result = vkCreateImageView(device, &m_imageViewInfo, nullptr, &m_imageView);
-    CHECK_VKRESULT(result, "failed to create image views!");
-    m_mipViews.push_back(m_imageView);
-    m_cleaner.push([=](){ vkDestroyImageView(device, m_mipViews.back(), nullptr); m_mipViews.pop_back(); });
+    uint mipLevels = m_imageInfo.mipLevels;
+    m_imageViews.resize(mipLevels);
+    m_imageViewInfo.image = m_image;
+    for (int i = 0; i < mipLevels; i++) {
+        m_imageViewInfo.subresourceRange.baseMipLevel = i;
+        m_imageViewInfo.subresourceRange.levelCount = mipLevels - i;
+        VkResult result = vkCreateImageView(device, &m_imageViewInfo, nullptr, &m_imageViews[i]);
+        CHECK_VKRESULT(result, "failed to create image views!");
+        m_cleaner.push([=](){ vkDestroyImageView(device, m_imageViews.back(), nullptr); m_imageViews.pop_back(); });
+    }
+    m_imageViewInfo.subresourceRange.baseMipLevel = 0;
+    m_imageViewInfo.subresourceRange.levelCount = mipLevels;
 }
 
 void Image::allocateImageMemory() {
@@ -445,14 +442,18 @@ void Image::cmdTransitionToTransferDst() { cmdCall(&Image::cmdTransitionToTransf
 void Image::cmdTransitionToTransferSrc() { cmdCall(&Image::cmdTransitionToTransferSrc); }
 
 VkDescriptorImageInfo* Image::getDescriptorInfo() {
-    m_descriptorInfo.imageLayout = m_imageLayout;
-    m_descriptorInfo.imageView   = m_imageView;
-    m_descriptorInfo.sampler     = m_sampler;
-    return &m_descriptorInfo;
+    uint mipLevels = m_imageInfo.mipLevels;
+    m_descriptorInfos.resize(mipLevels);
+    for (int i = 0; i < mipLevels; i++) {
+        m_descriptorInfos[i].imageLayout = m_imageLayout;
+        m_descriptorInfos[i].imageView   = m_imageViews[i];
+        m_descriptorInfos[i].sampler     = m_sampler;
+    }
+    return m_descriptorInfos.data();
 }
 
+VkImageView     Image::getImageView  (uint idx) { return m_imageViews[idx]; }
 VkImage         Image::getImage      () { return m_image;       }
-VkImageView     Image::getImageView  () { return m_imageView;   }
 VkDeviceMemory  Image::getImageMemory() { return m_imageMemory; }
 VkSampler       Image::getSampler    () { return m_sampler;     }
 uint            Image::getRawChannel () { return m_rawChannel;  }
@@ -468,12 +469,13 @@ VkImageViewCreateInfo Image::getImageViewInfo() { return m_imageViewInfo; }
 unsigned char* Image::getRawData() { return m_rawData; }
 float        * Image::getRawHDR()  { return m_rawHDR;  }
 
-void Image::setImageLayout(VkImageLayout imageLayout) { m_imageLayout = imageLayout; }
-void Image::setMipViews(uint baseLevel) {
-    m_imageViewInfo.subresourceRange.baseMipLevel = baseLevel;
-    m_imageView = m_mipViews[baseLevel];
-}
 void Image::setMipLevels(uint mipLevels) { m_imageInfo.mipLevels = mipLevels; }
+void Image::setImageLayout(VkImageLayout imageLayout) { m_imageLayout = imageLayout; }
+void Image::setImageFormat(VkFormat format) {
+    m_imageInfo.format = format;
+    m_imageViewInfo.format = format;
+}
+
 
 // Private ==================================================
 
