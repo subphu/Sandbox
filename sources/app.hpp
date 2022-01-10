@@ -10,6 +10,7 @@
 #include "renderer/swapchain.hpp"
 #include "pipelines/graphics_screen.hpp"
 #include "pipelines/compute_hdr.hpp"
+#include "pipelines/compute_brdf.hpp"
 #include "pipelines/compute_interference.hpp"
 #include "pipelines/compute_fluid.hpp"
 #include "pipelines/graphics_reflection.hpp"

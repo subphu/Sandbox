@@ -42,10 +42,10 @@ shader_names=(
     swapchain.vert
     swapchain.frag
             
-    specular.comp
     hdr.comp
     fluid.comp
     interference1d.comp
+    brdf.comp
                 
     cubemap.vert
     cubemap.frag

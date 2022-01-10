@@ -76,6 +76,8 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
                             pipelineLayout, S3, 1, &heightmapDescSet, 0, nullptr);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S4, 1, &interferenceDescSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, S5, 1, &cubemapDescSet, 0, nullptr);
     
     vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &meshVertexBuffer, &offsets);
     vkCmdBindIndexBuffer  (cmdBuffer, meshIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
@@ -197,20 +199,24 @@ void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
     m_pDescriptor->update(S4);
 }
 
-void GraphicsScene::updateCubemap(Image* cubemap, Image* cubeEnv, Image* cubeReflect) {
+void GraphicsScene::updateCubemap(Image* cubemap, Image* envMap, Image* reflMap, Image* brdfMap) {
     m_pCubemap = cubemap;
-    m_pCubeEnv = cubeEnv;
-    m_pCubeReflect = cubeReflect;
+    m_pEnvMap = envMap;
+    m_pReflMap = reflMap;
+    m_pBrdfMap = brdfMap;
     m_pCubemap->cmdTransitionToShaderR();
-    m_pCubeEnv->cmdTransitionToShaderR();
-    m_pCubeReflect->cmdTransitionToShaderR();
+    m_pEnvMap->cmdTransitionToShaderR();
+    m_pReflMap->cmdTransitionToShaderR();
+    m_pBrdfMap->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S5, B0, m_pCubemap->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S5, B1, m_pCubeEnv->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S5, B2, m_pCubeReflect->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B1, m_pEnvMap->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B2, m_pReflMap->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B3, m_pBrdfMap->getDescriptorInfo());
     m_pDescriptor->update(S5);
     m_cleaner.push([=](){ m_pCubemap->cleanup(); });
-    m_cleaner.push([=](){ m_pCubeEnv->cleanup(); });
-    m_cleaner.push([=](){ m_pCubeReflect->cleanup(); });
+    m_cleaner.push([=](){ m_pEnvMap->cleanup(); });
+    m_cleaner.push([=](){ m_pReflMap->cleanup(); });
+    m_cleaner.push([=](){ m_pBrdfMap->cleanup(); });
 }
 
 void GraphicsScene::createDescriptor() {
@@ -249,6 +255,8 @@ void GraphicsScene::createDescriptor() {
     m_pDescriptor->addLayoutBindings(S5, B1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->addLayoutBindings(S5, B2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S5, B3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S5);
     

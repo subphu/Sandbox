@@ -128,7 +128,7 @@ void App::createInterference() {
 
 void App::createCubemap() {
     LOG("App::createGraphicsEquirect");
-    Image *hdrImg, *hdrEnv, *cubemap, *cubeEnv, *cubeReflect;
+    Image *hdrImg, *hdrEnv, *cubemap, *envMap, *reflMap, *brdfMap;
     ComputeHDR* pComputeHDR = new ComputeHDR();
     pComputeHDR->setupShader();
     pComputeHDR->createDescriptor();
@@ -160,8 +160,8 @@ void App::createCubemap() {
     pGraphicsEquirect->cleanFrame();
     pGraphicsEquirect->setupInput(hdrEnv);
     pGraphicsEquirect->createFrame(length / 10);
-    cubeEnv = pGraphicsEquirect->render();
-    m_cleaner.push([=](){ cubeEnv->cleanup(); });
+    envMap = pGraphicsEquirect->render();
+    m_cleaner.push([=](){ envMap->cleanup(); });
     
     pGraphicsEquirect->cleanup();
     hdrImg->cleanup();
@@ -177,11 +177,20 @@ void App::createCubemap() {
     
     pGraphicsReflection->setupInput(cubemap);
     pGraphicsReflection->createFrame();
-    cubeReflect = pGraphicsReflection->render();
-    m_cleaner.push([=](){ cubeReflect->cleanup(); });
+    reflMap = pGraphicsReflection->render();
+    m_cleaner.push([=](){ reflMap->cleanup(); });
     pGraphicsReflection->cleanup();
     
-    m_pGraphicsScene->updateCubemap(cubemap, cubeEnv, cubeReflect);
+    ComputeBRDF* pComputeBRDF = new ComputeBRDF();
+    pComputeBRDF->setupShader();
+    pComputeBRDF->createDescriptor();
+    pComputeBRDF->createPipelineLayout();
+    pComputeBRDF->createPipeline();
+    brdfMap = pComputeBRDF->dispatch({1024, 1024});
+    m_cleaner.push([=](){ brdfMap->cleanup(); });
+    pComputeBRDF->cleanup();
+    
+    m_pGraphicsScene->updateCubemap(cubemap, envMap, reflMap, brdfMap);
 }
 
 void App::setup() {
