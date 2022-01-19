@@ -9,7 +9,7 @@
 GraphicsScene::~GraphicsScene() {}
 GraphicsScene::GraphicsScene() : m_pDevice(System::Device()) {}
 
-void GraphicsScene::cleanup() { m_cleaner.flush("ComputeInterference"); }
+void GraphicsScene::cleanup() { m_cleaner.flush("GraphicsScene"); }
 
 void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     VkPipelineLayout pipelineLayout  = m_pipelineLayout;
@@ -29,7 +29,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     uint32_t cubeIndexSize    = m_pCube->getIndexSize();
     
     VkDescriptorSet cameraDescSet  = m_pDescriptor->getDescriptorSet(S0);
-    VkDescriptorSet lightsDescSet = m_pDescriptor->getDescriptorSet(S1);
+    VkDescriptorSet miscDescSet = m_pDescriptor->getDescriptorSet(S1);
     VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
     VkDescriptorSet heightmapDescSet = m_pDescriptor->getDescriptorSet(S3);
     VkDescriptorSet interferenceDescSet = m_pDescriptor->getDescriptorSet(S4);
@@ -69,7 +69,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S0, 1, &cameraDescSet, 0, nullptr);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout, S1, 1, &lightsDescSet, 0, nullptr);
+                            pipelineLayout, S1, 1, &miscDescSet, 0, nullptr);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, S2, 1, &textureDescSet, 0, nullptr);
     vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -83,7 +83,6 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     vkCmdBindIndexBuffer  (cmdBuffer, meshIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
     
     m_misc.model = m_pMesh->getMatrix();
-    
     m_misc.isLight = 0;
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PCMisc), &m_misc);
     
@@ -130,26 +129,12 @@ void GraphicsScene::setupInput() {
     m_pParamBuffer->create();
     m_cleaner.push([=](){ m_pParamBuffer->cleanup(); });
     
-    VECTOR<STRING> pbrPaths = System::Files()->getTexturePBRPaths();
-    for (std::string path : pbrPaths) {
-        Image* pTexture = new Image();
-        pTexture->setupForTexture(path);
-        pTexture->createWithSampler();
-        pTexture->cmdCopyRawDataToImage();
-        pTexture->cmdTransitionToShaderR();
-        m_pTextures.push_back(pTexture);
-        m_cleaner.push([=](){ pTexture->cleanup(); });
-    }
-    
     m_pDescriptor->setupPointerBuffer(S0, B0, m_pCameraBuffer->getDescriptorInfo());
     m_pDescriptor->setupPointerBuffer(S1, B0, m_pLightBuffer->getDescriptorInfo());
     m_pDescriptor->setupPointerBuffer(S1, B1, m_pParamBuffer->getDescriptorInfo());
-    for (uint i = 0; i < m_pTextures.size(); i++)
-        m_pDescriptor->setupPointerImage(S2, i, m_pTextures[i]->getDescriptorInfo());
     
     m_pDescriptor->update(S0);
     m_pDescriptor->update(S1);
-    m_pDescriptor->update(S2);
     
     m_pMesh = new Mesh();
     m_pMesh->createSphere(200, 200);
@@ -164,6 +149,44 @@ void GraphicsScene::setupInput() {
     m_pCube->createIndexBuffer();
     m_pCube->createVertexStateInfo();
     m_cleaner.push([=](){ m_pCube->cleanup(); });
+}
+
+void GraphicsScene::updateTexture() {
+    System::Device()->waitIdle();
+    VECTOR<STRING> pbrPaths = System::Files()->getTexturePBRPaths();
+    bool hasImage = m_pTextures.size() > 0;
+    m_pTextures.resize(pbrPaths.size());
+    for (uint i = 0; i < pbrPaths.size(); i++) {
+        if (hasImage) m_pTextures[i]->cleanup();
+        m_pTextures[i] = new Image();
+        m_pTextures[i]->setupForTexture(pbrPaths[i]);
+        m_pTextures[i]->createWithSampler();
+        m_pTextures[i]->cmdCopyRawDataToImage();
+        m_pTextures[i]->cmdTransitionToShaderR();
+        m_cleaner.push([=](){ m_pTextures[i]->cleanup(); });
+        m_pDescriptor->setupPointerImage(S2, i, m_pTextures[i]->getDescriptorInfo());
+    }
+    m_pDescriptor->update(S2);
+}
+
+void GraphicsScene::updateCubemap(Image* cubemap, Image* envMap, Image* reflMap, Image* brdfMap) {
+    m_pCubemap = cubemap;
+    m_pEnvMap = envMap;
+    m_pReflMap = reflMap;
+    m_pBrdfMap = brdfMap;
+    m_pCubemap->cmdTransitionToShaderR();
+    m_pEnvMap->cmdTransitionToShaderR();
+    m_pReflMap->cmdTransitionToShaderR();
+    m_pBrdfMap->cmdTransitionToShaderR();
+    m_pDescriptor->setupPointerImage(S5, B0, m_pCubemap->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B1, m_pEnvMap->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B2, m_pReflMap->getDescriptorInfo());
+    m_pDescriptor->setupPointerImage(S5, B3, m_pBrdfMap->getDescriptorInfo());
+    m_pDescriptor->update(S5);
+    m_cleaner.push([=](){ m_pCubemap->cleanup(); });
+    m_cleaner.push([=](){ m_pEnvMap->cleanup(); });
+    m_cleaner.push([=](){ m_pReflMap->cleanup(); });
+    m_cleaner.push([=](){ m_pBrdfMap->cleanup(); });
 }
 
 void GraphicsScene::updateLightInput() {
@@ -184,13 +207,12 @@ void GraphicsScene::updateLightInput() {
 
 void GraphicsScene::updateParamInput() {
     Settings* settings = System::Settings();
-    m_param.albedo    = settings->Albedo;
-    m_param.metallic  = settings->Metallic;
-    m_param.roughness = settings->Roughness;
-    m_param.ao        = settings->AO;
-    m_param.textures  = settings->Textures;
-    m_param.cubemaps  = settings->Cubemaps;
-    m_param.shapes    = settings->Shapes;
+    m_param.albedo     = settings->Albedo;
+    m_param.metallic   = settings->Metallic;
+    m_param.roughness  = settings->Roughness;
+    m_param.ao         = settings->AO;
+    m_param.useTexture = settings->UseTexture;
+    m_param.useFluid   = settings->UseFluid;
     m_param.interference     = settings->Interference;
     m_param.phaseShift       = settings->PhaseShift;
     m_param.thicknessScale   = settings->ThicknessScale;
@@ -219,26 +241,6 @@ void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
     m_pInterference->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S4, B0, m_pInterference->getDescriptorInfo());
     m_pDescriptor->update(S4);
-}
-
-void GraphicsScene::updateCubemap(Image* cubemap, Image* envMap, Image* reflMap, Image* brdfMap) {
-    m_pCubemap = cubemap;
-    m_pEnvMap = envMap;
-    m_pReflMap = reflMap;
-    m_pBrdfMap = brdfMap;
-    m_pCubemap->cmdTransitionToShaderR();
-    m_pEnvMap->cmdTransitionToShaderR();
-    m_pReflMap->cmdTransitionToShaderR();
-    m_pBrdfMap->cmdTransitionToShaderR();
-    m_pDescriptor->setupPointerImage(S5, B0, m_pCubemap->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S5, B1, m_pEnvMap->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S5, B2, m_pReflMap->getDescriptorInfo());
-    m_pDescriptor->setupPointerImage(S5, B3, m_pBrdfMap->getDescriptorInfo());
-    m_pDescriptor->update(S5);
-    m_cleaner.push([=](){ m_pCubemap->cleanup(); });
-    m_cleaner.push([=](){ m_pEnvMap->cleanup(); });
-    m_cleaner.push([=](){ m_pReflMap->cleanup(); });
-    m_cleaner.push([=](){ m_pBrdfMap->cleanup(); });
 }
 
 void GraphicsScene::createDescriptor() {

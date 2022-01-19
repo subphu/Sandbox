@@ -77,8 +77,6 @@
 
 const std::string SPIRV_PATH = "resources/spirv/";
 const std::string MODEL_PATH = "resources/models/";
-const std::string PBR_PATH   = "resources/textures/pbr/";
-const std::string CUBE_PATH  = "resources/textures/cubemap/";
 
 template<typename T> struct Size { T width, height, depth; };
 

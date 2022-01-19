@@ -8,7 +8,7 @@
 GUI::~GUI() { }
 GUI::GUI() { }
 
-void GUI::cleanupGUI() { m_cleaner.flush("Settings"); }
+void GUI::cleanupGUI() { m_cleaner.flush("GUI"); }
 
 void GUI::initGUI(Window* pWindow, Renderpass* pRenderpass) {
     LOG("Settings::initGUI");
@@ -38,6 +38,10 @@ void GUI::initGUI(Window* pWindow, Renderpass* pRenderpass) {
         ImGui_ImplVulkan_Shutdown();
     });
     m_pWindow = pWindow;
+    
+    Files* pFiles = System::Files();
+    addCubemapPrev(pFiles->getCubemapPreviews());
+    addTexturePrev(pFiles->getTexturePreviews());
 }
 
 void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
@@ -80,7 +84,7 @@ void GUI::drawStatusWindow() {
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Light")) {
-        ImGui::SliderInt("Total", &settings->TotalLight, 1, 4);
+        ImGui::SliderInt("Total", &settings->TotalLight, 0, 4);
         ImGui::DragFloat2("Distance", (float*) &settings->Distance, 0.05f);
         ImGui::DragFloat("Radiance", &settings->Radiance, 10.f, 0.f, 10000.f);
         ImGui::ColorEdit3("Color", (float*) &settings->LightColor);
@@ -88,7 +92,7 @@ void GUI::drawStatusWindow() {
     
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::CollapsingHeader("Interference")) {
+    if (ImGui::CollapsingHeader("Interferences")) {
         ImGui::Checkbox("Interference", &settings->Interference);
         ImGui::SameLine();
         ImGui::Checkbox("Phase Shift", &settings->PhaseShift);
@@ -117,11 +121,13 @@ void GUI::drawStatusWindow() {
 
 void GUI::drawImageWindow() {
     Settings* settings = System::Settings();
+    Files* pFiles = System::Files();
     UInt2D windowSize = m_pWindow->getSize();
     ImVec2 windowPos = ImVec2(windowSize.width - 250, 0);
     ImGui::SetNextWindowPos(windowPos, ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(250, windowSize.height));
     ImGui::Begin("Images");
+    ImGui::Checkbox("Use Fluid", &settings->UseFluid);
     ImGui::Checkbox("Simulate Fluid", &settings->RunFluid);
     if (ImGui::BeginTabBar("FluidTabBar")) {
         if (ImGui::BeginTabItem("Height")) {
@@ -141,25 +147,36 @@ void GUI::drawImageWindow() {
     
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::CollapsingHeader("Interference")) {
+    if (ImGui::CollapsingHeader("Interference Image")) {
         ImGui::Image(m_interferenceTexID, {234, 65});
     }
     
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::BeginTabBar("Textures")) {
+    if (ImGui::BeginTabBar("Texture Files")) {
         if (ImGui::BeginTabItem("Textures")) {
-            ImGui::SliderInt("Textures", &settings->Textures, 1, 4);
-//            ImGui::Image(m_textureTexID, {234, 117});
+            ImGui::Checkbox("##UseTexture", &settings->UseTexture);
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.55f);
+            ImGui::SameLine();
+            ImGui::SliderInt("Textures", &settings->Textures, 0, pFiles->getTotalTexture()-1);
+            ImGui::Image(m_texturePrevID[settings->Textures], {234, 234});
+            if (ImGui::Button("Update Texture")) {
+                LOG("Button::Texture Update");
+                pFiles->setTextureIdx(settings->Textures);
+                settings->btnUpdateTexture = true;
+            }
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Cubemap")) {
-            ImGui::SliderInt("Cubemaps", &settings->Cubemaps, 1, 4);
-//            ImGui::Image(m_cubemapTexID, {234, 117});
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+            ImGui::SliderInt("Cubemaps", &settings->Cubemaps, 0, pFiles->getTotalCubemap()-1);
+            ImGui::Image(m_cubemapPrevID[settings->Cubemaps], {234, 117});
+            if (ImGui::Button("Update Cubemap")) {
+                LOG("Button::Cubemap Update");
+                pFiles->setCubemapIdx(settings->Cubemaps);
+                settings->btnUpdateCubemap = true;
+            }
             ImGui::EndTabItem();
-        }
-        if (ImGui::Button("Update")) {
-            LOG("Button::Texture Update");
         }
         ImGui::EndTabBar();
     }
@@ -170,14 +187,6 @@ void GUI::drawImageWindow() {
 void GUI::changeStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_WindowBg] = ImVec4(0.,0.,0.,0.5);
-}
-
-void GUI::addCubemapImage(Image* pImage) {
-    m_cubemapTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
-}
-
-void GUI::addTextureImage(Image* pImage) {
-    m_textureTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
 
 void GUI::addInterferenceImage(Image* pImage) {
@@ -197,4 +206,26 @@ void GUI::updateIridescentImage(Image* pImage) {
 void GUI::updateFluidImage(Image* pImage) {
     pImage->cmdTransitionToShaderR();
     m_fluidTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addCubemapImage(Image* pImage) {
+    m_cubemapTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addTextureImage(Image* pImage) {
+    m_textureTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addCubemapPrev(VECTOR<Image*> pImages) {
+    for (Image* pImage : pImages) {
+        ImTextureID texID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+        m_cubemapPrevID.push_back(texID);
+    }
+}
+
+void GUI::addTexturePrev(VECTOR<Image*> pImages) {
+    for (Image* pImage : pImages) {
+        ImTextureID texID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+        m_texturePrevID.push_back(texID);
+    }
 }

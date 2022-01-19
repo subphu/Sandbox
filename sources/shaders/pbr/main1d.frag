@@ -23,9 +23,8 @@ layout(set = 1, binding = 1) uniform Params {
     float metallic;
     float roughness;
     float ao;
-    uint  textures;
-    uint  cubemaps;
-    uint  shapes;
+    uint  useTexture;
+    uint  useFluid;
     
     uint  interference;
     uint  phaseShift;
@@ -62,29 +61,32 @@ layout(location = 0) out vec4 outColor;
 #include "../functions/pbr.glsl"
 
 void main() {
-    vec4  heightmap = texture(heightMap, fragTexCoord);
-//    vec4  heightmap = vec4(.2);
-    
-    vec3  N = getNormal();
-    float d = heightmap.x * scaleD;
-    float theta1 = getTheta1(N);
-    float theta2 = refractionAngle(n1, theta1, n2);
-    float opd    = getOPD(d, theta2, n2);
-    
-    vec2 interferenceUV = vec2(opd, 0.5);
-    vec4 iridescence = texture(interferenceImage, interferenceUV);
-    
-    
     // PBR
-//    vec4  albedo    = texture(albedoMap, fragTexCoord);
-//    float metallic  = texture(metallicMap, fragTexCoord).r;
-//    float roughness = texture(roughnessMap, fragTexCoord).r;
-//    float ao        = texture(aoMap, fragTexCoord).r;
-    vec4  albedo    = vec4(1,1,1,0);
-    float metallic  = 1;
-    float roughness = 0;
-    float ao        = 1;
-
+    vec3  N         = fragNormal;
+    vec4  albedo    = params.albedo;
+    float metallic  = params.metallic;
+    float roughness = params.roughness;
+    float ao        = params.ao;
+    if (params.useTexture > 0) {
+        N         = getNormalFromMap();
+        albedo    = texture(albedoMap, fragTexCoord);
+        metallic  = texture(metallicMap, fragTexCoord).r;
+        roughness = texture(roughnessMap, fragTexCoord).r;
+        ao        = texture(aoMap, fragTexCoord).r;
+    }
+    
+    vec4 iridescence = vec4(1.);
+    if (params.interference > 0) {
+        vec4  heightmap = params.useFluid > 0 ? texture(heightMap, fragTexCoord) : vec4(params.thicknessScale);
+        float n2 = params.refractiveIndex;
+        float d  = heightmap.x * params.thicknessScale;
+        float theta1 = getTheta1(N);
+        float theta2 = refractionAngle(n1, theta1, n2);
+        float opd    = getOPD(d, theta2, n2);
+        vec2 interferenceUV = vec2(opd, params.reflectanceValue);
+        iridescence = texture(interferenceImage, interferenceUV);
+    }
+    
     vec3 V = normalize(viewPosition - fragPosition);
     vec3 R = reflect(-V, N);
 
@@ -107,11 +109,12 @@ void main() {
            
         vec4  nominator   = NDF * G * F;
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-        vec4 specular = nominator / denominator;
+        vec4 specular = (nominator / denominator);
         
         vec4 kS = F;
         vec4 kD = vec4(1.0) - kS;
         kD *= 1.0 - metallic;
+        kD.a = 1.0;
 
         float NdotL = max(dot(N, L), 0.0);
 
@@ -122,6 +125,8 @@ void main() {
     
     vec4 kS = F;
     vec4 kD = (1.0 - kS) * (1.0 - metallic);
+    kD.a = 1.0;
+    
     vec4 irradiance = texture(envMap, N);
     vec4 diffuse = irradiance * albedo;
     
@@ -132,9 +137,9 @@ void main() {
 //    vec4 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
     specular = specular * iridescence;
-    vec4 ambient = (kD * diffuse + specular) * ao;
+    vec4 ambient = (kD * diffuse + specular) * vec4(vec3(ao), 1.);
     
-    vec4 color = ambient + Lo;
+    vec4 color = ambient + Lo * iridescence;
 
     // HDR tonemapping
     color.rgb = color.rgb / (color.rgb + vec3(1.0));

@@ -62,7 +62,7 @@ private:
     void updateViewportScissor(UInt2D size);
     
 private:
-    const uint MIPLEVELS = 5;
+    const uint MIPLEVELS = 4;
     const glm::mat4 CUBEMAP_PROJ = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
     const glm::mat4 CUBEMAP_VIEWS[6] = {
         glm::lookAt(glm::vec3(0.0f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),

@@ -6,7 +6,7 @@
 #include "../include.h"
 #include "window.hpp"
 #include "../renderer/renderpass.hpp"
-#include "image.hpp"
+#include "../resources/image.hpp"
 
 #include "../extensions/ext_imgui.h"
 
@@ -29,6 +29,9 @@ public:
     void addCubemapImage(Image* pImage);
     void addTextureImage(Image* pImage);
     
+    void addCubemapPrev(VECTOR<Image*> pImages);
+    void addTexturePrev(VECTOR<Image*> pImages);
+    
 private:
     Cleaner m_cleaner;
     Window* m_pWindow;
@@ -37,6 +40,9 @@ private:
     ImTextureID m_fluidTexID;
     ImTextureID m_heightMapTexID;
     ImTextureID m_iridescentTexID;
+    
+    VECTOR<ImTextureID> m_cubemapPrevID;
+    VECTOR<ImTextureID> m_texturePrevID;
     
     ImTextureID m_textureTexID;
     ImTextureID m_cubemapTexID;

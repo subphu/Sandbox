@@ -36,12 +36,11 @@ class GraphicsScene {
     
     struct UBParam {
         glm::vec4 albedo;
-        float metallic  = 1.0;
-        float roughness = 0.0;
-        float ao        = 1.0;
-        uint  textures  = 0;
-        uint  cubemaps  = 0;
-        uint  shapes    = 0;
+        float metallic   = 1.0;
+        float roughness  = 0.0;
+        float ao         = 1.0;
+        uint  useTexture = 0;
+        uint  useFluid   = 1;
         
         uint  interference     = 1;
         uint  phaseShift       = 0;
@@ -60,6 +59,7 @@ public:
     
     void setupShader();
     void setupInput();
+    void updateTexture();
     void updateCubemap(Image* cubemap, Image* envMap, Image* reflMap, Image* brdfMap);
     void updateLightInput();
     void updateParamInput();

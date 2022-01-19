@@ -11,7 +11,10 @@ void App::run() {
     cleanup();
 }
 
-void App::cleanup() { m_cleaner.flush("App"); }
+void App::cleanup() {
+    System::Files()->cleanup();
+    m_cleaner.flush("App");
+}
 
 void App::initWindow() {
     LOG("App::initWindow");
@@ -81,6 +84,7 @@ void App::createGraphicsScene() {
     m_pGraphicsScene->setupShader();
     m_pGraphicsScene->createDescriptor();
     m_pGraphicsScene->setupInput();
+    m_pGraphicsScene->updateTexture();
     m_pGraphicsScene->createRenderpass();
     m_pGraphicsScene->createPipelineLayout();
     m_pGraphicsScene->createPipeline();
@@ -197,6 +201,7 @@ void App::createCubemap() {
 
 void App::setup() {
     System::Instance().initFiles();
+    
     m_pCamera = new Camera();
     initWindow();
     initDevice();
@@ -228,7 +233,7 @@ void App::draw() {
     VkResult result = vkBeginCommandBuffer(cmdBuffer, &commandBeginInfo);
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
     
-    if (System::Settings()->RunFluid) {
+    if (System::Settings()->RunFluid && System::Settings()->UseFluid) {
         pComputeFluid->dispatch(cmdBuffer);
     }
     
@@ -251,8 +256,17 @@ void App::update() {
         if (settings->LockFocus) moveViewLock(pWindow);
         else                     moveView(pWindow);
     }
+    if (settings->btnUpdateCubemap) {
+        settings->btnUpdateCubemap = false;
+        createCubemap();
+    }
+    if (settings->btnUpdateTexture) {
+        settings->btnUpdateTexture = false;
+        m_pGraphicsScene->updateTexture();
+    }
     
     m_pGraphicsScene->updateLightInput();
+    m_pGraphicsScene->updateParamInput();
     m_pGraphicsScene->updateCameraInput(m_pCamera);
     System::Settings()->CameraPos = m_pCamera->getPosition();
 }

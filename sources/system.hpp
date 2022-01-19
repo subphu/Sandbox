@@ -20,6 +20,7 @@ struct Settings {
     VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
     
+    bool   UseFluid  = true;
     bool   RunFluid  = true;
     UInt2D FluidSize = {800, 800};
     
@@ -45,10 +46,14 @@ struct Settings {
     float  AO        = 1.0;
     
     // Objects
-    int    Textures  = 0;
-    int    Cubemaps  = 0;
+    bool   UseTexture = false;
+    int    Textures  = 6;
+    int    Cubemaps  = 2;
     int    Shapes    = 0;
     
+    // Button
+    bool btnUpdateTexture = false;
+    bool btnUpdateCubemap = false;
     
 };
 
