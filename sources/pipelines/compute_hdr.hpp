@@ -52,8 +52,4 @@ private:
     VkPushConstantRange m_pushConstantRange;
     VkPipelineShaderStageCreateInfo m_shaderStage;
     
-private:
-    const std::vector<std::string> TEXTURE_NAMES = {"Arches_E_PineTree", "GravelPlaza",  "Tokyo_BigSight", "Ueno-Shrine"};
-    const std::string TEXTURE_HDR_PATH = ".hdr";
-    const std::string TEXTURE_ENV_PATH = "_Env.hdr";
 };

@@ -65,6 +65,7 @@
 
 #define UINT32(v) static_cast<uint32_t>(v)
 #define VECTOR std::vector
+#define STRING std::string
 
 #define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
 

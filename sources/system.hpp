@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "files.hpp"
 #include "device.hpp"
 #include "commander.hpp"
 
@@ -75,15 +76,19 @@ struct RenderTime {
 class System {
     
 public:
+    Files*      m_pFiles      = nullptr;
     Device*     m_pDevice     = nullptr;
     Commander*  m_pCommander  = nullptr;
     Settings*   m_pSettings   = new struct Settings();
     RenderTime* m_pRenderTime = new struct RenderTime();
     
+    static Files*      Files     () { return Instance().m_pFiles;     }
     static Device*     Device    () { return Instance().m_pDevice;     }
     static Commander*  Commander () { return Instance().m_pCommander;  }
     static Settings*   Settings  () { return Instance().m_pSettings;   }
     static RenderTime* RenderTime() { return Instance().m_pRenderTime; }
+    
+    static void initFiles() { Instance().m_pFiles = new class Files(); }
     
     static void setDevice   (class Device*    device   ) { Instance().m_pDevice    = device; }
     static void setCommander(class Commander* commander) { Instance().m_pCommander = commander; }
@@ -96,8 +101,8 @@ public:
     
 private:
     
-    System() {}
     ~System() {}
+    System() {}
 
     // C++ 03
     // ========

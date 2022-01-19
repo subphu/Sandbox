@@ -116,21 +116,4 @@ private:
     
     void updateViewportScissor();
     
-private:
-    const uint USED_TEXTURE = 5;
-    const std::vector<std::string> TEXTURE_NAMES = {"cliffrockface", "cobblestylized", "greasypan", "layered-rock1", "limestone6",  "roughrockface", "rustediron", "slimy-slippery-rock1", "slipperystonework", "worn-wet-old-cobblestone"};
-    const std::string TEXTURE_ALBEDO_PATH    = "_albedo.png";
-    const std::string TEXTURE_AO_PATH        = "_ao.png";
-    const std::string TEXTURE_METALLIC_PATH  = "_metallic.png";
-    const std::string TEXTURE_NORMAL_PATH    = "_normal.png";
-    const std::string TEXTURE_ROUGHNESS_PATH = "_roughness.png";
-    
-    std::string getTextureName();
-    std::string getAlbedoTexturePath();
-    std::string getAOTexturePath();
-    std::string getMetallicTexturePath();
-    std::string getNormalTexturePath();
-    std::string getRoughnessTexturePath();
-    VECTOR<std::string> getPBRTexturePaths();
-    
 };

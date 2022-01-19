@@ -17,6 +17,7 @@
 		265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265A2C872751BA8A004D1025 /* pipeline.cpp */; };
 		266FF39127757BBA00610B18 /* graphics_equirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 266FF38F27757BBA00610B18 /* graphics_equirect.cpp */; };
 		266FF39B2778B41200610B18 /* compute_hdr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 266FF3992778B41100610B18 /* compute_hdr.cpp */; };
+		268473522798142F000DEB30 /* files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268473502798142F000DEB30 /* files.cpp */; };
 		26B313C52715C60F00DD0339 /* commander.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C32715C60F00DD0339 /* commander.cpp */; };
 		26B313C82715DA8C00DD0339 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C62715DA8C00DD0339 /* system.cpp */; };
 		26B6BF9226A873CE00223ED8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B6BF9126A873CE00223ED8 /* main.cpp */; };
@@ -100,6 +101,8 @@
 		266FF39C2778D09000610B18 /* hdr.comp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hdr.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		2679DF14277B15EA00D9C5A7 /* cubemap.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = cubemap.frag; sourceTree = "<group>"; };
 		2679DF15277B3D1100D9C5A7 /* cubemap.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = cubemap.vert; sourceTree = "<group>"; };
+		268473502798142F000DEB30 /* files.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = files.cpp; sourceTree = "<group>"; };
+		268473512798142F000DEB30 /* files.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = files.hpp; sourceTree = "<group>"; };
 		26AB6DF3270B386E00BB873A /* Sandbox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sandbox.entitlements; sourceTree = "<group>"; };
 		26B313C32715C60F00DD0339 /* commander.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commander.cpp; sourceTree = "<group>"; };
 		26B313C42715C60F00DD0339 /* commander.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = commander.hpp; sourceTree = "<group>"; };
@@ -286,6 +289,8 @@
 				2613475C26F88D3900B3E6A7 /* app.hpp */,
 				26B6BF9126A873CE00223ED8 /* main.cpp */,
 				2615790026F88EED0093D4AF /* include.h */,
+				268473502798142F000DEB30 /* files.cpp */,
+				268473512798142F000DEB30 /* files.hpp */,
 			);
 			path = sources;
 			sourceTree = "<group>";
@@ -550,6 +555,7 @@
 				266FF39B2778B41200610B18 /* compute_hdr.cpp in Sources */,
 				26E70215274BA6850097A974 /* imgui_impl_glfw.cpp in Sources */,
 				26E70206274BA6670097A974 /* imgui_tables.cpp in Sources */,
+				268473522798142F000DEB30 /* files.cpp in Sources */,
 				265A2C892751BA8A004D1025 /* pipeline.cpp in Sources */,
 				26E70207274BA6670097A974 /* imgui_demo.cpp in Sources */,
 				2615790526F8C6BF0093D4AF /* device.cpp in Sources */,

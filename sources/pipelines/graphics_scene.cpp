@@ -130,7 +130,8 @@ void GraphicsScene::setupInput() {
     m_pParamBuffer->create();
     m_cleaner.push([=](){ m_pParamBuffer->cleanup(); });
     
-    for (std::string path : getPBRTexturePaths()) {
+    VECTOR<STRING> pbrPaths = System::Files()->getTexturePBRPaths();
+    for (std::string path : pbrPaths) {
         Image* pTexture = new Image();
         pTexture->setupForTexture(path);
         pTexture->createWithSampler();
@@ -256,7 +257,7 @@ void GraphicsScene::createDescriptor() {
     m_pDescriptor->createLayout(S1);
     
     m_pDescriptor->setupLayout(S2);
-    for (uint i = 0; i < USED_TEXTURE; i++) {
+    for (uint i = 0; i < 5; i++) {
         m_pDescriptor->addLayoutBindings(S2, i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                        VK_SHADER_STAGE_FRAGMENT_BIT);
     }
@@ -414,10 +415,3 @@ void GraphicsScene::updateViewportScissor() {
 
 Frame* GraphicsScene::getFrame() { return m_pFrame; }
 
-std::string GraphicsScene::getTextureName() { return TEXTURE_NAMES[m_textureIdx] + "/" + TEXTURE_NAMES[m_textureIdx]; }
-std::string GraphicsScene::getAlbedoTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_ALBEDO_PATH; }
-std::string GraphicsScene::getAOTexturePath()        { return PBR_PATH + getTextureName() + TEXTURE_AO_PATH; }
-std::string GraphicsScene::getMetallicTexturePath()  { return PBR_PATH + getTextureName() + TEXTURE_METALLIC_PATH; }
-std::string GraphicsScene::getNormalTexturePath()    { return PBR_PATH + getTextureName() + TEXTURE_NORMAL_PATH; }
-std::string GraphicsScene::getRoughnessTexturePath() { return PBR_PATH + getTextureName() + TEXTURE_ROUGHNESS_PATH; }
-VECTOR<std::string> GraphicsScene::getPBRTexturePaths(){ return { getAlbedoTexturePath(), getAOTexturePath(), getMetallicTexturePath(), getNormalTexturePath(), getRoughnessTexturePath() }; }

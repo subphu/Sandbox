@@ -136,7 +136,3 @@ void ComputeHDR::dispatch(VkCommandBuffer cmdBuffer) {
     
     m_pOutputImage->cmdTransitionToTransferSrc(cmdBuffer);
 }
-
-std::string ComputeHDR::getTextureName() { return TEXTURE_NAMES[m_textureIdx] + "/" + TEXTURE_NAMES[m_textureIdx]; }
-std::string ComputeHDR::getHDRTexturePath() { return CUBE_PATH + getTextureName() + TEXTURE_HDR_PATH; }
-std::string ComputeHDR::getEnvTexturePath() { return CUBE_PATH + getTextureName() + TEXTURE_ENV_PATH; }

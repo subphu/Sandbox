@@ -129,6 +129,7 @@ void App::createInterference() {
 
 void App::createCubemap() {
     LOG("App::createGraphicsEquirect");
+    Files *pFiles = System::Files();
     Image *hdrImg, *hdrEnv, *cubemap, *envMap, *reflMap, *brdfMap;
     ComputeHDR* pComputeHDR = new ComputeHDR();
     pComputeHDR->setupShader();
@@ -136,15 +137,15 @@ void App::createCubemap() {
     pComputeHDR->createPipelineLayout();
     pComputeHDR->createPipeline();
     
-    pComputeHDR->setupInputOutput(pComputeHDR->getHDRTexturePath());
+    pComputeHDR->setupInputOutput(pFiles->getCubemapHDRPath());
     hdrImg = pComputeHDR->dispatch();
     
     pComputeHDR->cleanInputOutput();
-    pComputeHDR->setupInputOutput(pComputeHDR->getEnvTexturePath());
+    pComputeHDR->setupInputOutput(pFiles->getCubemapEnvPath());
     hdrEnv = pComputeHDR->dispatch();
     pComputeHDR->cleanup();
     
-    uint length = 1200;
+    uint length = 1024;
     GraphicsEquirect* pGraphicsEquirect = new GraphicsEquirect();
     pGraphicsEquirect->setupShader();
     pGraphicsEquirect->createDescriptor();
@@ -160,7 +161,7 @@ void App::createCubemap() {
     
     pGraphicsEquirect->cleanFrame();
     pGraphicsEquirect->setupInput(hdrEnv);
-    pGraphicsEquirect->createFrame(length / 10);
+    pGraphicsEquirect->createFrame(length / 8);
     envMap = pGraphicsEquirect->render();
     m_cleaner.push([=](){ envMap->cleanup(); });
     
@@ -195,6 +196,7 @@ void App::createCubemap() {
 }
 
 void App::setup() {
+    System::Instance().initFiles();
     m_pCamera = new Camera();
     initWindow();
     initDevice();
