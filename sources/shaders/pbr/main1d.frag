@@ -56,21 +56,25 @@ void main() {
     float theta2 = refractionAngle(n1, theta1, n2);
     float opd    = getOPD(d, theta2, n2);
     
-    vec2 interferenceUV = vec2(opd, reflectance);
+    vec2 interferenceUV = vec2(opd, 0.5);
     vec4 iridescence = texture(interferenceImage, interferenceUV);
     
     
     // PBR
-    vec3  albedo    = pow(texture(albedoMap, fragTexCoord).rgb, vec3(2.2));
-    float metallic  = texture(metallicMap, fragTexCoord).r;
-    float roughness = texture(roughnessMap, fragTexCoord).r;
-    float ao        = texture(aoMap, fragTexCoord).r;
+//    vec4  albedo    = texture(albedoMap, fragTexCoord);
+//    float metallic  = texture(metallicMap, fragTexCoord).r;
+//    float roughness = texture(roughnessMap, fragTexCoord).r;
+//    float ao        = texture(aoMap, fragTexCoord).r;
+    vec4  albedo    = vec4(1,1,1,0);
+    float metallic  = 1;
+    float roughness = 0;
+    float ao        = 1;
 
     vec3 V = normalize(viewPosition - fragPosition);
     vec3 R = reflect(-V, N);
 
-    vec3 F0 = mix(vec3(0.04), albedo, metallic);
-    vec3 Lo = vec3(0.0);
+    vec4 F0 = mix(vec4(0.04,0.04,0.04,1.), albedo, metallic);
+    vec4 Lo = vec4(0.0);
     
     for(uint i = 0; i < lights.total; ++i) {
         vec3 lightPosition = lights.position[i].xyz;
@@ -79,19 +83,19 @@ void main() {
         vec3 H = normalize(V + L);
         float dist = length(lightPosition - fragPosition);
         float attenuation = 1.0 / (dist * dist);
-        vec3 radiance = lights.color.xyz * lights.radiance * attenuation;
+        vec4 radiance = lights.color * lights.radiance * attenuation;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
         float G   = GeometrySmith(N, V, L, roughness);
-        vec3  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        vec4  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);
            
-        vec3  nominator   = NDF * G * F;
+        vec4  nominator   = NDF * G * F;
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-        vec3 specular = nominator / denominator;
+        vec4 specular = nominator / denominator;
         
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
+        vec4 kS = F;
+        vec4 kD = vec4(1.0) - kS;
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N, L), 0.0);
@@ -99,27 +103,27 @@ void main() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
     
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    vec4 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
     
-    vec3 kS = F;
-    vec3 kD = (1.0 - kS) * (1.0 - metallic);
-    vec3 irradiance = texture(envMap, N).rgb;
-    vec3 diffuse = irradiance * albedo;
+    vec4 kS = F;
+    vec4 kD = (1.0 - kS) * (1.0 - metallic);
+    vec4 irradiance = texture(envMap, N);
+    vec4 diffuse = irradiance * albedo;
     
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(reflMap, R,  roughness * MAX_REFLECTION_LOD).rgb;
+    vec4 prefilteredColor = textureLod(reflMap, R,  roughness * MAX_REFLECTION_LOD);
     vec2 brdf  = texture(brdfMap, vec2(max(dot(N, V), 0.0), roughness)).rg;
-    vec3 specular = prefilteredColor * (F + brdf.y);
-//    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    vec4 specular = prefilteredColor * (F + brdf.y);
+//    vec4 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
-    specular = specular * iridescence.xyz;
-    vec3 ambient = (kD * diffuse + specular) * ao;
+    specular = specular * iridescence;
+    vec4 ambient = (kD * diffuse + specular) * ao;
     
-    vec3 color = ambient + Lo;
+    vec4 color = ambient + Lo;
 
     // HDR tonemapping
-    color = color / (color + vec3(1.0));
-    outColor = vec4(color, 1.0);
+    color.rgb = color.rgb / (color.rgb + vec3(1.0));
+    outColor = color;
     
     if (isLight == 1) outColor = lights.color;
 }
