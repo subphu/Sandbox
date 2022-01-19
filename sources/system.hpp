@@ -22,16 +22,33 @@ struct Settings {
     bool   RunFluid  = true;
     UInt2D FluidSize = {800, 800};
     
-    uint   OPDSample       = 16384;
-    uint   RSample         = 11;
-    float  RefractiveIndex = 1.5f;
-    float  Reflectance     = 0.5f;
-    
     // Lights
     int       TotalLight  = 4;
     float     Radiance    = 200.f;
     glm::vec2 Distance    = {8.f, 8.f};
     glm::vec4 LightColor  = {1.f, 1.f, 1.f, 1.f};
+    
+    // Interference
+    uint   OPDSample        = 16384;
+    uint   RSample          = 11;
+    bool   Interference     = true;
+    bool   PhaseShift       = false;
+    float  ThicknessScale   = 0.3f;
+    float  RefractiveIndex  = 1.5f;
+    float  ReflectanceValue = 0.5f;
+    
+    // Materials
+    glm::vec4 Albedo = {1.f, 1.f, 1.f, 1.f};
+    float  Metallic  = 1.0;
+    float  Roughness = 0.0;
+    float  AO        = 1.0;
+    
+    // Objects
+    int    Textures  = 0;
+    int    Cubemaps  = 0;
+    int    Shapes    = 0;
+    
+    
 };
 
 struct RenderTime {

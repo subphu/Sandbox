@@ -45,7 +45,7 @@ private:
     
     PCMisc m_misc;
     
-    uint m_textureIdx = 0;
+    uint m_textureIdx = 2;
     
     VkPipelineLayout m_pipelineLayout;
     

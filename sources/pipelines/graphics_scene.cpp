@@ -113,7 +113,6 @@ void GraphicsScene::setupShader() {
 
 void GraphicsScene::setupInput() {
     LOG("GraphicsScene::setupInput");
-    m_misc.reflectance = System::Settings()->Reflectance;
     m_lights.total = System::Settings()->TotalLight;
     
     m_pCameraBuffer = new Buffer();
@@ -125,6 +124,11 @@ void GraphicsScene::setupInput() {
     m_pLightBuffer->setup(sizeof(UBLights), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     m_pLightBuffer->create();
     m_cleaner.push([=](){ m_pLightBuffer->cleanup(); });
+    
+    m_pParamBuffer = new Buffer();
+    m_pParamBuffer->setup(sizeof(UBParam), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    m_pParamBuffer->create();
+    m_cleaner.push([=](){ m_pParamBuffer->cleanup(); });
     
     for (std::string path : getPBRTexturePaths()) {
         Image* pTexture = new Image();
@@ -138,6 +142,7 @@ void GraphicsScene::setupInput() {
     
     m_pDescriptor->setupPointerBuffer(S0, B0, m_pCameraBuffer->getDescriptorInfo());
     m_pDescriptor->setupPointerBuffer(S1, B0, m_pLightBuffer->getDescriptorInfo());
+    m_pDescriptor->setupPointerBuffer(S1, B1, m_pParamBuffer->getDescriptorInfo());
     for (uint i = 0; i < m_pTextures.size(); i++)
         m_pDescriptor->setupPointerImage(S2, i, m_pTextures[i]->getDescriptorInfo());
     
@@ -146,7 +151,7 @@ void GraphicsScene::setupInput() {
     m_pDescriptor->update(S2);
     
     m_pMesh = new Mesh();
-    m_pMesh->createSphere();
+    m_pMesh->createSphere(200, 200);
     m_pMesh->createVertexBuffer();
     m_pMesh->createIndexBuffer();
     m_pMesh->createVertexStateInfo();
@@ -176,13 +181,29 @@ void GraphicsScene::updateLightInput() {
     m_pLightBuffer->fillBuffer(&m_lights, sizeof(UBLights));
 }
 
+void GraphicsScene::updateParamInput() {
+    Settings* settings = System::Settings();
+    m_param.albedo    = settings->Albedo;
+    m_param.metallic  = settings->Metallic;
+    m_param.roughness = settings->Roughness;
+    m_param.ao        = settings->AO;
+    m_param.textures  = settings->Textures;
+    m_param.cubemaps  = settings->Cubemaps;
+    m_param.shapes    = settings->Shapes;
+    m_param.interference     = settings->Interference;
+    m_param.phaseShift       = settings->PhaseShift;
+    m_param.thicknessScale   = settings->ThicknessScale;
+    m_param.refractiveIndex  = settings->RefractiveIndex;
+    m_param.reflectanceValue = settings->ReflectanceValue;
+    m_pParamBuffer->fillBuffer(&m_param, sizeof(UBParam));
+}
+
 void GraphicsScene::updateCameraInput(Camera* pCamera) {
     UInt2D size = m_pFrame->getSize();
     m_misc.viewPosition = pCamera->getPosition();
-    m_cameraMatrix.view = pCamera->getViewMatrix();
-    m_cameraMatrix.proj = pCamera->getProjection((float) size.width / size.height);
-    
-    m_pCameraBuffer->fillBuffer(&m_cameraMatrix, sizeof(UBCamera));
+    m_camera.view = pCamera->getViewMatrix();
+    m_camera.proj = pCamera->getProjection((float) size.width / size.height);
+    m_pCameraBuffer->fillBuffer(&m_camera, sizeof(UBCamera));
 }
 
 void GraphicsScene::updateHeightmapInput(Image *pHeightmapImage) {
@@ -229,6 +250,8 @@ void GraphicsScene::createDescriptor() {
     
     m_pDescriptor->setupLayout(S1);
     m_pDescriptor->addLayoutBindings(S1, B0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                     VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S1, B1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                      VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S1);
     

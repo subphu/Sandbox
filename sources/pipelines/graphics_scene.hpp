@@ -20,7 +20,6 @@ class GraphicsScene {
         glm::mat4 model;
         glm::vec3 viewPosition;
         uint isLight;
-        float reflectance;
     };
     
     struct UBCamera {
@@ -35,6 +34,23 @@ class GraphicsScene {
         float radiance;
     };
     
+    struct UBParam {
+        glm::vec4 albedo;
+        float metallic  = 1.0;
+        float roughness = 0.0;
+        float ao        = 1.0;
+        uint  textures  = 0;
+        uint  cubemaps  = 0;
+        uint  shapes    = 0;
+        
+        uint  interference     = 1;
+        uint  phaseShift       = 0;
+        float thicknessScale   = 0.3;
+        float refractiveIndex  = 1.5;
+        float reflectanceValue = 0.5;
+    };
+    
+    
 public:
     ~GraphicsScene();
     GraphicsScene();
@@ -46,6 +62,7 @@ public:
     void setupInput();
     void updateCubemap(Image* cubemap, Image* envMap, Image* reflMap, Image* brdfMap);
     void updateLightInput();
+    void updateParamInput();
     void updateCameraInput(Camera* pCamera);
     void updateInterferenceInput(Image* pInterferenceImage);
     void updateHeightmapInput(Image* pHeightmapImage);
@@ -68,6 +85,7 @@ private:
     Descriptor* m_pDescriptor;
     
     Buffer* m_pLightBuffer;
+    Buffer* m_pParamBuffer;
     Buffer* m_pCameraBuffer;
     Frame*  m_pFrame;
     
@@ -83,7 +101,8 @@ private:
     
     PCMisc   m_misc{};
     UBLights m_lights{};
-    UBCamera m_cameraMatrix{};
+    UBCamera m_camera{};
+    UBParam  m_param{};
     
     VkViewport m_viewport{};
     VkRect2D   m_scissor{};

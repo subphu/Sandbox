@@ -9,7 +9,6 @@ layout(push_constant) uniform Misc {
     mat4 model;
     vec3 viewPosition;
     uint isLight;
-    float reflectance;
 };
 
 layout(set = 1, binding = 0) uniform Lights {
@@ -18,6 +17,22 @@ layout(set = 1, binding = 0) uniform Lights {
     uint total;
     float radiance;
 } lights;
+
+layout(set = 1, binding = 1) uniform Params {
+    vec4 albedo;
+    float metallic;
+    float roughness;
+    float ao;
+    uint  textures;
+    uint  cubemaps;
+    uint  shapes;
+    
+    uint  interference;
+    uint  phaseShift;
+    float thicknessScale;
+    float refractiveIndex;
+    float reflectanceValue;
+} params;
 
 // Textures ==================================================
 layout(set = 2, binding = 0) uniform sampler2D albedoMap;

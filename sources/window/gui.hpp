@@ -24,19 +24,27 @@ public:
     void addInterferenceImage(Image* pImage);
     void updateHeightMapImage(Image* pImage);
     void updateIridescentImage(Image* pImage);
+    void updateFluidImage(Image* pImage);
+    
+    void addCubemapImage(Image* pImage);
+    void addTextureImage(Image* pImage);
     
 private:
     Cleaner m_cleaner;
     Window* m_pWindow;
     
     ImTextureID m_interferenceTexID;
+    ImTextureID m_fluidTexID;
     ImTextureID m_heightMapTexID;
     ImTextureID m_iridescentTexID;
+    
+    ImTextureID m_textureTexID;
+    ImTextureID m_cubemapTexID;
     
     ImGui_ImplVulkan_InitInfo m_initInfo{};
     
     void changeStyle();
     void drawStatusWindow();
-    void drawInterferenceWindow();
+    void drawImageWindow();
 };
 

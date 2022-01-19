@@ -17,7 +17,7 @@ vec3 getNormalFromMap() {
 }
 
 vec3 getNormal() {
-//    return fragNormal;
+    return fragNormal;
     return getNormalFromMap();
 }
 

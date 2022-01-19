@@ -22,7 +22,7 @@ void ComputeFluid::setupShader() {
 }
 
 void ComputeFluid::setupInput() {
-    m_details.reflectance = System::Settings()->Reflectance;
+    m_details.reflectance = System::Settings()->ReflectanceValue;
     m_details.size = System::Settings()->FluidSize;
 }
 

@@ -5,7 +5,6 @@ layout(push_constant) uniform Misc {
     mat4 model;
     vec3 viewPosition;
     uint isLight;
-    float reflectance;
 };
 
 layout(set = 0, binding = 0) uniform Camera {

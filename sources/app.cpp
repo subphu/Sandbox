@@ -102,6 +102,7 @@ void App::createComputeFluid() {
     m_cleaner.push([=](){ m_pComputeFluid->cleanup(); });
     
     m_pGraphicsScene->updateHeightmapInput(m_pComputeFluid->getHeightImage());
+    m_pGUI->updateFluidImage(m_pComputeFluid->getFluidImage());
     m_pGUI->updateHeightMapImage(m_pComputeFluid->getHeightImage());
     m_pGUI->updateIridescentImage(m_pComputeFluid->getIridescentImage());
 }
@@ -242,8 +243,12 @@ void App::draw() {
 
 void App::update() {
     Settings* settings = System::Settings();
-    if (settings->LockFocus) moveViewLock(m_pWindow);
-    else                     moveView(m_pWindow);
+    Window*   pWindow  = m_pWindow;
+    if (pWindow->getCursorPosition().x > 250 &&
+        pWindow->getCursorPosition().x < pWindow->getSize().width - 250) {
+        if (settings->LockFocus) moveViewLock(pWindow);
+        else                     moveView(pWindow);
+    }
     
     m_pGraphicsScene->updateLightInput();
     m_pGraphicsScene->updateCameraInput(m_pCamera);

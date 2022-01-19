@@ -50,7 +50,7 @@ void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
     changeStyle();
     if (settings->ShowDemo) ImGui::ShowDemoWindow(&settings->ShowDemo);
     drawStatusWindow();
-    drawInterferenceWindow();
+    drawImageWindow();
     
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
@@ -60,7 +60,7 @@ void GUI::drawStatusWindow() {
     Settings* settings = System::Settings();
     UInt2D  windowSize = m_pWindow->getSize();
     
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(250, windowSize.height));
     ImGui::Begin("Status");
     
@@ -75,23 +75,61 @@ void GUI::drawStatusWindow() {
     ImGui::Text("x:%.2f y:%.2f z:%.2f",
                 settings->CameraPos.x, settings->CameraPos.y, settings->CameraPos.z);
     
-    ImGui::ColorEdit3("Clear", (float*) &settings->ClearColor);
+//    ImGui::ColorEdit3("Clear", (float*) &settings->ClearColor);
     
     ImGui::Separator();
-    ImGui::SetNextItemOpen(true);
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Light")) {
         ImGui::SliderInt("Total", &settings->TotalLight, 1, 4);
         ImGui::DragFloat2("Distance", (float*) &settings->Distance, 0.05f);
         ImGui::DragFloat("Radiance", &settings->Radiance, 10.f, 0.f, 10000.f);
         ImGui::ColorEdit3("Color", (float*) &settings->LightColor);
     }
-    ImGui::Separator();
     
+    ImGui::Separator();
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::CollapsingHeader("Interference")) {
+        ImGui::Checkbox("Interference", &settings->Interference);
+        ImGui::SameLine();
+        ImGui::Checkbox("Phase Shift", &settings->PhaseShift);
+        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+        ImGui::SliderFloat("Thickness", &settings->ThicknessScale, 0.f, 1.f);
+        ImGui::SliderFloat("Refractive", &settings->RefractiveIndex, 0.f, 4.f);
+        ImGui::SliderFloat("Reflectance", &settings->ReflectanceValue, 0.f, 1.f);
+    }
+    
+    ImGui::Separator();
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::CollapsingHeader("Materials")) {
+        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+        ImGui::SliderInt("Shapes", &settings->Shapes, 1, 4);
+        ImGui::ColorEdit4("Albedo", (float*) &settings->Albedo);
+        ImGui::SliderFloat("Metallic", &settings->Metallic, 0.f, 1.f);
+        ImGui::SliderFloat("Roughness", &settings->Roughness, 0.f, 1.f);
+    }
+    
+    
+    ImGui::Separator();
     ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
+    
+    ImGui::End();
+}
+
+void GUI::drawImageWindow() {
+    Settings* settings = System::Settings();
+    UInt2D windowSize = m_pWindow->getSize();
+    ImVec2 windowPos = ImVec2(windowSize.width - 250, 0);
+    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(250, windowSize.height));
+    ImGui::Begin("Images");
     ImGui::Checkbox("Simulate Fluid", &settings->RunFluid);
-    if (ImGui::BeginTabBar("MyTabBar")) {
+    if (ImGui::BeginTabBar("FluidTabBar")) {
         if (ImGui::BeginTabItem("Height")) {
             ImGui::Image(m_heightMapTexID, {234, 234});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Fluid")) {
+            ImGui::Image(m_fluidTexID, {234, 234});
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Iridesence")) {
@@ -101,20 +139,45 @@ void GUI::drawStatusWindow() {
         ImGui::EndTabBar();
     }
     
-    ImGui::End();
-}
-
-void GUI::drawInterferenceWindow() {
-    ImGui::SetNextWindowPos(ImVec2(250, 0));
-    ImGui::SetNextWindowSize(ImVec2(420, 125));
-    ImGui::Begin("Interference");
-    ImGui::Image(m_interferenceTexID, {400, 90});
+    ImGui::Separator();
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::CollapsingHeader("Interference")) {
+        ImGui::Image(m_interferenceTexID, {234, 65});
+    }
+    
+    ImGui::Separator();
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::BeginTabBar("Textures")) {
+        if (ImGui::BeginTabItem("Textures")) {
+            ImGui::SliderInt("Textures", &settings->Textures, 1, 4);
+//            ImGui::Image(m_textureTexID, {234, 117});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Cubemap")) {
+            ImGui::SliderInt("Cubemaps", &settings->Cubemaps, 1, 4);
+//            ImGui::Image(m_cubemapTexID, {234, 117});
+            ImGui::EndTabItem();
+        }
+        if (ImGui::Button("Update")) {
+            LOG("Button::Texture Update");
+        }
+        ImGui::EndTabBar();
+    }
+    
     ImGui::End();
 }
 
 void GUI::changeStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.,0.,0.,0.2);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.,0.,0.,0.5);
+}
+
+void GUI::addCubemapImage(Image* pImage) {
+    m_cubemapTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addTextureImage(Image* pImage) {
+    m_textureTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
 
 void GUI::addInterferenceImage(Image* pImage) {
@@ -129,4 +192,9 @@ void GUI::updateHeightMapImage(Image* pImage) {
 void GUI::updateIridescentImage(Image* pImage) {
     pImage->cmdTransitionToShaderR();
     m_iridescentTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::updateFluidImage(Image* pImage) {
+    pImage->cmdTransitionToShaderR();
+    m_fluidTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
