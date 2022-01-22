@@ -106,7 +106,7 @@ void GUI::drawStatusWindow() {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Materials")) {
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
-        ImGui::SliderInt("Shapes", &settings->Shapes, 1, 4);
+        ImGui::SliderInt("Shapes", &settings->Shapes, 0, 2);
         ImGui::ColorEdit4("Albedo", (float*) &settings->Albedo);
         ImGui::SliderFloat("Metallic", &settings->Metallic, 0.f, 1.f);
         ImGui::SliderFloat("Roughness", &settings->Roughness, 0.f, 1.f);

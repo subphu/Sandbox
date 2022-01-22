@@ -12,6 +12,7 @@ GraphicsScene::GraphicsScene() : m_pDevice(System::Device()) {}
 void GraphicsScene::cleanup() { m_cleaner.flush("GraphicsScene"); }
 
 void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
+    Settings* settings = System::Settings();
     VkPipelineLayout pipelineLayout  = m_pipelineLayout;
     VkPipeline       meshPipeline    = m_pMeshPipeline->get();
     VkPipeline       cubemapPipeline = m_pCubemapPipeline->get();
@@ -19,11 +20,12 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     VkFramebuffer    framebuffer     = m_pFrame->getFramebuffer();
     VkRect2D         scissor         = m_scissor;
     VkViewport       viewport        = m_viewport;
+    Mesh *mesh = m_pMesh[settings->Shapes];
     
     VkDeviceSize offsets  = 0;
-    VkBuffer meshVertexBuffer = m_pMesh->getVertexBuffer()->get();
-    VkBuffer meshIndexBuffer  = m_pMesh->getIndexBuffer()->get();
-    uint32_t meshIndexSize    = m_pMesh->getIndexSize();
+    VkBuffer meshVertexBuffer = mesh->getVertexBuffer()->get();
+    VkBuffer meshIndexBuffer  = mesh->getIndexBuffer()->get();
+    uint32_t meshIndexSize    = mesh->getIndexSize();
     VkBuffer cubeVertexBuffer = m_pCube->getVertexBuffer()->get();
     VkBuffer cubeIndexBuffer  = m_pCube->getIndexBuffer()->get();
     uint32_t cubeIndexSize    = m_pCube->getIndexSize();
@@ -82,7 +84,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &meshVertexBuffer, &offsets);
     vkCmdBindIndexBuffer  (cmdBuffer, meshIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
     
-    m_misc.model = m_pMesh->getMatrix();
+    m_misc.model = mesh->getMatrix();
     m_misc.isLight = 0;
     vkCmdPushConstants(cmdBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PCMisc), &m_misc);
     
@@ -136,19 +138,32 @@ void GraphicsScene::setupInput() {
     m_pDescriptor->update(S0);
     m_pDescriptor->update(S1);
     
-    m_pMesh = new Mesh();
-    m_pMesh->createSphere(200, 200);
-    m_pMesh->createVertexBuffer();
-    m_pMesh->createIndexBuffer();
-    m_pMesh->createVertexStateInfo();
-    m_cleaner.push([=](){ m_pMesh->cleanup(); });
+    Mesh* cube = new Mesh();
+    cube->createCube();
+    cube->createVertexBuffer();
+    cube->createIndexBuffer();
+    cube->createVertexStateInfo();
+    m_cleaner.push([=](){ cube->cleanup(); });
     
-    m_pCube = new Mesh();
-    m_pCube->createCube();
-    m_pCube->createVertexBuffer();
-    m_pCube->createIndexBuffer();
-    m_pCube->createVertexStateInfo();
-    m_cleaner.push([=](){ m_pCube->cleanup(); });
+    Mesh* sphere = new Mesh();
+    sphere->createSphere(200, 200);
+    sphere->createVertexBuffer();
+    sphere->createIndexBuffer();
+    sphere->createVertexStateInfo();
+    m_cleaner.push([=](){ sphere->cleanup(); });
+    
+    Mesh* model = new Mesh();
+    model->loadModel((MODEL_PATH + "bunny/bunny.obj").c_str());
+    model->createVertexBuffer();
+    model->createIndexBuffer();
+    model->createVertexStateInfo();
+    model->translate({.2, -.6, 0.});
+    m_cleaner.push([=](){ model->cleanup(); });
+    
+    m_pMesh.push_back(sphere);
+    m_pMesh.push_back(cube);
+    m_pMesh.push_back(model);
+    m_pCube = cube;
 }
 
 void GraphicsScene::updateTexture() {
@@ -340,7 +355,7 @@ void GraphicsScene::createPipeline() {
     VkPipelineLayout pipelineLayout = m_pipelineLayout;
     VECTOR<VkPipelineShaderStageCreateInfo> shaderStages = m_shaderStages;
     VkPipelineVertexInputStateCreateInfo cubeVertexInfo = m_pCube->getVertexStateInfo();
-    VkPipelineVertexInputStateCreateInfo meshVertexInfo = m_pMesh->getVertexStateInfo();
+    VkPipelineVertexInputStateCreateInfo meshVertexInfo = m_pCube->getVertexStateInfo();
     
     m_pMeshPipeline = new Pipeline();
     m_pMeshPipeline->setRenderpass(renderpass);

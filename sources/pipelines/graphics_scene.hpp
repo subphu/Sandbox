@@ -90,7 +90,7 @@ private:
     Frame*  m_pFrame;
     
     Mesh*   m_pCube;
-    Mesh*   m_pMesh;
+    VECTOR<Mesh*> m_pMesh;
     Image*  m_pCubemap;
     Image*  m_pEnvMap;
     Image*  m_pReflMap;
