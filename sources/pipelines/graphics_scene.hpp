@@ -108,6 +108,7 @@ private:
     VkRect2D   m_scissor{};
     
     uint m_textureIdx = 6; // 3,4,
+    long m_iteration = 0;
     
     VkPipelineLayout m_pipelineLayout;
     

@@ -165,7 +165,7 @@ void App::createCubemap() {
     
     pGraphicsEquirect->cleanFrame();
     pGraphicsEquirect->setupInput(hdrEnv);
-    pGraphicsEquirect->createFrame(length / 8);
+    pGraphicsEquirect->createFrame(length / 16);
     envMap = pGraphicsEquirect->render();
     m_cleaner.push([=](){ envMap->cleanup(); });
     
@@ -273,10 +273,11 @@ void App::update() {
 
 void App::moveView(Window* pWindow) {
     m_pCamera->setLockFocus(System::Settings()->LockFocus);
+    float scale = .1;
     glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
-    movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a);
-    movement.y += pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q);
-    movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s);
+    movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a) * scale;
+    movement.y += pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q) * scale;
+    movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s) * scale;
     m_pCamera->move(movement);
     
     if (pWindow->getMouseBtnState(mouse_btn_left)) {

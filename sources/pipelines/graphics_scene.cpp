@@ -210,12 +210,12 @@ void GraphicsScene::updateLightInput() {
     m_lights.total = settings->TotalLight;
     m_lights.color = settings->LightColor;
     glm::vec2 distance = settings->Distance;
-    long iteration = settings->Iteration;
+    m_iteration = settings->LightMove ? settings->Iteration : m_iteration;
     float interval = glm::radians(360.f/m_lights.total);
     for (int i = 0; i < m_lights.total; i++) {
         m_lights.position[i].z = distance.x;
-        m_lights.position[i].x = sin(iteration / 100.f + i * interval) * distance.y;
-        m_lights.position[i].y = cos(iteration / 100.f + i * interval) * distance.y;
+        m_lights.position[i].x = sin(m_iteration / 100.f + i * interval) * distance.y;
+        m_lights.position[i].y = cos(m_iteration / 100.f + i * interval) * distance.y;
     }
     m_pLightBuffer->fillBuffer(&m_lights, sizeof(UBLights));
 }

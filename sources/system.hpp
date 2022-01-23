@@ -25,6 +25,7 @@ struct Settings {
     UInt2D FluidSize = {800, 800};
     
     // Lights
+    bool      LightMove   = true;
     int       TotalLight  = 4;
     float     Radiance    = 200.f;
     glm::vec2 Distance    = {8.f, 8.f};

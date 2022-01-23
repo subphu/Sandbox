@@ -85,6 +85,7 @@ void GUI::drawStatusWindow() {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Light")) {
         ImGui::SliderInt("Total", &settings->TotalLight, 0, 4);
+        ImGui::Checkbox("Moving", &settings->LightMove);
         ImGui::DragFloat2("Distance", (float*) &settings->Distance, 0.05f);
         ImGui::DragFloat("Radiance", &settings->Radiance, 10.f, 0.f, 10000.f);
         ImGui::ColorEdit3("Color", (float*) &settings->LightColor);
