@@ -91,8 +91,8 @@ Image* GraphicsReflection::render() {
 
 void GraphicsReflection::setupShader() {
     LOG("GraphicsReflection::setupShader");
-    Shader* vertShader = new Shader(SPIRV_PATH + "specular.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
-    Shader* fragShader = new Shader(SPIRV_PATH + "specular.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
+    Shader* vertShader = new Shader(SPIRV_PATH + "reflection.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
+    Shader* fragShader = new Shader(SPIRV_PATH + "reflection.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
     m_shaderStages = { vertShader->getShaderStageInfo(), fragShader->getShaderStageInfo() };
     m_cleaner.push([=](){ vertShader->cleanup(); fragShader->cleanup(); });
 }
