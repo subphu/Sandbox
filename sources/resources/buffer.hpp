@@ -22,6 +22,7 @@ public:
     void createDescriptorInfo();
     
     void cmdCopyFromBuffer(VkBuffer sourceBuffer, VkDeviceSize size);
+    void cmdClearBuffer(VkCommandBuffer cmdBuffer, float fdata);
     
     void* fillBuffer    (const void* address, VkDeviceSize size, uint32_t shift = 0);
     void* fillBufferFull(const void* address);
