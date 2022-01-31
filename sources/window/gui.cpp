@@ -85,7 +85,7 @@ void GUI::drawStatusWindow() {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Light")) {
         ImGui::SliderInt("Total", &settings->TotalLight, 0, 4);
-        ImGui::Checkbox("Moving", &settings->LightMove);
+        ImGui::Checkbox("Move Light", &settings->LightMove);
         ImGui::DragFloat2("Distance", (float*) &settings->Distance, 0.05f);
         ImGui::DragFloat("Radiance", &settings->Radiance, 10.f, 0.f, 10000.f);
         ImGui::ColorEdit3("Color", (float*) &settings->LightColor);
@@ -98,20 +98,60 @@ void GUI::drawStatusWindow() {
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
         ImGui::SliderFloat("Thickness", &settings->ThicknessScale, 0.f, 2.f);
         ImGui::SliderFloat("Refractive", &settings->RefractiveIndex, 1.f, 4.f);
-        ImGui::SliderFloat("Reflectance", &settings->ReflectanceValue, 0.f, 1.f);
         ImGui::SliderFloat("OPD Offset", &settings->OPDOffset, -.5f, .5f);
+        ImGui::SliderFloat("Reflectance", &settings->ReflectanceValue, 0.f, 1.f);
     }
     
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Materials")) {
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+        ImGui::Checkbox("Move Object", &settings->ObjectMove);
         ImGui::SliderInt("Shapes", &settings->Shapes, 0, 2);
         ImGui::ColorEdit4("Albedo", (float*) &settings->Albedo);
         ImGui::SliderFloat("Metallic", &settings->Metallic, 0.f, 1.f);
         ImGui::SliderFloat("Roughness", &settings->Roughness, 0.f, 1.f);
     }
     
+    ImGui::Separator();
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::CollapsingHeader("Template")) {
+        if (ImGui::Button("Bubble")) {
+            LOG("Button::Template Bubble");
+            settings->UseFluid   = true;
+            settings->TotalLight = 0;
+            settings->Albedo     = {1.f, 1.f, 1.f, .1f};
+            settings->ThicknessScale  = 0.45;
+            settings->RefractiveIndex = 1.5;
+            settings->OPDOffset = 0.05;
+            settings->Roughness = 0.;
+            settings->Shapes    = 0;
+        }
+        if (ImGui::Button("Steel")) {
+            LOG("Button::Template Steel");
+            settings->UseFluid   = false;
+            settings->TotalLight = 2;
+            settings->Radiance   = 100.f;
+            settings->Albedo     = {1.f, 1.f, 1.f, 1.f};
+            settings->ThicknessScale  = 0.1;
+            settings->RefractiveIndex = 3.;
+            settings->OPDOffset = 0.;
+            settings->Roughness = .25;
+            settings->Shapes    = 1;
+        }
+        if (ImGui::Button("Metal")) {
+            LOG("Button::Template Steel");
+            settings->UseFluid   = false;
+            settings->TotalLight = 2;
+            settings->Radiance   = 200.f;
+            settings->Albedo     = {1.f, 1.f, 1.f, 1.f};
+            settings->ThicknessScale  = 0.42;
+            settings->RefractiveIndex = 1.35;
+            settings->OPDOffset = 0.;
+            settings->Roughness = 0.;
+            settings->Shapes    = 2;
+        }
+    }
     
     ImGui::Separator();
     ImGui::Checkbox("Show ImGUI demo", &settings->ShowDemo);
@@ -148,13 +188,24 @@ void GUI::drawImageWindow() {
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Interference Image")) {
-        ImGui::Image(m_interferenceTexID, {234, 65});
-        ImGui::Image(m_markedTexID, {234, 65});
+        ImGui::Image(m_interferenceTexID, {234, 30});
+        ImGui::Image(m_markedTexID, {234, 30});
     }
     
     ImGui::Separator();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::BeginTabBar("Texture Files")) {
+        if (ImGui::BeginTabItem("Cubemap")) {
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
+            ImGui::SliderInt("Cubemaps", &settings->Cubemaps, 0, pFiles->getTotalCubemap()-1);
+            ImGui::Image(m_cubemapPrevID[settings->Cubemaps], {234, 117});
+            if (ImGui::Button("Update Cubemap")) {
+                LOG("Button::Cubemap Update");
+                pFiles->setCubemapIdx(settings->Cubemaps);
+                settings->BtnUpdateCubemap = true;
+            }
+            ImGui::EndTabItem();
+        }
         if (ImGui::BeginTabItem("Textures")) {
             ImGui::Checkbox("##UseTexture", &settings->UseTexture);
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.55f);
@@ -164,18 +215,7 @@ void GUI::drawImageWindow() {
             if (ImGui::Button("Update Texture")) {
                 LOG("Button::Texture Update");
                 pFiles->setTextureIdx(settings->Textures);
-                settings->btnUpdateTexture = true;
-            }
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Cubemap")) {
-            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);
-            ImGui::SliderInt("Cubemaps", &settings->Cubemaps, 0, pFiles->getTotalCubemap()-1);
-            ImGui::Image(m_cubemapPrevID[settings->Cubemaps], {234, 117});
-            if (ImGui::Button("Update Cubemap")) {
-                LOG("Button::Cubemap Update");
-                pFiles->setCubemapIdx(settings->Cubemaps);
-                settings->btnUpdateCubemap = true;
+                settings->BtnUpdateTexture = true;
             }
             ImGui::EndTabItem();
         }

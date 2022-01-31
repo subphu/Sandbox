@@ -273,17 +273,39 @@ void App::update() {
         if (settings->LockFocus) moveViewLock(pWindow);
         else                     moveView(pWindow);
     }
-    if (settings->btnUpdateCubemap) {
-        settings->btnUpdateCubemap = false;
+    if (settings->BtnUpdateCubemap) {
+        settings->BtnUpdateCubemap = false;
         createCubemap();
     }
-    if (settings->btnUpdateTexture) {
-        settings->btnUpdateTexture = false;
+    if (settings->BtnUpdateTexture) {
+        settings->BtnUpdateTexture = false;
         m_pGraphicsScene->updateTexture();
     }
     
-//    Mesh* mesh = m_pGraphicsScene->getMesh();
-//    mesh->translate({0, cos(System::Settings()->Iteration/100.)/200, 0});
+    if (settings->ObjectMove) {
+        Mesh* mesh = m_pGraphicsScene->getMesh();
+        mesh->translate({0, cos(System::Settings()->Iteration/100.)/200, 0});
+    }
+    
+    float* param = &settings->ThicknessScale;
+    float increment = 0.001;
+    if (pWindow->getKeyState(key_1)) {
+        param = &settings->ThicknessScale;
+        increment = 0.0001;
+    } else if (pWindow->getKeyState(key_2)) {
+        param = &settings->RefractiveIndex;
+    } else if (pWindow->getKeyState(key_3)) {
+        param = &settings->OPDOffset;
+    }else if (pWindow->getKeyState(key_3)) {
+        param = &settings->ReflectanceValue;
+    }
+    
+    if (pWindow->getKeyState(key_equal)) {
+        *param += increment;
+    } else if (pWindow->getKeyState(key_minus)) {
+        *param -= increment;
+    }
+    
     
     m_pGraphicsScene->updateLightInput();
     m_pGraphicsScene->updateParamInput();

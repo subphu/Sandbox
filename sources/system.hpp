@@ -42,20 +42,21 @@ struct Settings {
     float  OPDOffset        = 0.f;
     
     // Materials
-    glm::vec4 Albedo = {1.f, 1.f, 1.f, .1f};
+    glm::vec4 Albedo = {1.f, 1.f, 1.f, 1.f};
     float  Metallic  = 1.0;
     float  Roughness = 0.0;
     float  AO        = 1.0;
     
     // Objects
+    bool   ObjectMove = false;
     bool   UseTexture = false;
     int    Textures  = 6;
     int    Cubemaps  = 1;
     int    Shapes    = 0;
     
     // Button
-    bool btnUpdateTexture = false;
-    bool btnUpdateCubemap = false;
+    bool BtnUpdateTexture = false;
+    bool BtnUpdateCubemap = false;
     
 };
 
