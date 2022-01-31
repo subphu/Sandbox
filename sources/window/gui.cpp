@@ -65,14 +65,14 @@ void GUI::drawStatusWindow() {
     UInt2D  windowSize = m_pWindow->getSize();
     
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(250, windowSize.height));
+    ImGui::SetNextWindowSize(ImVec2(250, windowSize.height), ImGuiCond_Once);
     ImGui::Begin("Status");
     
     ImGui::Checkbox("Lock", &settings->LockFPS);
     ImGui::SameLine();
     ImGui::Text("FPS %.1f (%.3f ms/fr)",
-                1000.0f / ImGui::GetIO().Framerate,
-                ImGui::GetIO().Framerate);
+                ImGui::GetIO().Framerate,
+                1000.0f / ImGui::GetIO().Framerate);
     
     ImGui::Checkbox("Focus,", &settings->LockFocus);
     ImGui::SameLine();
@@ -126,7 +126,7 @@ void GUI::drawImageWindow() {
     UInt2D windowSize = m_pWindow->getSize();
     ImVec2 windowPos = ImVec2(windowSize.width - 250, 0);
     ImGui::SetNextWindowPos(windowPos, ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(250, windowSize.height));
+    ImGui::SetNextWindowSize(ImVec2(250, windowSize.height), ImGuiCond_Once);
     ImGui::Begin("Images");
     ImGui::Checkbox("Use Fluid", &settings->UseFluid);
     ImGui::Checkbox("Simulate Fluid", &settings->RunFluid);
