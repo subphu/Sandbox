@@ -1,0 +1,26 @@
+#version 460
+#extension GL_ARB_separate_shader_objects : enable
+
+#include "../functions/constants.glsl"
+#include "../functions/interference.glsl"
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(set = 0, binding = 0) buffer markBuffer { float markAlpha[]; };
+layout(set = 0, binding = 1) uniform sampler2D interferenceImage;
+layout(set = 0, binding = 2, rgba8) uniform writeonly image2D outputImage;
+
+layout(push_constant) uniform Misc { ivec2 size; };
+
+void main() {
+    uint xi = gl_GlobalInvocationID.x;
+    uint yi = gl_GlobalInvocationID.y;
+
+    if(xi > size.x || yi > size.y) return;
+    
+    vec2 coord = vec2(float(xi) / float(size.x), 0.5);
+    vec4 color = texture(interferenceImage, coord);
+    color = color * markAlpha[xi];
+    
+    imageStore(outputImage, ivec2(xi, 0), color);
+}
