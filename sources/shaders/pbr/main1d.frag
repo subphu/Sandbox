@@ -31,6 +31,7 @@ layout(set = 1, binding = 1) uniform Params {
     float thicknessScale;
     float refractiveIndex;
     float reflectanceValue;
+    float opdOffset;
     uint  opdSample;
 } params;
 
@@ -79,12 +80,13 @@ void main() {
     
     vec4 iridescence = vec4(1.);
     if (params.interference > 0) {
-        vec4  heightmap = params.useFluid > 0 ? texture(heightMap, fragTexCoord) : vec4(params.thicknessScale);
+        vec4  heightmap = params.useFluid > 0 ? texture(heightMap, fragTexCoord) : vec4(1.);
         float n2 = params.refractiveIndex;
         float d  = heightmap.x * params.thicknessScale;
         float theta1 = getTheta1(N);
         float theta2 = refractionAngle(n1, theta1, n2);
-        float opd    = getOPD(d, theta2, n2);
+        float opd    = getOPD(d, theta2, n2) / 8.0;
+        opd = mod(opd + params.opdOffset, 1.);
         vec2 interferenceUV = vec2(opd, params.reflectanceValue);
         iridescence = texture(interferenceImage, interferenceUV);
         markAlpha[int(opd * params.opdSample)] = 1.0;
@@ -139,7 +141,7 @@ void main() {
     vec2 brdf  = texture(brdfMap, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec4 specular = prefilteredColor * (F + brdf.y);
 //    vec4 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    specular.a = max(max(specular.r, specular.g), specular.b)/1.2;
+    specular.a = max(max(specular.r, specular.g), specular.b)/1.5 + 0.05;
     
     specular = specular * iridescence;
     vec4 ambient = (kD * diffuse + specular) * vec4(vec3(ao), 1.);

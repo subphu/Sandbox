@@ -31,10 +31,6 @@ public:
     void createPipelineLayout();
     void createPipeline();
     
-    std::string getTextureName();
-    std::string getHDRTexturePath();
-    std::string getEnvTexturePath();
-    
 private:
     Cleaner m_cleaner;
     Pipeline* m_pPipeline;
@@ -44,8 +40,6 @@ private:
     Buffer* m_pInputBuffer;
     
     PCMisc m_misc;
-    
-    uint m_textureIdx = 2;
     
     VkPipelineLayout m_pipelineLayout;
     

@@ -28,10 +28,10 @@ void main() {
     if(gl_GlobalInvocationID.x >= opdSample) return;
     if(gl_GlobalInvocationID.y >= rSample  ) return;
 
+    float rScale = float(yi) / float(rSample - 1);
     float opdScale = float(xi) / float(opdSample);
     float opd = maxOpd * opdScale;
 
-    float rScale = float(yi) / float(rSample - 1);
     vec3 col = fullInterferences(opd, rScale);
 
     imageStore(outputImage, ivec2(xi, yi), vec4(col, 1.0));

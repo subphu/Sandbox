@@ -95,12 +95,11 @@ void GUI::drawStatusWindow() {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Interferences")) {
         ImGui::Checkbox("Interference", &settings->Interference);
-        ImGui::SameLine();
-        ImGui::Checkbox("Phase Shift", &settings->PhaseShift);
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-        ImGui::SliderFloat("Thickness", &settings->ThicknessScale, 0.f, 1.f);
-        ImGui::SliderFloat("Refractive", &settings->RefractiveIndex, 0.f, 4.f);
+        ImGui::SliderFloat("Thickness", &settings->ThicknessScale, 0.f, 2.f);
+        ImGui::SliderFloat("Refractive", &settings->RefractiveIndex, 1.f, 4.f);
         ImGui::SliderFloat("Reflectance", &settings->ReflectanceValue, 0.f, 1.f);
+        ImGui::SliderFloat("OPD Offset", &settings->OPDOffset, -.5f, .5f);
     }
     
     ImGui::Separator();
@@ -150,6 +149,7 @@ void GUI::drawImageWindow() {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::CollapsingHeader("Interference Image")) {
         ImGui::Image(m_interferenceTexID, {234, 65});
+        ImGui::Image(m_markedTexID, {234, 65});
     }
     
     ImGui::Separator();
@@ -192,6 +192,10 @@ void GUI::changeStyle() {
 
 void GUI::addInterferenceImage(Image* pImage) {
     m_interferenceTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
+}
+
+void GUI::addMarkedImage(Image* pImage) {
+    m_markedTexID = (ImTextureID)ImGui_ImplVulkan_CreateTexture(pImage->getSampler(), pImage->getImageView(), pImage->getImageLayout());
 }
 
 void GUI::updateHeightMapImage(Image* pImage) {

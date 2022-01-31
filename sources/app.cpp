@@ -111,6 +111,16 @@ void App::createComputeFluid() {
     m_pGUI->updateIridescentImage(m_pComputeFluid->getIridescentImage());
 }
 
+void App::createComputeMarking() {
+    LOG("App::createComputeMarking");
+    m_pComputeMarking = new ComputeMarking();
+    m_pComputeMarking->setupShader();
+    m_pComputeMarking->createDescriptor();
+    m_pComputeMarking->createPipelineLayout();
+    m_pComputeMarking->createPipeline();
+    m_cleaner.push([=](){ m_pComputeMarking->cleanup(); });
+}
+
 void App::createInterference() {
     LOG("App::createInterference");
     ComputeInterference*  pComputeInterference = new ComputeInterference();
@@ -128,6 +138,8 @@ void App::createInterference() {
     
     m_pComputeFluid->updateInterferenceInput(interferenceImage);
     m_pGraphicsScene->updateInterferenceInput(interferenceImage);
+    m_pComputeMarking->setupInput(interferenceImage, m_pGraphicsScene->getMarkBuffer());
+    m_pGUI->addMarkedImage(m_pComputeMarking->getOutputImage());
     m_pGUI->addInterferenceImage(interferenceImage);
 }
 
@@ -213,6 +225,7 @@ void App::setup() {
     
     createGraphicsScene();
     createComputeFluid();
+    createComputeMarking();
     
     createInterference();
     createCubemap();
@@ -224,6 +237,7 @@ void App::draw() {
     GraphicsScene* pGraphicsScene = m_pGraphicsScene;
     ComputeFluid* pComputeFluid = m_pComputeFluid;
     GraphicsScreen* pGraphicsScreen = m_pGraphicsScreen;
+    ComputeMarking* pComputeMarking = m_pComputeMarking;
     GUI* pGUI = m_pGUI;
     
     pSwapchain->prepareFrame();
@@ -239,6 +253,8 @@ void App::draw() {
     }
     
     pGraphicsScene->render(cmdBuffer);
+    
+    pComputeMarking->dispatch(cmdBuffer);
     
     pGraphicsScreen->setFrame(pCurrentFrame);
     pGraphicsScreen->render(cmdBuffer, pGUI);
@@ -265,6 +281,9 @@ void App::update() {
         settings->btnUpdateTexture = false;
         m_pGraphicsScene->updateTexture();
     }
+    
+//    Mesh* mesh = m_pGraphicsScene->getMesh();
+//    mesh->translate({0, cos(System::Settings()->Iteration/100.)/200, 0});
     
     m_pGraphicsScene->updateLightInput();
     m_pGraphicsScene->updateParamInput();

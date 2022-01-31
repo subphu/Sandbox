@@ -47,6 +47,7 @@ class GraphicsScene {
         float thicknessScale   = 0.3;
         float refractiveIndex  = 1.5;
         float reflectanceValue = 0.5;
+        float opdOffset        = 0.;
         uint  opdSample        = 16384;
     };
     
@@ -77,6 +78,7 @@ public:
     
     Frame* getFrame();
     Mesh * getMesh();
+    Buffer* getMarkBuffer();
     
 private:
     Cleaner m_cleaner;

@@ -22,6 +22,7 @@ public:
     void renderGUI(VkCommandBuffer cmdBuffer);
     
     void addInterferenceImage(Image* pImage);
+    void addMarkedImage(Image* pImage);
     void updateHeightMapImage(Image* pImage);
     void updateIridescentImage(Image* pImage);
     void updateFluidImage(Image* pImage);
@@ -37,6 +38,7 @@ private:
     Window* m_pWindow;
     
     ImTextureID m_interferenceTexID;
+    ImTextureID m_markedTexID;
     ImTextureID m_fluidTexID;
     ImTextureID m_heightMapTexID;
     ImTextureID m_iridescentTexID;

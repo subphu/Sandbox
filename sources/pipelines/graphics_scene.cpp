@@ -51,7 +51,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.renderArea      = scissor;
     
     Buffer* pMarkBuffer = m_pMarkBuffer;
-    pMarkBuffer->cmdClearBuffer(cmdBuffer, 0.5);
+    pMarkBuffer->cmdClearBuffer(cmdBuffer, 0.1);
     
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
@@ -237,6 +237,7 @@ void GraphicsScene::updateParamInput() {
     m_param.thicknessScale   = settings->ThicknessScale;
     m_param.refractiveIndex  = settings->RefractiveIndex;
     m_param.reflectanceValue = settings->ReflectanceValue;
+    m_param.opdOffset        = settings->OPDOffset;
     m_param.opdSample        = settings->OPDSample;
     m_pParamBuffer->fillBuffer(&m_param, sizeof(UBParam));
 }
@@ -265,6 +266,8 @@ void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
     m_pMarkBuffer = new Buffer();
     m_pMarkBuffer->setup(bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
     m_pMarkBuffer->create();
+    m_cleaner.push([=](){ m_pMarkBuffer->cleanup(); });
+    
     m_pDescriptor->setupPointerBuffer(S4, B1, m_pMarkBuffer->getDescriptorInfo());
     
     m_pDescriptor->update(S4);
@@ -446,4 +449,5 @@ void GraphicsScene::updateViewportScissor() {
 
 Frame* GraphicsScene::getFrame() { return m_pFrame; }
 Mesh * GraphicsScene::getMesh () { return m_pMesh[System::Settings()->Shapes]; }
+Buffer* GraphicsScene::getMarkBuffer() { return m_pMarkBuffer; }
 

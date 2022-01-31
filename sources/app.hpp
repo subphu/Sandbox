@@ -13,6 +13,7 @@
 #include "pipelines/compute_brdf.hpp"
 #include "pipelines/compute_interference.hpp"
 #include "pipelines/compute_fluid.hpp"
+#include "pipelines/compute_marking.hpp"
 #include "pipelines/graphics_reflection.hpp"
 #include "pipelines/graphics_scene.hpp"
 #include "pipelines/graphics_equirect.hpp"
@@ -38,6 +39,7 @@ private:
     GraphicsScene* m_pGraphicsScene;
     
     ComputeFluid* m_pComputeFluid;
+    ComputeMarking* m_pComputeMarking;
     
     void cleanup();
     void setup();
@@ -53,6 +55,7 @@ private:
     void createGraphicsScreen();
     void createInterference();
     void createComputeFluid();
+    void createComputeMarking();
     void dispatchInterference();
     void createGraphicsScene();
     

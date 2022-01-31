@@ -26,6 +26,7 @@ shader_folder=(
     $compute_dir/
     $compute_dir/
     $compute_dir/
+    $compute_dir/
                 
     $pbr_dir/
     $pbr_dir/
@@ -46,6 +47,7 @@ shader_names=(
     fluid.comp
     interference1d.comp
     brdf.comp
+    marking.comp
                 
     cubemap.vert
     cubemap.frag
