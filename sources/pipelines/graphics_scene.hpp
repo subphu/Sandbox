@@ -47,6 +47,7 @@ class GraphicsScene {
         float thicknessScale   = 0.3;
         float refractiveIndex  = 1.5;
         float reflectanceValue = 0.5;
+        uint  opdSample        = 16384;
     };
     
     
@@ -75,6 +76,7 @@ public:
     void recreateFrame(UInt2D size);
     
     Frame* getFrame();
+    Mesh * getMesh();
     
 private:
     Cleaner m_cleaner;
@@ -87,6 +89,7 @@ private:
     Buffer* m_pLightBuffer;
     Buffer* m_pParamBuffer;
     Buffer* m_pCameraBuffer;
+    Buffer* m_pMarkBuffer;
     Frame*  m_pFrame;
     
     Mesh*   m_pCube;

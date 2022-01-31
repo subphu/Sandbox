@@ -30,6 +30,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     VkBuffer cubeIndexBuffer  = m_pCube->getIndexBuffer()->get();
     uint32_t cubeIndexSize    = m_pCube->getIndexSize();
     
+    
     VkDescriptorSet cameraDescSet  = m_pDescriptor->getDescriptorSet(S0);
     VkDescriptorSet miscDescSet = m_pDescriptor->getDescriptorSet(S1);
     VkDescriptorSet textureDescSet = m_pDescriptor->getDescriptorSet(S2);
@@ -48,6 +49,9 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.renderPass      = renderpass;
     renderBeginInfo.framebuffer     = framebuffer;
     renderBeginInfo.renderArea      = scissor;
+    
+    Buffer* pMarkBuffer = m_pMarkBuffer;
+    pMarkBuffer->cmdClearBuffer(cmdBuffer, 0.5);
     
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
@@ -233,6 +237,7 @@ void GraphicsScene::updateParamInput() {
     m_param.thicknessScale   = settings->ThicknessScale;
     m_param.refractiveIndex  = settings->RefractiveIndex;
     m_param.reflectanceValue = settings->ReflectanceValue;
+    m_param.opdSample        = settings->OPDSample;
     m_pParamBuffer->fillBuffer(&m_param, sizeof(UBParam));
 }
 
@@ -255,6 +260,13 @@ void GraphicsScene::updateInterferenceInput(Image* pInterferenceImage) {
     m_pInterference = pInterferenceImage;
     m_pInterference->cmdTransitionToShaderR();
     m_pDescriptor->setupPointerImage(S4, B0, m_pInterference->getDescriptorInfo());
+    
+    uint bufferSize = m_pInterference->getImageSize().width * sizeof(float);
+    m_pMarkBuffer = new Buffer();
+    m_pMarkBuffer->setup(bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    m_pMarkBuffer->create();
+    m_pDescriptor->setupPointerBuffer(S4, B1, m_pMarkBuffer->getDescriptorInfo());
+    
     m_pDescriptor->update(S4);
 }
 
@@ -287,6 +299,8 @@ void GraphicsScene::createDescriptor() {
     
     m_pDescriptor->setupLayout(S4);
     m_pDescriptor->addLayoutBindings(S4, B0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_pDescriptor->addLayoutBindings(S4, B1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                                    VK_SHADER_STAGE_FRAGMENT_BIT);
     m_pDescriptor->createLayout(S4);
     
@@ -431,4 +445,5 @@ void GraphicsScene::updateViewportScissor() {
 }
 
 Frame* GraphicsScene::getFrame() { return m_pFrame; }
+Mesh * GraphicsScene::getMesh () { return m_pMesh[System::Settings()->Shapes]; }
 

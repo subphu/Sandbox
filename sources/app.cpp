@@ -134,6 +134,7 @@ void App::createInterference() {
 void App::createCubemap() {
     LOG("App::createGraphicsEquirect");
     Files *pFiles = System::Files();
+    pFiles->setCubemapIdx(System::Settings()->Cubemaps);
     Image *hdrImg, *hdrEnv, *cubemap, *envMap, *reflMap, *brdfMap;
     ComputeHDR* pComputeHDR = new ComputeHDR();
     pComputeHDR->setupShader();

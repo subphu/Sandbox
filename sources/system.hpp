@@ -20,7 +20,7 @@ struct Settings {
     VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
     
-    bool   UseFluid  = true;
+    bool   UseFluid  = false;
     bool   RunFluid  = true;
     UInt2D FluidSize = {800, 800};
     
@@ -36,7 +36,7 @@ struct Settings {
     uint   RSample          = 11;
     bool   Interference     = true;
     bool   PhaseShift       = false;
-    float  ThicknessScale   = 0.3f;
+    float  ThicknessScale   = 0.1f;
     float  RefractiveIndex  = 1.5f;
     float  ReflectanceValue = 0.5f;
     

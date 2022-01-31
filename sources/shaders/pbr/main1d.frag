@@ -31,6 +31,7 @@ layout(set = 1, binding = 1) uniform Params {
     float thicknessScale;
     float refractiveIndex;
     float reflectanceValue;
+    uint  opdSample;
 } params;
 
 // Textures ==================================================
@@ -42,6 +43,7 @@ layout(set = 2, binding = 4) uniform sampler2D roughnessMap;
 
 layout(set = 3, binding = 0) uniform sampler2D heightMap;
 layout(set = 4, binding = 0) uniform sampler2D interferenceImage;
+layout(set = 4, binding = 1) buffer  markBuffer { float markAlpha[]; };
 layout(set = 5, binding = 0) uniform samplerCube cubemap;
 layout(set = 5, binding = 1) uniform samplerCube envMap;
 layout(set = 5, binding = 2) uniform samplerCube reflMap;
@@ -85,12 +87,14 @@ void main() {
         float opd    = getOPD(d, theta2, n2);
         vec2 interferenceUV = vec2(opd, params.reflectanceValue);
         iridescence = texture(interferenceImage, interferenceUV);
+        markAlpha[int(opd * params.opdSample)] = 1.0;
     }
     
     vec3 V = normalize(viewPosition - fragPosition);
     vec3 R = reflect(-V, N);
 
-    vec4 F0 = mix(vec4(0.04,0.04,0.04,1.), albedo, metallic);
+    vec4 F0 = mix(vec4(0.04), albedo, metallic);
+    F0.a = albedo.a;
     vec4 Lo = vec4(0.0);
     
     for(uint i = 0; i < lights.total; ++i) {
@@ -109,12 +113,12 @@ void main() {
            
         vec4  nominator   = NDF * G * F;
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-        vec4 specular = (nominator / denominator);
+        vec4 specular = (nominator / denominator) * iridescence;
         
         vec4 kS = F;
         vec4 kD = vec4(1.0) - kS;
         kD *= 1.0 - metallic;
-        kD.a = 1.0;
+        kD.a = F.a;
 
         float NdotL = max(dot(N, L), 0.0);
 
@@ -125,7 +129,7 @@ void main() {
     
     vec4 kS = F;
     vec4 kD = (1.0 - kS) * (1.0 - metallic);
-    kD.a = 1.0;
+    kD.a = F.a;
     
     vec4 irradiance = texture(envMap, N);
     vec4 diffuse = irradiance * albedo;
@@ -135,11 +139,12 @@ void main() {
     vec2 brdf  = texture(brdfMap, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec4 specular = prefilteredColor * (F + brdf.y);
 //    vec4 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    specular.a = max(max(specular.r, specular.g), specular.b)/1.2;
     
     specular = specular * iridescence;
     vec4 ambient = (kD * diffuse + specular) * vec4(vec3(ao), 1.);
     
-    vec4 color = ambient + Lo * iridescence;
+    vec4 color = ambient + Lo;
 
     // HDR tonemapping
     color.rgb = color.rgb / (color.rgb + vec3(1.0));

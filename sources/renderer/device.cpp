@@ -33,6 +33,7 @@ void Device::setup() {
     VkPhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceFeatures.multiViewport     = VK_TRUE;
+    deviceFeatures.fragmentStoresAndAtomics = VK_TRUE;
     
     VECTOR<const char*> instanceExtensions = GetGLFWInstanceExtensions();
     instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
