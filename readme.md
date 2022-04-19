@@ -7,5 +7,6 @@
 
 ## Windows
 
-<img width="1312" alt="4" src="https://user-images.githubusercontent.com/13620169/164013130-256ca41c-057b-42ad-9de2-cd283de5a870.png">
+![Untitled](https://user-images.githubusercontent.com/13620169/164016047-54c70fdb-55a5-4f6f-b8a1-ca953411f682.jpg)
+
 <img width="802" alt="Screen Shot 2022-01-24 at 3 58 41 PM" src="https://user-images.githubusercontent.com/13620169/164013178-299025b5-a015-41a4-83ba-a33646f4ac4e.png">
