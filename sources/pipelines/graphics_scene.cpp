@@ -231,7 +231,7 @@ void GraphicsScene::updateParamInput() {
     m_param.roughness  = settings->Roughness;
     m_param.ao         = settings->AO;
     m_param.useTexture = settings->UseTexture;
-    m_param.useFluid   = settings->UseFluid;
+    m_param.useFluid   = settings->UseHeightmap;
     m_param.interference     = settings->Interference;
     m_param.phaseShift       = settings->PhaseShift;
     m_param.thicknessScale   = settings->ThicknessScale;

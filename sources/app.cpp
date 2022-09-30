@@ -248,7 +248,7 @@ void App::draw() {
     VkResult result = vkBeginCommandBuffer(cmdBuffer, &commandBeginInfo);
     CHECK_VKRESULT(result, "failed to begin recording command buffer!");
     
-    if (System::Settings()->RunFluid && System::Settings()->UseFluid) {
+    if (System::Settings()->RunFluid && System::Settings()->UseHeightmap) {
         pComputeFluid->dispatch(cmdBuffer);
     }
     
@@ -307,14 +307,6 @@ void App::update() {
     } else if (pWindow->getKeyState(key_minus)) {
         *param = fmax(*param - increment, mn);
     }
-//    
-//    if (settings->Iteration > 1500) {
-//        if (settings->Iteration % 400 == 0) {
-//            settings->Textures++;
-//            System::Files()->setTextureIdx(settings->Textures);
-//            settings->BtnUpdateTexture = true;
-//        }
-//    }
     
     
     m_pGraphicsScene->updateLightInput();

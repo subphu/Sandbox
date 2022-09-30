@@ -20,7 +20,7 @@ struct Settings {
     VkClearDepthStencilValue ClearDepth = {1.0f, 0};
     uint  ClearStencil  = 0;
     
-    bool   UseFluid  = false;
+    bool   UseHeightmap  = false;
     bool   RunFluid  = true;
     UInt2D FluidSize = {800, 800};
     
