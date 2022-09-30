@@ -121,6 +121,18 @@ void App::createComputeMarking() {
     m_cleaner.push([=](){ m_pComputeMarking->cleanup(); });
 }
 
+void App::createComputeRain() {
+    LOG("App::createComputeRain");
+    m_pComputeRain = new ComputeRain();
+    m_pComputeRain->setupShader();
+    m_pComputeRain->createDescriptor();
+    m_pComputeRain->setupInput();
+    m_pComputeRain->createPipelineLayout();
+    m_pComputeRain->createPipeline();
+    m_cleaner.push([=](){ m_pComputeMarking->cleanup(); });
+    
+}
+
 void App::createInterference() {
     LOG("App::createInterference");
     ComputeInterference*  pComputeInterference = new ComputeInterference();
@@ -226,6 +238,7 @@ void App::setup() {
     createGraphicsScene();
     createComputeFluid();
     createComputeMarking();
+    createComputeRain();
     
     createInterference();
     createCubemap();
@@ -238,6 +251,7 @@ void App::draw() {
     ComputeFluid* pComputeFluid = m_pComputeFluid;
     GraphicsScreen* pGraphicsScreen = m_pGraphicsScreen;
     ComputeMarking* pComputeMarking = m_pComputeMarking;
+    ComputeRain* pComputeRain = m_pComputeRain;
     GUI* pGUI = m_pGUI;
     
     pSwapchain->prepareFrame();
@@ -250,6 +264,9 @@ void App::draw() {
     
     if (System::Settings()->RunFluid && System::Settings()->UseHeightmap) {
         pComputeFluid->dispatch(cmdBuffer);
+    }
+    if (System::Settings()->RunRain) {
+        pComputeRain->dispatch(cmdBuffer);
     }
     
     pGraphicsScene->render(cmdBuffer);

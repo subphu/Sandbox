@@ -64,6 +64,7 @@
 #define PRINTLN4(v1, v2, v3, v4) PRINT4(v1, v2, v3, v4) << std::endl
 
 #define UINT32(v) static_cast<uint32_t>(v)
+#define FLOAT(v)  static_cast<float>(v)
 #define VECTOR std::vector
 #define STRING std::string
 

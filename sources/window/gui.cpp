@@ -197,6 +197,7 @@ void GUI::drawImageWindow() {
     ImGui::Begin("Images");
     ImGui::Checkbox("Use Heightmap", &settings->UseHeightmap);
     ImGui::Checkbox("Simulate Fluid", &settings->RunFluid);
+    ImGui::Checkbox("Simulate Rain", &settings->RunRain);
     if (ImGui::BeginTabBar("FluidTabBar")) {
         if (ImGui::BeginTabItem("Height")) {
             ImGui::Image(m_heightMapTexID, {234, 234});

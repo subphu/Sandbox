@@ -1,0 +1,21 @@
+#version 460
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+
+layout(set = 0, binding = 0) buffer positionBuffer { vec4 positions[]; };
+
+layout(push_constant) uniform Misc {
+    vec3 area;
+    int amount;
+    float speed;
+};
+
+void main() {
+    uint xi = gl_GlobalInvocationID.x;
+
+    if(xi > amount) return;
+    
+    positions[xi].y -= speed;
+}

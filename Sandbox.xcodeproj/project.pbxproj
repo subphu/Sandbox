@@ -20,6 +20,7 @@
 		268473522798142F000DEB30 /* files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268473502798142F000DEB30 /* files.cpp */; };
 		26B313C52715C60F00DD0339 /* commander.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C32715C60F00DD0339 /* commander.cpp */; };
 		26B313C82715DA8C00DD0339 /* system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B313C62715DA8C00DD0339 /* system.cpp */; };
+		26B661C528E731DB007F4C0B /* compute_rain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B661C328E731DB007F4C0B /* compute_rain.cpp */; };
 		26B6BF9226A873CE00223ED8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B6BF9126A873CE00223ED8 /* main.cpp */; };
 		26B8767126A8802F00BFDA27 /* libvulkan.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B8767026A8802F00BFDA27 /* libvulkan.1.dylib */; };
 		26B8767326A8803E00BFDA27 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 26B8767226A8803E00BFDA27 /* libglfw.3.dylib */; };
@@ -109,6 +110,9 @@
 		26B313C42715C60F00DD0339 /* commander.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = commander.hpp; sourceTree = "<group>"; };
 		26B313C62715DA8C00DD0339 /* system.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = system.cpp; sourceTree = "<group>"; };
 		26B313C72715DA8C00DD0339 /* system.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = system.hpp; sourceTree = "<group>"; };
+		26B661C328E731DB007F4C0B /* compute_rain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = compute_rain.cpp; sourceTree = "<group>"; };
+		26B661C428E731DB007F4C0B /* compute_rain.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = compute_rain.hpp; sourceTree = "<group>"; };
+		26B661C728E73B6A007F4C0B /* rain.comp */ = {isa = PBXFileReference; lastKnownFileType = text; path = rain.comp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		26B6BF8E26A873CE00223ED8 /* Sandbox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sandbox; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6BF9126A873CE00223ED8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		26B6BF9826A873F600223ED8 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
@@ -317,6 +321,7 @@
 				26C924FE273FD536009EC2B3 /* interference1d.comp */,
 				26C924FF273FD536009EC2B3 /* interference2d.comp */,
 				26CDFD1927A7794B00ADDC7D /* marking.comp */,
+				26B661C728E73B6A007F4C0B /* rain.comp */,
 			);
 			path = compute;
 			sourceTree = "<group>";
@@ -449,6 +454,8 @@
 				26F973252719672400DFEC48 /* graphics_screen.hpp */,
 				26E70216274CA1BA0097A974 /* graphics_scene.cpp */,
 				26E70217274CA1BA0097A974 /* graphics_scene.hpp */,
+				26B661C328E731DB007F4C0B /* compute_rain.cpp */,
+				26B661C428E731DB007F4C0B /* compute_rain.hpp */,
 			);
 			path = pipelines;
 			sourceTree = "<group>";
@@ -584,6 +591,7 @@
 				26CA4E1C273C1FF400AC3D64 /* descriptor.cpp in Sources */,
 				26E701F9274B9E900097A974 /* gui.cpp in Sources */,
 				2615790F26FB8E7D0093D4AF /* window.cpp in Sources */,
+				26B661C528E731DB007F4C0B /* compute_rain.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

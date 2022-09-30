@@ -14,6 +14,7 @@
 #include "pipelines/compute_interference.hpp"
 #include "pipelines/compute_fluid.hpp"
 #include "pipelines/compute_marking.hpp"
+#include "pipelines/compute_rain.hpp"
 #include "pipelines/graphics_reflection.hpp"
 #include "pipelines/graphics_scene.hpp"
 #include "pipelines/graphics_equirect.hpp"
@@ -40,6 +41,7 @@ private:
     
     ComputeFluid* m_pComputeFluid;
     ComputeMarking* m_pComputeMarking;
+    ComputeRain* m_pComputeRain;
     
     void cleanup();
     void setup();
@@ -56,6 +58,7 @@ private:
     void createInterference();
     void createComputeFluid();
     void createComputeMarking();
+    void createComputeRain();
     void dispatchInterference();
     void createGraphicsScene();
     
