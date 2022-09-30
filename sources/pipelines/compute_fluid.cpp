@@ -22,7 +22,6 @@ void ComputeFluid::setupShader() {
 }
 
 void ComputeFluid::setupInput() {
-    m_details.reflectance = System::Settings()->ReflectanceValue;
     m_details.size = System::Settings()->FluidSize;
 }
 
@@ -139,6 +138,11 @@ void ComputeFluid::dispatch(VkCommandBuffer cmdBuffer) {
     PCMisc            details  = m_details;
     VkDescriptorSet   outputDescSet = m_pDescriptor->getDescriptorSet(S0);
     VkDescriptorSet   interferenceDescSet = m_pDescriptor->getDescriptorSet(S1);
+    
+    m_details.thicknessScale   = System::Settings()->ThicknessScale;
+    m_details.refractiveIndex  = System::Settings()->RefractiveIndex;
+    m_details.reflectanceValue = System::Settings()->ReflectanceValue;
+    m_details.opdOffset        = System::Settings()->OPDOffset;
     
     m_pFluidImage->cmdTransitionToStorageW(cmdBuffer);
     m_pHeightImage->cmdTransitionToStorageW(cmdBuffer);

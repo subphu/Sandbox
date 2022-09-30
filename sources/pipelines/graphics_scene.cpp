@@ -51,7 +51,7 @@ void GraphicsScene::render(VkCommandBuffer cmdBuffer) {
     renderBeginInfo.renderArea      = scissor;
     
     Buffer* pMarkBuffer = m_pMarkBuffer;
-    pMarkBuffer->cmdClearBuffer(cmdBuffer, 0.1);
+    pMarkBuffer->cmdClearBuffer(cmdBuffer, 0.2);
     
     vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
     vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);

@@ -82,10 +82,10 @@ void main() {
     if (params.interference > 0) {
         vec4  heightmap = params.useFluid > 0 ? texture(heightMap, fragTexCoord) : vec4(1.);
         float n2 = params.refractiveIndex;
-        float d  = heightmap.x * params.thicknessScale;
+        float d  = heightmap.x * params.thicknessScale / 10.;
         float theta1 = getTheta1(N);
         float theta2 = refractionAngle(n1, theta1, n2);
-        float opd    = getOPD(d, theta2, n2) / 8.0;
+        float opd    = min(getOPD(d, theta2, n2), 1.0);
         opd = mod(opd + params.opdOffset, 1.);
         vec2 interferenceUV = vec2(opd, params.reflectanceValue);
         iridescence = texture(interferenceImage, interferenceUV);

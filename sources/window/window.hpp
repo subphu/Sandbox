@@ -20,6 +20,7 @@ enum Key {
     key_1 = GLFW_KEY_1,
     key_2 = GLFW_KEY_2,
     key_3 = GLFW_KEY_3,
+    key_4 = GLFW_KEY_4,
     key_equal = GLFW_KEY_EQUAL,
     key_minus = GLFW_KEY_MINUS,
     mouse_btn_left = 0,

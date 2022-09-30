@@ -8,7 +8,7 @@
 #define RIGHT    glm::vec3( 1.0f, 0.0f, 0.0f)
 #define FRONT    glm::vec3( 0.0f, 0.0f,-1.0f)
 #define WORLD_UP glm::vec3( 0.0f, 1.0f, 0.0f)
-#define POSITION glm::vec3( 0.0f, 2.0f, 16.0f)
+#define POSITION glm::vec3( 0.0f, 0.0f, 3.0f)
 #define ZERO_VEC glm::vec3( 0.0f, 0.0f, 0.0f)
 
 #define MAX_ZOOM  45.0f

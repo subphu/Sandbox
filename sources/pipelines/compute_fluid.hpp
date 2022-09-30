@@ -14,7 +14,10 @@ class ComputeFluid {
 
     struct PCMisc {
         UInt2D size;
-        float reflectance;
+        float reflectanceValue;
+        float thicknessScale;
+        float refractiveIndex;
+        float opdOffset;
     };
 
 public:

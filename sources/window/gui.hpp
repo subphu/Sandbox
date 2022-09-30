@@ -54,5 +54,6 @@ private:
     void changeStyle();
     void drawStatusWindow();
     void drawImageWindow();
+    void drawTransparentWindow();
 };
 

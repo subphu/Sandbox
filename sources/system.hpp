@@ -36,21 +36,21 @@ struct Settings {
     uint   RSample          = 11;
     bool   Interference     = true;
     bool   PhaseShift       = false;
-    float  ThicknessScale   = 1.f;
-    float  RefractiveIndex  = 1.5f;
+    float  ThicknessScale   = 0.5f;
+    float  RefractiveIndex  = 1.2f;
     float  ReflectanceValue = 0.5f;
     float  OPDOffset        = 0.f;
     
     // Materials
     glm::vec4 Albedo = {1.f, 1.f, 1.f, 1.f};
     float  Metallic  = 1.0;
-    float  Roughness = 0.0;
+    float  Roughness = 0.15;
     float  AO        = 1.0;
     
     // Objects
     bool   ObjectMove = false;
     bool   UseTexture = false;
-    int    Textures  = 6;
+    int    Textures  = 5;
     int    Cubemaps  = 1;
     int    Shapes    = 0;
     

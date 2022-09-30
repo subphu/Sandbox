@@ -288,7 +288,9 @@ void App::update() {
     }
     
     float* param = &settings->ThicknessScale;
-    float increment = 0.001;
+    float increment = 0.002;
+    float mn = 0.f;
+    float mx = 4.f;
     if (pWindow->getKeyState(key_1)) {
         param = &settings->ThicknessScale;
         increment = 0.0001;
@@ -296,15 +298,23 @@ void App::update() {
         param = &settings->RefractiveIndex;
     } else if (pWindow->getKeyState(key_3)) {
         param = &settings->OPDOffset;
-    }else if (pWindow->getKeyState(key_3)) {
+    }else if (pWindow->getKeyState(key_4)) {
         param = &settings->ReflectanceValue;
     }
     
     if (pWindow->getKeyState(key_equal)) {
-        *param += increment;
+        *param = fmin(*param + increment, mx);
     } else if (pWindow->getKeyState(key_minus)) {
-        *param -= increment;
+        *param = fmax(*param - increment, mn);
     }
+//    
+//    if (settings->Iteration > 1500) {
+//        if (settings->Iteration % 400 == 0) {
+//            settings->Textures++;
+//            System::Files()->setTextureIdx(settings->Textures);
+//            settings->BtnUpdateTexture = true;
+//        }
+//    }
     
     
     m_pGraphicsScene->updateLightInput();
@@ -317,9 +327,9 @@ void App::moveView(Window* pWindow) {
     m_pCamera->setLockFocus(System::Settings()->LockFocus);
     float scale = .1;
     glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
-    movement.x += pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a) * scale;
-    movement.y += pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q) * scale;
-    movement.z += pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s) * scale;
+    movement.x += (pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a)) * scale;
+    movement.y += (pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q)) * scale;
+    movement.z += (pWindow->getKeyState(key_w) - pWindow->getKeyState(key_s)) * scale;
     m_pCamera->move(movement);
     
     if (pWindow->getMouseBtnState(mouse_btn_left)) {
@@ -330,7 +340,7 @@ void App::moveView(Window* pWindow) {
 
 void App::moveViewLock(Window* pWindow) {
     m_pCamera->setLockFocus(System::Settings()->LockFocus);
-    float scale = m_pCamera->getDistance() * .5;
+    float scale = m_pCamera->getDistance() * .4;
     glm::vec3 movement = glm::vec3(0.f, 0.f, 0.f);
     movement.x += (pWindow->getKeyState(key_d) - pWindow->getKeyState(key_a)) * scale;
     movement.y += (pWindow->getKeyState(key_e) - pWindow->getKeyState(key_q)) * scale;

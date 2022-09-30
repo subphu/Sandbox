@@ -15,7 +15,10 @@ layout(set = 1, binding = 0) uniform sampler2D interferenceImage;
 
 layout(push_constant) uniform Misc {
     ivec2 size;
-    float reflectance;
+    float reflectanceValue;
+    float thicknessScale;
+    float refractiveIndex;
+    float opdOffset;
 };
 
 #define RotNum 5
@@ -68,8 +71,10 @@ void main() {
     float h = length(fluidMovement.xyz) * 0.9;
     vec4 heightColor = vec4(h, h, h, 1.0);
     
-    float opd = 1.5 * 2.0 * h * cos(0) * scaleD;
-    vec4 iridescenceColor = texture(interferenceImage, vec2(opd, reflectance));
+    float opd = min(getOPD(h * thicknessScale / 10., 0, refractiveIndex), 1.0);
+    opd = mod(opd + opdOffset, 1.);
+    vec2 interferenceUV = vec2(opd, reflectanceValue);
+    vec4 iridescenceColor = texture(interferenceImage, interferenceUV);
     
     imageStore(fluidImage , ivec2(xi, yi), fluidMovement);
     imageStore(heightImage, ivec2(xi, yi), heightColor);

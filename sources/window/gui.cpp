@@ -28,7 +28,7 @@ void GUI::initGUI(Window* pWindow, Renderpass* pRenderpass) {
     
     ImGui::CreateContext();
     
-    ImGui_ImplGlfw_InitForVulkan(pGlfwWindow, nullptr);
+    ImGui_ImplGlfw_InitForVulkan(pGlfwWindow, false);
     ImGui_ImplVulkan_Init(&m_initInfo, renderpass);
     
     IMGUI::CreateFontsTexture(System::Commander());
@@ -55,9 +55,54 @@ void GUI::renderGUI(VkCommandBuffer cmdBuffer) {
     if (settings->ShowDemo) ImGui::ShowDemoWindow(&settings->ShowDemo);
     drawStatusWindow();
     drawImageWindow();
+    drawTransparentWindow();
     
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
+}
+
+void GUI::drawTransparentWindow() {
+    Settings* settings = System::Settings();
+    ImGuiStyle& style = ImGui::GetStyle();
+    UInt2D  windowSize = m_pWindow->getSize();
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.,0.,0.,0.);
+    style.WindowBorderSize = 0;
+
+    ImVec2 windowPos = ImVec2(windowSize.width/2 - 300,
+                              windowSize.height - 120);
+    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(600, 120), ImGuiCond_Once);
+    ImGui::Begin("Label Image", nullptr, ImGuiWindowFlags_NoTitleBar);
+    ImGui::Image(m_markedTexID, {600, 50});
+    ImGui::Image(m_interferenceTexID, {600, 50});
+    ImGui::End();
+    
+    windowPos = ImVec2(windowSize.width/2 - 300, 24);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.,0.,0.,0.);
+    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(600, 120), ImGuiCond_Once);
+    ImGui::Begin("Label Text", nullptr, ImGuiWindowFlags_NoTitleBar);
+    ImGui::SetWindowFontScale(1.2);
+//    ImGui::Text("%*.2f FPS        | %.2f ms/frame",
+//                6, ImGui::GetIO().Framerate,
+//                1000.0f / ImGui::GetIO().Framerate);
+//    ImGui::Text("d = %.3f µm      | n = %.2f         | r = %.3f µm",
+//                settings->ThicknessScale,
+//                settings->RefractiveIndex,
+//                settings->ReflectanceValue);
+//    ImGui::Text("d = %.3f µm", settings->ThicknessScale);
+//    ImGui::Text("n = %.2f", settings->RefractiveIndex);
+//    ImGui::Text("r = %.3f µm", settings->ReflectanceValue);
+//    ImGui::SliderFloat("Thickness", &settings->ThicknessScale, 0.f, 2.f);
+//    ImGui::SliderFloat("Refractive", &settings->RefractiveIndex, 1.f, 4.f);
+//    ImGui::Text("offset = %*.2f µm ", 5, settings->OPDOffset * 10.);
+//    ImGui::Text("Memory size = 192 kB");
+//    ImGui::Text("Memory size = 32 MB");
+    ImGui::Image(m_heightMapTexID, {100, 100});
+    ImGui::SameLine();
+    ImGui::Image(m_iridescentTexID, {100, 100});
+    
+    ImGui::End();
 }
 
 void GUI::drawStatusWindow() {
@@ -131,12 +176,12 @@ void GUI::drawStatusWindow() {
             LOG("Button::Template Steel");
             settings->UseFluid   = false;
             settings->TotalLight = 2;
-            settings->Radiance   = 100.f;
+            settings->Radiance   = 250.f;
             settings->Albedo     = {1.f, 1.f, 1.f, 1.f};
             settings->ThicknessScale  = 0.1;
             settings->RefractiveIndex = 3.;
             settings->OPDOffset = 0.;
-            settings->Roughness = .25;
+            settings->Roughness = .5;
             settings->Shapes    = 1;
         }
         if (ImGui::Button("Metal")) {
